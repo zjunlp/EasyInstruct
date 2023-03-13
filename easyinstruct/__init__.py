@@ -1,2 +1,1 @@
-import os
-os.environ["OPENAI_API_KEY"] = ""
+from .prompts import *

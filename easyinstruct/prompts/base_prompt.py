@@ -1,9 +1,8 @@
-import os
 import openai
+from easyinstruct.utils import API_NAME_DICT
+from easyinstruct.utils import get_openai_key
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-
-class PromptBase:
+class BasePrompt:
     """Base class for all prompts."""
 
     def __init__(self):
@@ -22,7 +21,9 @@ class PromptBase:
                           frequency_penalty=0.0, 
                           presence_penalty=0.0
                           ):
-        if engine in ["text-davinci-003", "text-davinci-002", "code-davinci-002"]:
+        openai.api_key = get_openai_key()
+
+        if engine in API_NAME_DICT["gpt3"]:
             response = openai.Completion.create(
                 model = engine,
                 prompt = self.prompt,
@@ -32,7 +33,7 @@ class PromptBase:
                 frequency_penalty = frequency_penalty,
                 presence_penalty = presence_penalty,
             )
-        elif engine in ["gpt-3.5-turbo", "gpt-3.5-turbo-0301"]:
+        elif engine in API_NAME_DICT["chatgpt"]:
             response = openai.ChatCompletion.create(
                 model = engine,
                 messages = [
@@ -40,6 +41,11 @@ class PromptBase:
                     {"role": "user", "content": self.prompt}
                 ]    
             )
+        else:
+            print("[ERROR] Engine {engine} not found!".format(engine=engine))
+            print("Available engines are as follows:")
+            print(API_NAME_DICT)
+            response = None
         
         self.response = response
 
