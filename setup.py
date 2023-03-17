@@ -4,6 +4,9 @@ from setuptools.command.install import install
 
 REQUIRES = """
 openai==0.27.0
+llama-index==0.4.29
+tiktoken
+nltk
 """
 
 def get_install_requires():
