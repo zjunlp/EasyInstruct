@@ -50,3 +50,6 @@ class BasePrompt:
         self.response = response
 
         return response
+    
+    def parse_response(self):
+        raise NotImplementedError

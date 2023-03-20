@@ -6,6 +6,11 @@ EasyInstruct is a Python package for instructing Large Language Models(LLM) like
 
 ## Installation
 
+**Installation using PyPI:**
+```
+pip install easyinstruct==0.0.1
+```
+
 **Installation for local development:**
 ```
 git clone https://github.com/zjunlp/EasyInstruct
