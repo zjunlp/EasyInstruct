@@ -1,7 +1,7 @@
 from .base_prompt import BasePrompt
 
 class IEPrompt(BasePrompt):
-    """class for information extraction"""
+    """Class for information extraction prompt"""
 
     def __init__(self, task='ner'):
         super().__init__()

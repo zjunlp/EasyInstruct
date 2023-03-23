@@ -1,4 +1,6 @@
 import openai
+from typing import Optional
+
 from easyinstruct.utils import API_NAME_DICT
 from easyinstruct.utils import get_openai_key
 
@@ -9,19 +11,19 @@ class BasePrompt:
         self.prompt = None
         self.response = None
 
-    def build_prompt(self, prompt):
+    def build_prompt(self, prompt: str):
         self.prompt = prompt
         return self.prompt
     
     def get_openai_result(self, 
-                          engine="text-davinci-003",
-                          system_message="You are a helpful assistant.",
-                          temperature=0, 
-                          max_tokens=64, 
-                          top_p=1.0, 
-                          n=1,
-                          frequency_penalty=0.0, 
-                          presence_penalty=0.0
+                          engine = "gpt-3.5-turbo",
+                          system_message: Optional[str] = "You are a helpful assistant.",
+                          temperature: Optional[float] = 0, 
+                          max_tokens: Optional[int] = 64, 
+                          top_p: Optional[float] = 1.0, 
+                          n: Optional[int] = 1,
+                          frequency_penalty: Optional[float] = 0.0, 
+                          presence_penalty: Optional[float] = 0.0
                           ):
         openai.api_key = get_openai_key()
 
