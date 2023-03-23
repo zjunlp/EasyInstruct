@@ -32,6 +32,7 @@ def do_setup():
         packages=find_packages(
             exclude=[
                 "test*",
+                "examples*",
             ]
         ),
         keywords=["AI", "NLP", "instruction", "language model"],

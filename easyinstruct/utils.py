@@ -1,8 +1,13 @@
 import os
 
 API_NAME_DICT = {
-    'gpt3': ["text-davinci-003", "text-davinci-002", "code-davinci-002"],
-    'chatgpt': ["gpt-3.5-turbo", "gpt-3.5-turbo-0301"]
+    "openai": {
+        "gpt3": ["text-davinci-003", "text-davinci-002", "code-davinci-002"],
+        "chatgpt": ["gpt-3.5-turbo", "gpt-3.5-turbo-0301"]
+    },
+    "google": {},
+    "baidu": {},
+    "anthropic": {}
 }
 
 def set_openai_key(key):
