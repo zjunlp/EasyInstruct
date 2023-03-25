@@ -1,4 +1,3 @@
-from typing import Dict, List
 from .base_prompt import BasePrompt
 from .icl_prompt import ICLPrompt
 

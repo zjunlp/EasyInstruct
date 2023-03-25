@@ -5,6 +5,7 @@ from setuptools.command.install import install
 REQUIRES = """
 openai==0.27.0
 llama-index==0.4.29
+langchain
 tiktoken
 nltk
 """
@@ -21,7 +22,7 @@ with open("README.md") as f:
 def do_setup():
     setup(
         name="easyinstruct",
-        version = '0.0.1',
+        version = '0.0.2',
         description = "A easy-to-use framework to instruct large language models.",
         url="https://github.com/zjunlp/EasyInstruct",
         author = 'Yixin Ou',

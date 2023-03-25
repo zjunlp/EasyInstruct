@@ -1,6 +1,6 @@
 # EasyInstruct
 
-![](https://img.shields.io/badge/version-v0.0.1-blue)
+![](https://img.shields.io/badge/version-v0.0.2-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ![](https://img.shields.io/github/last-commit/zjunlp/Prompt4ReasoningPapers?color=green) 
 ![](https://img.shields.io/badge/PRs-Welcome-red) 
@@ -15,7 +15,7 @@ EasyInstruct is a Python package for instructing Large Language Models(LLM) like
 
 **Installation using PyPI:**
 ```
-pip install easyinstruct==0.0.1
+pip install easyinstruct==0.0.2
 ```
 
 **Installation for local development:**
