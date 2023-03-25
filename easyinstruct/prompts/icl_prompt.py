@@ -10,7 +10,7 @@ class ICLPrompt(BasePrompt):
     def build_prompt(self, 
                      prompt: str,
                      in_context_examples: List[Dict] = None,
-                     n_shots: int = 2,
+                     n_shots: int = 2
                      ):
                 
         n_shots = min(len(in_context_examples), n_shots)
