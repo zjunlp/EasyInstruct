@@ -38,7 +38,7 @@ Build a prompt from a given string input.
 prompts.build_prompt("Give me three names of cats.")
 ```
 
-## get_openai_response
+## get_openai_result
 
 `get_openai_result(self, engine = "gpt-3.5-turbo", system_message: Optional[str] = "You are a helpful assistant.", temperature: Optional[float] = 0, max_tokens: Optional[int] = 64, top_p: Optional[float] = 1.0, n: Optional[int] = 1, frequency_penalty: Optional[float] = 0.0, presence_penalty: Optional[float] = 0.0)`
 
@@ -63,15 +63,15 @@ Get the response from OpenAI API.
 prompts.get_openai_result(engine = "gpt-3.5-turbo-0301")
 ```
 
-## get_google_response
+## get_google_result
 
 Reserved. Waiting for Google to release their API.
 
-## get_baidu_response
+## get_baidu_result
 
 Reserved. Waiting for Baidu to release their API.
 
-## get_anthropic_response
+## get_anthropic_result
 
 Reserved. Waiting for Anthropic to release their API.
 
