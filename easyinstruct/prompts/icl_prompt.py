@@ -18,7 +18,8 @@ class ICLPrompt(BasePrompt):
         context = ""
         for example in in_context_examples[:n_shots]:
             for key, value in example.items():
-                context += key + ": " + value + "\n\n"
+                context += key + ": " + value + "\n"
+            context += "\n"
 
         self.prompt = context + prompt
         return self.prompt
