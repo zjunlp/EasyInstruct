@@ -51,7 +51,7 @@ DA_CH_LABELS = "关系提取数据集中的一个样本由关系、文本、文�
 class IEPrompt(ICLPrompt):
     """Class for information extraction prompt"""
 
-    def __init__(self, task='ner'):
+    def __init__(self, task: str = 'ner'):
         super().__init__()
         if task not in ['ner', 're', 'ee', 'rte', 'da']:
             raise ValueError('The task name should be one of ner, re, ee, rte for Information Extraction or da for Data Augmentation.')
