@@ -19,7 +19,7 @@ class BasePrompt:
                           engine = "gpt-3.5-turbo",
                           system_message: Optional[str] = "You are a helpful assistant.",
                           temperature: Optional[float] = 0, 
-                          max_tokens: Optional[int] = 64, 
+                          max_tokens: Optional[int] = 1024, 
                           top_p: Optional[float] = 1.0, 
                           n: Optional[int] = 1,
                           frequency_penalty: Optional[float] = 0.0, 
@@ -38,6 +38,7 @@ class BasePrompt:
                 frequency_penalty = frequency_penalty,
                 presence_penalty = presence_penalty,
             )
+            output = response["choices"][0]["text"].strip()
 
         elif engine in API_NAME_DICT["openai"]["chatgpt"]:
             response = openai.ChatCompletion.create(
@@ -53,16 +54,18 @@ class BasePrompt:
                 frequency_penalty = frequency_penalty,
                 presence_penalty = presence_penalty,
             )
+            output = response["choices"][0]["message"]["content"].strip()
 
         else:
             print("[ERROR] Engine {engine} not found!".format(engine=engine))
             print("Available engines are as follows:")
             print(API_NAME_DICT["openai"])
             response = None
+            output = None
         
         self.response = response
 
-        return response
+        return output
     
     def get_google_result(self):
         raise NotImplementedError

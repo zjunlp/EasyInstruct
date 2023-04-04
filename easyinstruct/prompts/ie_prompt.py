@@ -263,15 +263,3 @@ class IEPrompt(BasePrompt):
                 elif self.task == 'da':
                     self.prompt += f"关系：{example['relation']}。文本：{example['context']}。头实体：{example['head_entity']}。头实体类型：{example['head_type']}。尾实体：{example['tail_entity']}。尾实体类型：{example['tail_type']}。"
                 self.prompt += '\n\n'
-    
-    def get_openai_result(
-        self,
-        engine="text-davinci-003",
-        temperature=0,
-        max_tokens=64,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
-    ):
-        openai_result = super().get_openai_result(engine, temperature, max_tokens, top_p, frequency_penalty, presence_penalty)
-        return openai_result['choices'][0]['text']
