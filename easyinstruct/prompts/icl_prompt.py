@@ -9,7 +9,7 @@ class ICLPrompt(BasePrompt):
 
     def build_prompt(self, 
                      prompt: str,
-                     in_context_examples: List[Dict] = None,
+                     in_context_examples: List = None,
                      n_shots: int = 2
                      ):
                 
@@ -17,10 +17,14 @@ class ICLPrompt(BasePrompt):
 
         context = ""
         for example in in_context_examples[:n_shots]:
-            for key, value in example.items():
-                context += key + ": " + value + "\n"
-            context += "\n"
+            if isinstance(example, str):
+                context += example
+            elif isinstance(example, dict):
+                for key, value in example.items():
+                    context += key + ": " + value + "\n"
+            else:
+                raise TypeError("in_context_examples must be a list of strings or dicts")
+            context += "\n\n"
 
         self.prompt = context + prompt
         return self.prompt
-
