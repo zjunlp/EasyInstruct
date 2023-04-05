@@ -1,8 +1,9 @@
 import openai
-from typing import Optional
+import anthropic
+from typing import Optional, List
 
 from easyinstruct.utils import API_NAME_DICT
-from easyinstruct.utils import get_openai_key
+from easyinstruct.utils import get_openai_key, get_anthropic_key
 
 class BasePrompt:
     """Base class for all prompts."""
@@ -73,8 +74,37 @@ class BasePrompt:
     def get_baidu_result(self):
         raise NotImplementedError
     
-    def get_anthropic_result(self):
-        raise NotImplementedError
+    def get_anthropic_result(self, 
+                             engine = "claude-v1",
+                             max_tokens_to_sample: Optional[int] = 1024,
+                             stop_sequences: List[str] = [anthropic.HUMAN_PROMPT],
+                             temperature: Optional[float] = 1,
+                             top_k: Optional[int] = -1,
+                             top_p: Optional[float] = -1,
+                             ):
+        client = anthropic.Client(get_anthropic_key())
+
+        if engine in API_NAME_DICT["anthropic"]["claude"] or engine in API_NAME_DICT["anthropic"]["claude-instant"]:
+            response = client.completion(
+                prompt = f"{anthropic.HUMAN_PROMPT} {self.prompt} {anthropic.AI_PROMPT}",
+                model = engine,
+                max_tokens_to_sample = max_tokens_to_sample,
+                stop_sequences = stop_sequences,
+                temperature = temperature,
+                top_k = top_k,
+                top_p = top_p
+            )
+            output = response["completion"].strip()
+
+        else:
+            print("[ERROR] Engine {engine} not found!".format(engine=engine))
+            print("Available engines are as follows:")
+            print(API_NAME_DICT["anthropic"])
+            response = None
+            output = None
+
+        self.response = response
+        return output
     
     def parse_response(self):
         raise NotImplementedError
