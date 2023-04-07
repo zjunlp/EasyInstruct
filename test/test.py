@@ -1,5 +1,5 @@
 from easyinstruct import BasePrompt
-from easyinstruct.utils import set_openai_key, set_anthropic_key, set_proxy
+from easyinstruct.utils.api import set_openai_key, set_anthropic_key, set_proxy
 
 set_openai_key("")
 set_anthropic_key("")

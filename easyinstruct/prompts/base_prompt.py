@@ -2,8 +2,8 @@ import openai
 import anthropic
 from typing import Optional, List
 
-from easyinstruct.utils import API_NAME_DICT
-from easyinstruct.utils import get_openai_key, get_anthropic_key
+from easyinstruct.utils.api import API_NAME_DICT
+from easyinstruct.utils.api import get_openai_key, get_anthropic_key
 
 class BasePrompt:
     """Base class for all prompts."""

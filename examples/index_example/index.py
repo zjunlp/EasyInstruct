@@ -1,5 +1,5 @@
 from easyinstruct.prompts import IndexPrompt
-from easyinstruct.utils import set_openai_key
+from easyinstruct.utils.api import set_openai_key
 
 # set your own API-KEY
 set_openai_key("YOUR-KEY")
