@@ -1,6 +1,6 @@
 import openai
 import anthropic
-from typing import Optional, List
+from typing import Optional, Union, List
 
 from easyinstruct.utils.api import API_NAME_DICT
 from easyinstruct.utils.api import get_openai_key, get_anthropic_key
@@ -18,7 +18,7 @@ class BasePrompt:
     
     def get_openai_result(self, 
                           engine = "gpt-3.5-turbo",
-                          system_message: Optional[str] = "You are a helpful assistant.",
+                          system_message: Optional[Union[str, List]] = "You are a helpful assistant.",
                           temperature: Optional[float] = 0, 
                           max_tokens: Optional[int] = 1024, 
                           top_p: Optional[float] = 1.0, 
@@ -42,12 +42,19 @@ class BasePrompt:
             output = response["choices"][0]["text"].strip()
 
         elif engine in API_NAME_DICT["openai"]["chatgpt"]:
-            response = openai.ChatCompletion.create(
-                model = engine,
+            if isinstance(system_message, str):
                 messages = [
                     {"role": "system", "content": system_message},
                     {"role": "user", "content": self.prompt}
-                ],
+                ]
+            elif isinstance(system_message, list):
+                messages = system_message
+            else:
+                raise ValueError("system_message should be either a string or a list of strings.")
+
+            response = openai.ChatCompletion.create(
+                model = engine,
+                messages = messages,
                 temperature = temperature,
                 max_tokens = max_tokens,
                 top_p = top_p,

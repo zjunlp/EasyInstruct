@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Union, Dict, List
 from .base_prompt import BasePrompt
 
 class ICLPrompt(BasePrompt):
@@ -9,7 +9,7 @@ class ICLPrompt(BasePrompt):
 
     def build_prompt(self, 
                      prompt: str,
-                     in_context_examples: List = None,
+                     in_context_examples: List[Union[str, Dict]] = None,
                      n_shots: int = 2
                      ):
                 
