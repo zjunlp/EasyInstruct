@@ -42,7 +42,8 @@ prompts.build_prompt("Give me three names of cats.")
 
 ```python
 get_openai_result(
-    self, engine = "gpt-3.5-turbo", 
+    self, 
+    engine = "gpt-3.5-turbo", 
     system_message:   Optional[str] = "You are a helpful assistant.", 
     temperature: Optional[float] = 0,
     max_tokens: Optional[int] = 64,
@@ -71,7 +72,40 @@ Get the response from OpenAI API.
 **Example**
 
 ```python
-prompts.get_openai_result(engine = "gpt-3.5-turbo-0301")
+prompts.get_openai_result(engine = "gpt-3.5-turbo")
+```
+
+**get\_anthropic\_result**
+
+```python
+get_anthropic_result(
+    self, 
+    engine = "claude-v1",
+    max_tokens_to_sample: Optional[int] = 1024,
+    stop_sequences: List[str] = [anthropic.HUMAN_PROMPT],
+    temperature: Optional[float] = 1,
+    top_k: Optional[int] = -1,
+    top_p: Optional[float] = -1
+)
+```
+
+**Description**
+
+Get the response from Anthropic API.
+
+**Parameters**
+
+* `engine` (str): The Anthropic engine to use for the API call. Defaults to "claude-v1". Available engines include "claude-v1", "claude-v1.0", "claude-v1.2", "claude-v1.3", "claude-instant-v1", "claude-instant-v1.0".
+* `max_token_to_sample` (int): A maximum number of tokens to generate before stopping. Defaults to 1024.
+* `stop_sequences` (List\[str]): A list of strings upon which to stop generating. You probably want `["\n\nHuman:"]`, as that's the cue for the next turn in the dialog agent.
+* `temperature` (float): Amount of randomness injected into the response. Ranges from 0 to 1. Use temp closer to 0 for analytical / multiple choice, and temp closer to 1 for creative and generative tasks. Defaults to 1.
+* `top_k` (int): Only sample from the top K options for each subsequent token. Used to remove "long tail" low probability responses. Defaults to -1, which disables it.
+* `top_p` (float): Does nucleus sampling, in which we compute the cumulative distribution over all the options for each subsequent token in decreasing probability order and cut it off once it reaches a particular probability specified by `top_p`. Defaults to -1, which disables it. Note that you should either alter `temperature` or `top_p`, but not both.
+
+**Example**
+
+```python
+prompts.get_anthropic_result(engine="claude-v1.2")
 ```
 
 **get\_google\_result**
@@ -81,10 +115,6 @@ Reserved. Waiting for Google to release their API.
 **get\_baidu\_result**
 
 Reserved. Waiting for Baidu to release their API.
-
-**get\_anthropic\_result**
-
-Reserved. Waiting for Anthropic to release their API.
 
 **parse\_response**
 
