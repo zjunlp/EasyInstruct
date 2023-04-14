@@ -8,3 +8,4 @@
   * [ICLPrompt](documentations/iclprompt.md)
   * [IndexPrompt](documentations/indexprompt.md)
   * [CoTPrompt](documentations/cotprompt.md)
+  * [BatchPrompt](documentations/batchprompt.md)

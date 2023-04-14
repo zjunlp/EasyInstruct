@@ -98,14 +98,14 @@ class IEPrompt(ICLPrompt):
             elif self.task == 'da':
                 prompt += f"Generate more samples for the relation '{prompt}'.\n"
             else:
-                prompt += f"Input: {prompt}\nOutput: "
+                prompt = f"Input: {prompt}\nOutput: "
         elif self.language == 'ch':
             if self.task == 're':
                 prompt += f"上下文：{prompt}\n上下文中头实体（{head_type}）‘{head_entity}’和尾实体（{tail_type}）‘{tail_entity}’之间的关系类型是"
             elif self.task == 'da':
                 prompt += f"请为关系‘{prompt}’生成更多的样例数据。\n"
             else:
-                prompt += f"输入：{prompt}\n输出："
+                prompt = f"输入：{prompt}\n输出："
 
         # in-context
         if self.in_context:

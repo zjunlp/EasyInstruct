@@ -15,7 +15,7 @@ class ICLPrompt(BasePrompt):
                 
         n_shots = min(len(in_context_examples), n_shots)
 
-        context = ""
+        context = "Examples:\n"
         for example in in_context_examples[:n_shots]:
             if isinstance(example, str):
                 context += example
@@ -24,7 +24,7 @@ class ICLPrompt(BasePrompt):
                     context += key + ": " + value + "\n"
             else:
                 raise TypeError("in_context_examples must be a list of strings or dicts")
-            context += "\n\n"
+            context += "\n"
 
-        self.prompt = context + prompt
+        self.prompt = context + "Questions\n" + prompt
         return self.prompt
