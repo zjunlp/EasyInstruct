@@ -27,7 +27,7 @@ class BasePrompt:
                           presence_penalty: Optional[float] = 0.0
                           ):
         openai.api_key = get_openai_key()
-
+        self.engine = engine
         if engine in API_NAME_DICT["openai"]["gpt3"]:
             response = openai.Completion.create(
                 model = engine,
