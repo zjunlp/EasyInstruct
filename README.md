@@ -7,12 +7,12 @@
 ---
 
 <p align="center">
-  <a href="#🌟overview">Overview</a> •
-  <a href="#🔧installation">Installation</a> •
-  <a href="#📌use-easyinstruct">How To Use</a> •
+  <a href="#overview">Overview</a> •
+  <a href="#installation">Installation</a> •
+  <a href="#use-easyinstruct">How To Use</a> •
   <a href="https://zjunlp.gitbook.io/easyinstruct/">Docs</a> •
-  <a href="#🚩citation">Citation</a> •
-  <a href="#🎉contributors">Contributors</a>
+  <a href="#citation">Citation</a> •
+  <a href="#contributors">Contributors</a>
 </p>
 
 ![](https://img.shields.io/badge/version-v0.0.2-blue)
