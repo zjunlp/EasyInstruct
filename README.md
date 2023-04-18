@@ -1,6 +1,6 @@
-# EasyInstruct
-
 <div align="center">
+
+<img src="figs/EasyInstruct.png" width="600px">
 
 **An Easy-to-use Framework to Instruct Large Language Models.**
 
