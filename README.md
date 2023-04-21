@@ -26,8 +26,8 @@
 ## 🔔News
 
 - **2023-4-21 We release version 0.0.3. Check out our [documentations](https://zjunlp.gitbook.io/easyinstruct/documentations) for more details!**
-- **2023-3-25 We release version 0.0.2.**
-- **2023-3-13 We release version 0.0.1.**
+- **2023-3-25 We release version 0.0.2, suporting IndexPrompt, MMPrompt, IEPrompt and more LLMs**
+- **2023-3-13 We release version 0.0.1, supporting in-context learning, chain-of-thought with ChatGPT.**
 
 ---
 
