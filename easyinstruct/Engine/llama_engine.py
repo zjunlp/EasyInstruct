@@ -2,10 +2,22 @@ from peft import PeftModel
 from transformers import LlamaTokenizer, LlamaForCausalLM,GenerationConfig
 from peft import get_peft_model,set_peft_model_state_dict,PeftConfig,LoraConfig
 from accelerate import infer_auto_device_map
+from llama_cpp import Llama
 from typing import Optional, Union, List
 from .base_engine import BaseEngine
 import torch
 class llamaEngine(BaseEngine):
+    r"""
+        llama Engine wrapper according to choosing use gpu or not
+    """
+    def __init__(self,base_path:str,gpu:bool=True,adapter_path:Optional[str]=None,multi_gpu:Optional[bool]=False):
+        if gpu:
+            self.engine=llama_gpu_Engine(base_path=base_path,adapter_path=adapter_path,multi_gpu=multi_gpu)
+        else:
+            self.engine=llama_cpp_Engine(base_path=base_path)
+    def _call(self, prompt, stop=None,**kwargs):
+        return self.engine(prompt,stop=stop,**kwargs)
+class llama_gpu_Engine(BaseEngine):
     r"""
         llama Engine for inference.
         Example:
@@ -78,4 +90,12 @@ class llamaEngine(BaseEngine):
         torch.cuda.empty_cache()
         return output
 
-        
+class llama_cpp_Engine(BaseEngine):
+    def __init__(self,base_path:str):
+        self.model= Llama(model_path=base_path)
+    def _call(self, prompt, stop=None,**kwargs):
+        if stop is None:
+            stop=["\n"]
+        max_tokens=kwargs.pop('max_new_tokens',256),
+        output=self.model(prompt,stop=stop,max_tokens=max_tokens)
+        return output
