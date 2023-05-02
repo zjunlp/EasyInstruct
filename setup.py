@@ -9,6 +9,11 @@ llama-index==0.4.29
 langchain
 tiktoken
 nltk
+transformers==4.28.0
+peft
+accelerate
+pydantic
+llama-cpp-python
 """
 
 def get_install_requires():
