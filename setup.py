@@ -3,8 +3,13 @@ from setuptools.command.install import install
 
 
 REQUIRES = """
+torch>=1.13.0
+transformers>=4.28.0
+peft==0.2.0
+accelerate==0.17.1
 openai==0.27.0
 anthropic==0.2.7
+llama-cpp-python==0.1.41
 llama-index==0.4.29
 langchain
 tiktoken

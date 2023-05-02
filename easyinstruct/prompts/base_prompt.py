@@ -4,7 +4,8 @@ from typing import Optional, Union, List
 
 from easyinstruct.utils.api import API_NAME_DICT
 from easyinstruct.utils.api import get_openai_key, get_anthropic_key
-from Engine import llama_engine
+from engines import llama_engine
+
 class BasePrompt:
     """Base class for all prompts."""
 
@@ -112,7 +113,9 @@ class BasePrompt:
 
         self.response = response
         return output
+
     def get_llama_result(self,engine:llama_engine,**kwargs):
         return engine(self.prompt,**kwargs)
+
     def parse_response(self):
         raise NotImplementedError

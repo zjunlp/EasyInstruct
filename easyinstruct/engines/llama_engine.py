@@ -1,15 +1,17 @@
-from peft import PeftModel
-from transformers import LlamaTokenizer, LlamaForCausalLM,GenerationConfig
-from peft import get_peft_model,set_peft_model_state_dict,PeftConfig,LoraConfig
-from accelerate import infer_auto_device_map
-from llama_cpp import Llama
-from typing import Optional, Union, List
-from .base_engine import BaseEngine
 import torch
+from transformers import LlamaTokenizer, LlamaForCausalLM, GenerationConfig
+from peft import PeftModel, get_peft_model, set_peft_model_state_dict, LoraConfig
+from llama_cpp import Llama
+from typing import Optional
+
+from .base_engine import BaseEngine
+
+
 class llamaEngine(BaseEngine):
     r"""
         llama Engine wrapper according to choosing use gpu or not
     """
+
     def __init__(self,base_path:str,gpu:bool=True,adapter_path:Optional[str]=None,multi_gpu:Optional[bool]=False):
         if gpu:
             self.engine=llama_gpu_Engine(base_path=base_path,adapter_path=adapter_path,multi_gpu=multi_gpu)
@@ -17,6 +19,8 @@ class llamaEngine(BaseEngine):
             self.engine=llama_cpp_Engine(base_path=base_path)
     def _call(self, prompt, stop=None,**kwargs):
         return self.engine(prompt,stop=stop,**kwargs)
+
+
 class llama_gpu_Engine(BaseEngine):
     r"""
         llama Engine for inference.
@@ -24,6 +28,7 @@ class llama_gpu_Engine(BaseEngine):
         >>>lengine=llamaEngine(base_path=YOUR_BASE_PATH,adapter_path=YOUR_ADAPTER_PATH)
         >>>print(lengine('介绍一下浙江大学'))
     """
+
     def __init__(self,base_path:str,adapter_path:Optional[str]=None,multi_gpu:Optional[bool]=False):
         
         self.tokenizer = LlamaTokenizer.from_pretrained(base_path)
@@ -63,6 +68,7 @@ class llama_gpu_Engine(BaseEngine):
                     adapter_path,
                     torch_dtype=torch.float16
                 )
+
     def _call(self, prompt, stop=None,**kwargs):
         inputs = self.tokenizer(prompt, return_tensors="pt")
         input_ids = inputs["input_ids"].cuda()      
@@ -93,6 +99,7 @@ class llama_gpu_Engine(BaseEngine):
 class llama_cpp_Engine(BaseEngine):
     def __init__(self,base_path:str):
         self.model= Llama(model_path=base_path)
+
     def _call(self, prompt, stop=None,**kwargs):
         if stop is None:
             stop=["\n"]
