@@ -11,7 +11,7 @@ openai==0.27.0
 anthropic==0.2.7
 llama-cpp-python==0.1.41
 llama-index==0.4.29
-langchain
+langchain==0.0.116
 tiktoken
 nltk
 """
