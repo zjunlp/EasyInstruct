@@ -28,7 +28,7 @@ with open("README.md") as f:
 def do_setup():
     setup(
         name="easyinstruct",
-        version = '0.0.3',
+        version = '0.0.4',
         description = "A easy-to-use framework to instruct large language models.",
         url="https://github.com/zjunlp/EasyInstruct",
         author = 'Yixin Ou',
