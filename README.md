@@ -370,7 +370,7 @@ generation_config = GenerationConfig(
                     top_p=0.95,
                     repetition_penalty=1.15,
                 )
-lengine('介绍一下浙江大学',generation_config)
+print(lengine('介绍一下浙江大学',generation_config))
 ```
 
 ---

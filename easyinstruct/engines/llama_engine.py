@@ -3,11 +3,10 @@ from transformers import LlamaTokenizer, LlamaForCausalLM, GenerationConfig
 from peft import PeftModel, get_peft_model, set_peft_model_state_dict, LoraConfig
 from llama_cpp import Llama
 from typing import Optional
+from transformers import GenerationConfig
 
-from .base_engine import BaseEngine
 
-
-class llamaEngine(BaseEngine):
+class llamaEngine():
     r"""
         llama Engine wrapper according to choosing use gpu or not
     """
@@ -17,18 +16,17 @@ class llamaEngine(BaseEngine):
             self.engine=llama_gpu_Engine(base_path=base_path,adapter_path=adapter_path,multi_gpu=multi_gpu)
         else:
             self.engine=llama_cpp_Engine(base_path=base_path)
-    def _call(self, prompt, stop=None,**kwargs):
+    def __call__(self, prompt, stop=None,**kwargs):
         return self.engine(prompt,stop=stop,**kwargs)
 
 
-class llama_gpu_Engine(BaseEngine):
+class llama_gpu_Engine():
     r"""
         llama Engine for inference.
         Example:
         >>>lengine=llamaEngine(base_path=YOUR_BASE_PATH,adapter_path=YOUR_ADAPTER_PATH)
         >>>print(lengine('介绍一下浙江大学'))
     """
-
     def __init__(self,base_path:str,adapter_path:Optional[str]=None,multi_gpu:Optional[bool]=False):
         
         self.tokenizer = LlamaTokenizer.from_pretrained(base_path)
@@ -69,7 +67,7 @@ class llama_gpu_Engine(BaseEngine):
                     torch_dtype=torch.float16
                 )
 
-    def _call(self, prompt, stop=None,**kwargs):
+    def __call__(self, prompt, stop=None,**kwargs):
         inputs = self.tokenizer(prompt, return_tensors="pt")
         input_ids = inputs["input_ids"].cuda()      
         #set default values
@@ -96,13 +94,28 @@ class llama_gpu_Engine(BaseEngine):
         torch.cuda.empty_cache()
         return output
 
-class llama_cpp_Engine(BaseEngine):
+class llama_cpp_Engine():
     def __init__(self,base_path:str):
         self.model= Llama(model_path=base_path)
 
-    def _call(self, prompt, stop=None,**kwargs):
+    def __call__(self, prompt, stop=None,**kwargs):
         if stop is None:
             stop=["\n"]
         max_tokens=kwargs.pop('max_new_tokens',256),
         output=self.model(prompt,stop=stop,max_tokens=max_tokens)
         return output
+if __name__ == "__main__":
+   
+    # Step1: Initialize according to the your model path and the weight format
+    # Load the model in hf format
+    lengine=llamaEngine(base_path='/mnt/ceph-user/jyn/model/llama_hf_7B',gpu=True,multi_gpu=True) 
+    # Load the model in cpp format
+    # lengine=llamaEngine(base_path=YOUR_BASE_PATH,gpu=False)
+
+    # Step2: do inference
+    generation_config = GenerationConfig(
+                        temperature=0.6,
+                        top_p=0.95,
+                        repetition_penalty=1.15,
+                    )
+    print(lengine('介绍一下浙江大学',generation_config))
