@@ -350,8 +350,29 @@ batch_prompt.get_openai_result(engine = "gpt-3.5-turbo")
 batch_prompt.parse_response()
 ```
 
----
+### llamaEngine
+> `llamaEngine` is the class for local Llama models. It's an alternative to the openAI engine which supports local deployment.It support both hf mode and llama.cpp mode.
 
+**Example**
+```python
+from easyinstruct import llamaEngine
+from transformers import GenerationConfig
+# Step1: Initialize according to the your model path and the weight format
+# Load the model in hf format
+lengine=llamaEngine(base_path=YOUR_BASE_PATH,adapter_path=YOUR_ADAPTER_PATH,gpu=True,multi_gpu=True) 
+# Load the model in cpp format
+# lengine=llamaEngine(base_path=YOUR_BASE_PATH,gpu=False)
+
+# Step2: do inference
+generation_config = GenerationConfig(
+                    temperature=0.6,
+                    top_p=0.95,
+                    repetition_penalty=1.15,
+                )
+lengine('介绍一下浙江大学',generation_config)
+```
+
+---
 ### 🚩Citation
 
 Please cite our repository if you use EasyInstruct in your work.

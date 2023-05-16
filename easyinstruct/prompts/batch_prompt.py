@@ -1,8 +1,8 @@
 import copy
 import re
 
+from easyinstruct.utils.api import API_NAME_DICT
 from .base_prompt import BasePrompt
-from ..utils.api import API_NAME_DICT
 
 
 class BatchPrompt(BasePrompt):
