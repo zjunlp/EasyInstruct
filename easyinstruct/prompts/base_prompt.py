@@ -4,7 +4,7 @@ from typing import Optional, Union, List
 
 from easyinstruct.utils.api import API_NAME_DICT
 from easyinstruct.utils.api import get_openai_key, get_anthropic_key
-from engines import llama_engine
+from easyinstruct.engines import llama_engine
 
 class BasePrompt:
     """Base class for all prompts."""

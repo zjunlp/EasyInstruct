@@ -11,7 +11,7 @@ openai==0.27.0
 anthropic==0.2.7
 llama-cpp-python==0.1.41
 llama-index==0.4.29
-langchain
+langchain==0.0.116
 tiktoken
 nltk
 """
@@ -28,7 +28,7 @@ with open("README.md") as f:
 def do_setup():
     setup(
         name="easyinstruct",
-        version = '0.0.3',
+        version = '0.0.4',
         description = "A easy-to-use framework to instruct large language models.",
         url="https://github.com/zjunlp/EasyInstruct",
         author = 'Yixin Ou',
