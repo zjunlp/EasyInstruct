@@ -1,71 +1,45 @@
 import torch
 from transformers import LlamaTokenizer, LlamaForCausalLM, GenerationConfig
 from peft import PeftModel, get_peft_model, set_peft_model_state_dict, LoraConfig
-from llama_cpp import Llama
 from typing import Optional
 from transformers import GenerationConfig
 
-
 class llamaEngine():
-    r"""
-        llama Engine wrapper according to choosing use gpu or not
-    """
-
-    def __init__(self,base_path:str,gpu:bool=True,adapter_path:Optional[str]=None,multi_gpu:Optional[bool]=False):
-        if gpu:
-            self.engine=llama_gpu_Engine(base_path=base_path,adapter_path=adapter_path,multi_gpu=multi_gpu)
-        else:
-            self.engine=llama_cpp_Engine(base_path=base_path)
-    def __call__(self, prompt, stop=None,**kwargs):
-        return self.engine(prompt,stop=stop,**kwargs)
-
-
-class llama_gpu_Engine():
     r"""
         llama Engine for inference.
         Example:
-        >>>lengine=llamaEngine(base_path=YOUR_BASE_PATH,adapter_path=YOUR_ADAPTER_PATH)
+        >>>lengine=llamaEngine(base_path=YOUR_BASE_PATH,device_map="auto",adapter_path=YOUR_ADAPTER_PATH)
         >>>print(lengine('介绍一下浙江大学'))
     """
-    def __init__(self,base_path:str,adapter_path:Optional[str]=None,multi_gpu:Optional[bool]=False):
+    def __init__(self,base_path:str,device_map:str,adapter_path:Optional[str]=None,):
         
         self.tokenizer = LlamaTokenizer.from_pretrained(base_path)
         self.tokenizer.pad_token_id = 0
         self.tokenizer.padding_side = "left"
         """init model"""
-        if not multi_gpu:
-            self.model = LlamaForCausalLM.from_pretrained(
-            base_path,
-            load_in_8bit=True,
-            device_map={'':'cuda:1'},
+        self.model = LlamaForCausalLM.from_pretrained(
+        base_path,
+        load_in_8bit=True,
+        device_map=device_map,
+        )
+        if adapter_path is not None:
+            """apply lora"""
+            # config = LoraConfig(
+            #     r=8,
+            #     lora_alpha=16,
+            #     target_modules=["q_proj", "v_proj"],
+            #     lora_dropout=0.05,
+            #     bias="none",
+            #     task_type="CAUSAL_LM"
+            # )
+            # self.model = get_peft_model(self.model, config) 
+            # adapters_weights = torch.load(adapter_path)
+            # self.model = set_peft_model_state_dict(self.model, adapters_weights)
+            self.model = PeftModel.from_pretrained(
+                self.model, 
+                adapter_path,
+                torch_dtype=torch.float16
             )
-            if adapter_path is not None:
-                """apply lora"""
-                config = LoraConfig(
-                    r=8,
-                    lora_alpha=16,
-                    target_modules=["q_proj", "v_proj"],
-                    lora_dropout=0.05,
-                    bias="none",
-                    task_type="CAUSAL_LM"
-                )
-                self.model = get_peft_model(self.model, config) 
-                adapters_weights = torch.load(adapter_path, map_location="cuda:1")
-                self.model = set_peft_model_state_dict(self.model, adapters_weights)
-        else:
-            """multi GPU enable float16"""
-            self.model = LlamaForCausalLM.from_pretrained(
-                base_path,
-                torch_dtype=torch.float16,
-                device_map="auto",
-            )
-            if adapter_path is not None:
-                """apply lora"""
-                self.model = PeftModel.from_pretrained(
-                    self.model, 
-                    adapter_path,
-                    torch_dtype=torch.float16
-                )
 
     def __call__(self, prompt, stop=None,**kwargs):
         inputs = self.tokenizer(prompt, return_tensors="pt")
@@ -94,23 +68,11 @@ class llama_gpu_Engine():
         torch.cuda.empty_cache()
         return output
 
-class llama_cpp_Engine():
-    def __init__(self,base_path:str):
-        self.model= Llama(model_path=base_path)
-
-    def __call__(self, prompt, stop=None,**kwargs):
-        if stop is None:
-            stop=["\n"]
-        max_tokens=kwargs.pop('max_new_tokens',256),
-        output=self.model(prompt,stop=stop,max_tokens=max_tokens)
-        return output
 if __name__ == "__main__":
    
     # Step1: Initialize according to the your model path and the weight format
     # Load the model in hf format
-    lengine=llamaEngine(base_path='/mnt/ceph-user/jyn/model/llama_hf_7B',gpu=True,multi_gpu=True) 
-    # Load the model in cpp format
-    # lengine=llamaEngine(base_path=YOUR_BASE_PATH,gpu=False)
+    lengine=llamaEngine(base_path='/mnt/ceph-user/jyn/model/llama_hf_7B',device_map="auto")
 
     # Step2: do inference
     generation_config = GenerationConfig(
