@@ -1,5 +1,7 @@
 ### BatchPrompt
 
+> `BatchPrompt` is the class for batch prompts. Batch prompting is a simple alternative prompting approach that enables the LLM to run inference in batches, instead of one sample at a time. Batch prompting can reduce both token and time costs while retaining downstream performance.
+
 - #### build_prompt
 
   ```

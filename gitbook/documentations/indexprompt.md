@@ -1,5 +1,9 @@
 # IndexPrompt
 
+> `IndexPrompt` is the class for retrieving from an index and concat the retrieved context information with the query input, to get the result from LLM.  The class is implemented based on `llama_index`.
+
+> NOTE: the class only supports `SimpleVectorIndex` and `KGIndex` right now.
+
 **Constructor**
 
 ```python

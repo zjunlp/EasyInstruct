@@ -1,9 +1,8 @@
 # BasePrompt
 
-BasePrompt is the base class for all prompts. To inject custom behavior you can subclass them and override the following methods:
+> `BasePrompt` is the base class for all prompts.Currently we support building prompts to instruct LLM by calling LLM API service of OpenAI (GPT-3, ChatGPT) and Anthropic (Claude). We will support more available LLM products such as Llama in the future.
 
-* `build_prompt` - Build a prompt from a given input.
-* `parse_response` - Parse the response from the response of LLM API.
+> You can also easily inherit this base class to customize your own prompt class. Just override the `build_prompt` method and `parse_response` method.
 
 **Constructor**
 

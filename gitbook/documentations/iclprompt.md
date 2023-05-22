@@ -1,5 +1,7 @@
 # ICLPrompt
 
+> `ICLPrompt` is the class for in-context learning prompts. You can desgin a few task-specific examples as prompt for instructing LLM, and then LLM can quickly figures out how to perform well on that task.
+
 **build\_prompt**
 
 ```python

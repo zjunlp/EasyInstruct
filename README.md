@@ -15,7 +15,7 @@
   <a href="#contributors">Contributors</a>
 </p>
 
-![](https://img.shields.io/badge/version-v0.0.4-blue)
+![](https://img.shields.io/badge/version-v0.0.5-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ![](https://img.shields.io/github/last-commit/zjunlp/EasyInstruct?color=green) 
 ![](https://img.shields.io/badge/PRs-Welcome-red) 
@@ -25,6 +25,7 @@
 
 ## 🔔News
 
+- **2023-5-23 We release version 0.0.5, removing requirement of llama-cpp-python.**
 - **2023-5-16 We release version 0.0.4, fixing some problems.**
 - **2023-4-21 We release version 0.0.3. Check out our [documentations](https://zjunlp.gitbook.io/easyinstruct/documentations) for more details!**
 - **2023-3-25 We release version 0.0.2, suporting IndexPrompt, MMPrompt, IEPrompt and more LLMs**
@@ -43,7 +44,7 @@ EasyInstruct is a Python package for instructing Large Language Models(LLM) like
 
 **Installation using PyPI:**
 ```
-pip install easyinstruct==0.0.4 -i https://pypi.org/simple
+pip install easyinstruct==0.0.5 -i https://pypi.org/simple
 ```
 
 **Installation for local development:**

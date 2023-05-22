@@ -1,6 +1,6 @@
 # MMPrompt
 
-> Class for multimodal prompt, supporting input an image and question LLMs.
+> `MMPrompt` is the class for multimodal prompt, supporting input an image and question LLMs. We are now supporting two types of image encoding methods which are ASCII and caption.
 
 **Constructor**
 
