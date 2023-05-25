@@ -27,16 +27,23 @@
 
 - **2023-5-23 We release version 0.0.5, removing requirement of llama-cpp-python.**
 - **2023-5-16 We release version 0.0.4, fixing some problems.**
+<details>
+<summary><b>Previous news</b></summary>
+  
 - **2023-4-21 We release version 0.0.3. Check out our [documentations](https://zjunlp.gitbook.io/easyinstruct/documentations) for more details!**
 - **2023-3-25 We release version 0.0.2, suporting IndexPrompt, MMPrompt, IEPrompt and more LLMs**
 - **2023-3-13 We release version 0.0.1, supporting in-context learning, chain-of-thought with ChatGPT.**
+  
+</details>
 
 ---
 
 
 ## 🌟Overview
 
-EasyInstruct is a Python package for instructing Large Language Models(LLM) like GPT-3 in your research experiments. It is designed to be easy to use and easy to extend.
+EasyInstruct is a Python package for instructing Large Language Models (LLM) like GPT-3 in your research experiments. It is designed to be easy to use and easy to extend.
+
+[CaMA](https://github.com/zjunlp/CaMA) | [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) | [ChatGLM](https://github.com/THUDM/ChatGLM-6B) | [Chinese-LLaMA-Alpaca](https://github.com/ymcui/Chinese-LLaMA-Alpaca) | [MOSS](https://github.com/OpenLMLab/MOSS) | [Baize](https://github.com/project-baize/baize-chatbot) | [Vicuna](https://github.com/lm-sys/FastChat) | [BenTsao](https://github.com/SCIR-HI/Huatuo-Llama-Med-Chinese) | [Linly](https://github.com/CVI-SZU/Linly) | [ChatYuan](https://github.com/clue-ai/ChatYuan) | [ChatGPT](https://chat.openai.com/)  
 
 ---
 
