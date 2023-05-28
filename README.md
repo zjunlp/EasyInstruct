@@ -69,7 +69,7 @@ Please refer to our [documentations](https://zjunlp.gitbook.io/easyinstruct/docu
 
 ### BasePrompt
 
-> `BasePrompt` is the base class for all prompts.Currently we support building prompts to instruct LLM by calling LLM API service of OpenAI (GPT-3, ChatGPT) and Anthropic (Claude). We will support more available LLM products such as Llama in the future.
+> `BasePrompt` is the base class for all prompts.Currently we support building prompts to instruct LLM by calling LLM API service of OpenAI (GPT-3, ChatGPT) and Anthropic (Claude). 
 
 > You can also easily inherit this base class to customize your own prompt class. Just override the `build_prompt` method and `parse_response` method.
 
@@ -360,7 +360,7 @@ batch_prompt.parse_response()
 ```
 
 ### llamaEngine
-> `llamaEngine` is the class for local Llama models. It's an alternative to the openAI engine which supports local deployment.It support both hf mode and llama.cpp mode.
+> `llamaEngine` is the class for local Llama models. It's an alternative to the openAI engine which supports local deployment.
 
 **Example**
 ```python
