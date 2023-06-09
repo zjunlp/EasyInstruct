@@ -13,8 +13,8 @@ RE_EN_LABELS = "You are a highly intelligent and accurate relation extraction(RE
 RE_EN = "You are a highly intelligent and accurate relation extraction(RE) system. Given a context, a pair of head and tail entities in the context, your task is to extract the specific type of relationship between the head and tail entities.\n"
 RE_EN_OUTPUT = "Your output is only the relation type, no other words.\n\n"
 
-EE_EN_DOMAIN = "You are a highly intelligent and accurate {0} domain event extraion model. You take Passage as input and convert it into {0} domain events arguments.You can identify all events of target types mentioned in the sentence, and extract corresponding event arguments playing target roles.\n"
-EE_EN = "You are a highly intelligent and accurate event extraion model. You take Passage as input and convert it into events arguments. You can identify all events of target types mentioned in the sentence, and extract corresponding event arguments playing target roles.\n"
+EE_EN_DOMAIN = "You are a highly intelligent and accurate {0} domain event extraction model. You take Passage as input and convert it into {0} domain events arguments.You can identify all events of target types mentioned in the sentence, and extract corresponding event arguments playing target roles.\n"
+EE_EN = "You are a highly intelligent and accurate event extraction model. You take Passage as input and convert it into events arguments. You can identify all events of target types mentioned in the sentence, and extract corresponding event arguments playing target roles.\n"
 EE_EN_OUTPUT = "Your output format is only [{event_type, arguments: [{role , argument}, ...]}, ...], nothing else.\n\n"
 
 RTE_EN_DOMAIN = "You are a highly intelligent and accurate {0} domain Resource Description Framework (RDF) data model. You take Passage as input and convert it into {0} domain RDF triples. A triple is a set of three entities that codifies a statement about semantic data in the form of subject-predicate-object expressions.\n"
