@@ -79,13 +79,13 @@ class IEPrompt(ICLPrompt):
 
         if self.language not in ['en', 'ch']:
             raise ValueError('Now we only support language of \'en\' (English) and \'ch\' (Chinese).')
-        if self.in_context and self.examples is None:
+        if self.in_context and examples is None:
             raise ValueError('Please provide some examples if in-context=True.')
         if self.task == 'da' and self.labels is None:
             raise ValueError('Please provide some pre-categorized entity types if the task is Data Augmentation(da).')
 
         # customized task instruction
-        if self.instruction:
+        if self.instruction is not None:
             self.instruction += '\n'
         # default task instruction
         else:
@@ -110,12 +110,13 @@ class IEPrompt(ICLPrompt):
         # in-context
         if self.in_context:
             examples = self._get_incontext_examples(examples)
-
-        self.prompt = super().build_prompt(
-            prompt=prompt,
-            in_context_examples=examples,
-            n_shots=len(examples)
-        )
+            self.prompt = super().build_prompt(
+                prompt=prompt,
+                in_context_examples=examples,
+                n_shots=len(examples)
+            )
+        else:
+            self.prompt = prompt
 
         self.prompt = self.instruction + self.prompt
 
@@ -126,7 +127,7 @@ class IEPrompt(ICLPrompt):
         if self.language == 'en':
             # en ner task
             if self.task == 'ner':
-                if instruction and self.labels:
+                if self.domain and self.labels:
                     instruction += NER_EN_DOMAIN_LABELS.format(self.domain, ', '.join(self.labels))
                 elif self.domain:
                     instruction += NER_EN_DOMAIN.format(self.domain)
