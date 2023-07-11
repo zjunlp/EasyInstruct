@@ -25,7 +25,7 @@
 
 ## 🔔News
 
-- **2023-7-11 We release [EasyEdit](https://github.com/zjunlp/EasyEdit), an easy-to-use framework to edit Large Language Models.**
+- **2023-7-12 We release [EasyEdit](https://github.com/zjunlp/EasyEdit), an easy-to-use framework to edit Large Language Models.**
 - **2023-5-23 We release version 0.0.5, removing requirement of llama-cpp-python.**
 - **2023-5-16 We release version 0.0.4, fixing some problems.**
 <details>
