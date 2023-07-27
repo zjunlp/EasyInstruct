@@ -39,6 +39,8 @@
 
 ---
 
+This repository is a subproject of [KnowLM](https://github.com/zjunlp/KnowLM).
+
 
 ## 🌟Overview
 
