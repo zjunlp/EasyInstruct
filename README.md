@@ -22,6 +22,14 @@
 
 </div>
 
+## Table of Contents
+
+- <a href="#news">What's New</a>
+- <a href="#overview">Overview</a>
+- <a href="#installation">Installation</a>
+- <a href="#use-easyinstruct">Use EasyInstruct</a>
+- <a href="#citation">Citation</a>
+- <a href="#contributors">Contributors</a>
 
 ## 🔔News
 
