@@ -1,7 +1,8 @@
 import openai
 import anthropic
 from typing import Optional, Union, List
-
+import litellm
+from litellm import completion
 from easyinstruct.utils.api import API_NAME_DICT
 from easyinstruct.utils.api import get_openai_key, get_anthropic_key
 from easyinstruct.engines import llama_engine
@@ -53,7 +54,7 @@ class BasePrompt:
             else:
                 raise ValueError("system_message should be either a string or a list of strings.")
 
-            response = openai.ChatCompletion.create(
+            response = completion(
                 model = engine,
                 messages = messages,
                 temperature = temperature,
