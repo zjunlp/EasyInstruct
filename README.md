@@ -15,7 +15,7 @@
   <a href="#contributors">Contributors</a>
 </p>
 
-![](https://img.shields.io/badge/version-v0.0.5-blue)
+![](https://img.shields.io/badge/version-v0.0.6-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ![](https://img.shields.io/github/last-commit/zjunlp/EasyInstruct?color=green) 
 ![](https://img.shields.io/badge/PRs-Welcome-red) 
@@ -33,6 +33,7 @@
 
 ## 🔔News
 
+- **2023-8-9 We release version 0.0.6, supporting Cohere API calls.**
 - **2023-7-12 We release [EasyEdit](https://github.com/zjunlp/EasyEdit), an easy-to-use framework to edit Large Language Models.**
 - **2023-5-23 We release version 0.0.5, removing requirement of llama-cpp-python.**
 - **2023-5-16 We release version 0.0.4, fixing some problems.**

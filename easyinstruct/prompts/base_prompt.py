@@ -1,9 +1,10 @@
 import openai
 import anthropic
+import cohere
 from typing import Optional, Union, List
 
 from easyinstruct.utils.api import API_NAME_DICT
-from easyinstruct.utils.api import get_openai_key, get_anthropic_key
+from easyinstruct.utils.api import get_openai_key, get_anthropic_key, get_cohere_key
 from easyinstruct.engines import llama_engine
 
 class BasePrompt:
@@ -76,24 +77,18 @@ class BasePrompt:
 
         return output
     
-    def get_google_result(self):
-        raise NotImplementedError
-    
-    def get_baidu_result(self):
-        raise NotImplementedError
-    
     def get_anthropic_result(self, 
-                             engine = "claude-v1",
+                             engine = "claude-2",
                              max_tokens_to_sample: Optional[int] = 1024,
                              stop_sequences: List[str] = [anthropic.HUMAN_PROMPT],
                              temperature: Optional[float] = 1,
                              top_k: Optional[int] = -1,
                              top_p: Optional[float] = -1,
                              ):
-        client = anthropic.Client(get_anthropic_key())
+        client = anthropic.Anthropic(api_key=get_anthropic_key())
 
         if engine in API_NAME_DICT["anthropic"]["claude"] or engine in API_NAME_DICT["anthropic"]["claude-instant"]:
-            response = client.completion(
+            response = client.completions.create(
                 prompt = f"{anthropic.HUMAN_PROMPT} {self.prompt} {anthropic.AI_PROMPT}",
                 model = engine,
                 max_tokens_to_sample = max_tokens_to_sample,
@@ -102,12 +97,45 @@ class BasePrompt:
                 top_k = top_k,
                 top_p = top_p
             )
-            output = response["completion"].strip()
+            output = response.completion.strip()
 
         else:
             print("[ERROR] Engine {engine} not found!".format(engine=engine))
             print("Available engines are as follows:")
             print(API_NAME_DICT["anthropic"])
+            response = None
+            output = None
+
+        self.response = response
+        return output
+    
+    def get_cohere_result(self,
+                          engine = "command",
+                          max_tokens: Optional[int] = 1024,
+                          temperature: Optional[float] = 0.75,
+                          k: Optional[int] = 0,
+                          p: Optional[float] = 0.75,
+                          frequency_penalty: Optional[float] = 0.0,
+                          presence_penalty: Optional[float] = 0.0):
+        co = cohere.Client(get_cohere_key())
+
+        if engine in API_NAME_DICT["cohere"]:
+            response = co.generate(
+                prompt = self.prompt,
+                model = engine,
+                max_tokens = max_tokens,
+                temperature = temperature,
+                k = k,
+                p = p,
+                frequency_penalty = frequency_penalty,
+                presence_penalty = presence_penalty
+            )
+            output = response.generations[0].text.strip()
+        
+        else:
+            print("[ERROR] Engine {engine} not found!".format(engine=engine))
+            print("Available engines are as follows:")
+            print(API_NAME_DICT["cohere"])
             response = None
             output = None
 
