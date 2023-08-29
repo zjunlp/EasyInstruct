@@ -22,6 +22,8 @@
 
 </div>
 
+EasyInstruct is still under fast developement, and stay tuned for **new features (e.g., KG2Instructions, Instruction Enhancement)**!
+
 ## Table of Contents
 
 - <a href="#news">What's New</a>
