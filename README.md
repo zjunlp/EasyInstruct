@@ -2,7 +2,7 @@
 
 <img src="figs/EasyInstruct.png" width="600px">
 
-**An Easy-to-use Framework to Generate Instructions for Large Language Models.**
+**An Easy-to-use Instruction Generation Framework for Large Language Models.**
 
 ---
 
