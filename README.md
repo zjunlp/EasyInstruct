@@ -55,7 +55,7 @@ This repository is a subproject of [KnowLM](https://github.com/zjunlp/KnowLM).
 
 ## 🌟Overview
 
-EasyInstruct is a Python package for instructing Large Language Models (LLMs) like GPT-3, Llama, ChatGLM in your research experiments. It is designed to be easy to use and easy to extend.
+EasyInstruct is a Python package to generate instructions and instruct Large Language Models (LLMs) like GPT-3, Llama, ChatGLM in your research experiments. It is designed to be easy to use and easy to extend.
 
 [KnowLM](https://github.com/zjunlp/KnowLM) | [Falcon](https://github.com/falconry/falcon) | [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) | [ChatGLM](https://github.com/THUDM/ChatGLM-6B) | [Chinese-LLaMA-Alpaca](https://github.com/ymcui/Chinese-LLaMA-Alpaca) | [MOSS](https://github.com/OpenLMLab/MOSS) | [Baize](https://github.com/project-baize/baize-chatbot) | [Vicuna](https://github.com/lm-sys/FastChat) | [BenTsao](https://github.com/SCIR-HI/Huatuo-Llama-Med-Chinese) | [Linly](https://github.com/CVI-SZU/Linly) | [ChatYuan](https://github.com/clue-ai/ChatYuan) | [Dolly](https://github.com/databrickslabs/dolly) | [MPT](https://github.com/mosaicml/llm-foundry) | [HuatuoGPT](https://github.com/FreedomIntelligence/HuatuoGPT) | [BayLing](https://github.com/ictnlp/BayLing)| [BELLE](https://github.com/LianjiaTech/BELLE) | [ChatGPT](https://chat.openai.com/)  
 
@@ -402,12 +402,16 @@ Please cite our repository if you use EasyInstruct in your work.
 
 ```
 @misc{easyinstruct,
-  author = {Yixin Ou and Ningyu Zhang and Shengyu Mao and Runnan Fang and Yinuo Jiang and Ziwen Xu and Xiaolong Weng and Lei Li and Shuofei Qiao and Huajun Chen},
-  title = {EasyInstruct: An Easy-to-use Framework to Instruct Large Language Models},
+  author = {Yixin Ou and Ningyu Zhang and Honghao Gui and Zhen Bi and Yida Xue and Runnan Fang and Kangwei Liu and Lei Li and Shuofei Qiao and Huajun Chen},
+  title = {EasyInstruct: An Easy-to-use Instruction Generation Framework for Large Language Models},
   year = {2023},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/zjunlp/EasyInstruct}},
+  url = {https://github.com/zjunlp/EasyInstruct},
+}
+@misc{knowlm,
+  author = {Ningyu Zhang and Jintian Zhang and Xiaohan Wang and Honghao Gui and Kangwei Liu and Yinuo Jiang and Xiang Chen and Shengyu Mao and Shuofei Qiao and Yuqi Zhu and Zhen Bi and Jing Chen and Xiaozhuan Liang and Yixin Ou and Runnan Fang and Zekun Xi and Xin Xu and Lei Li and Peng Wang and Mengru Wang and Yunzhi Yao and Bozhong Tian and Yin Fang and Guozhou Zheng and Huajun Chen},
+  title = {KnowLM: An Open-sourced Knowledgeable Large Langugae Model Framework},
+  year = {2023},
+ url = {http://knowlm.zjukg.cn/},
 }
 ```
 
