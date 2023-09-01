@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="figs/EasyInstruct.png" width="600px">
+<img src="figs/logo.png" width="300px">
 
 **An Easy-to-use Instruction Generation Framework for Large Language Models.**
 
