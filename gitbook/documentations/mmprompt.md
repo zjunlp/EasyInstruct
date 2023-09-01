@@ -39,7 +39,7 @@ Build a prompt from a given Image path and a question prompt.
 * `prompt` (str): The prompt string.
 * `img_path` (str): The path of the input image.
 * `encode_format` (str): The format to encode the input image. `ASCII` or `caption`.
-* `scale` (float): Controll the encoding granularity in `ASCII` encoding format.
+* `scale` (float): Control the encoding granularity in `ASCII` encoding format.
 
 
 **Example**
