@@ -43,7 +43,7 @@ class BasePrompt:
             )
             output = response["choices"][0]["text"].strip()
 
-        elif engine in API_NAME_DICT["openai"]["chatgpt"]:
+        elif engine in API_NAME_DICT["openai"]["chatgpt"] or engine in API_NAME_DICT["openai"]["gpt4"]:
             if isinstance(system_message, str):
                 messages = [
                     {"role": "system", "content": system_message},
