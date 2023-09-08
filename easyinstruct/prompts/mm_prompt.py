@@ -48,6 +48,7 @@ class MMPrompt(BasePrompt):
             raise ValueError('Invalid encode_format! encode_format must in ("caption", "ASCII")')
         
         self.prompt = instruction + prompt
+        print(self.prompt)
         return self.prompt
     
     def _image_to_caption(self, img_path):

@@ -16,4 +16,5 @@ class ZeroshotCoTPrompt(BasePrompt):
 
     def build_prompt(self, prompt: str):
         self.prompt = prompt + "Let's think step by step."
+        print(self.prompt)
         return self.prompt

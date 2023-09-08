@@ -13,9 +13,11 @@ class BasePrompt:
     def __init__(self):
         self.prompt = None
         self.response = None
+        self.output = None
 
     def build_prompt(self, prompt: str):
         self.prompt = prompt
+        print(self.prompt)
         return self.prompt
     
     def get_openai_result(self, 
@@ -74,8 +76,9 @@ class BasePrompt:
             output = None
         
         self.response = response
+        self.output = output
 
-        return output
+        return self.output
     
     def get_anthropic_result(self, 
                              engine = "claude-2",
@@ -107,7 +110,9 @@ class BasePrompt:
             output = None
 
         self.response = response
-        return output
+        self.output = output
+
+        return self.output
     
     def get_cohere_result(self,
                           engine = "command",
@@ -140,7 +145,9 @@ class BasePrompt:
             output = None
 
         self.response = response
-        return output
+        self.output = output
+
+        return self.output
 
     def get_llama_result(self,engine:llama_engine,**kwargs):
         return engine(self.prompt,**kwargs)

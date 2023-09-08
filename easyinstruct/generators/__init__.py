@@ -1,0 +1,1 @@
+from .self_instruct_generator import SelfInstructGenerator

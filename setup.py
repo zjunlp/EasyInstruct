@@ -16,6 +16,7 @@ langchain==0.0.116
 Pillow
 tiktoken
 nltk
+rouge-score
 """
 
 def get_install_requires():
@@ -43,7 +44,8 @@ def do_setup():
                 "test*",
                 "examples*",
                 "gitbook*",
-                "figs*"
+                "figs*",
+                "data*",
             ]
         ),
         keywords=["AI", "NLP", "instruction", "language model"],

@@ -21,7 +21,6 @@ class BatchPrompt(BasePrompt):
             self.prompt = str(self.prompt) + "Q[{}]:\n{}\n\n".format(index, prompt.prompt)
 
         print(self.prompt)
-        print("\n")
         return self.prompt
 
     def batch_split(self, index, input_str: str):
@@ -42,26 +41,24 @@ class BatchPrompt(BasePrompt):
             else:
                 return "batch split error"
 
-    def parse_response(self, ):
+    def parse_response(self):
         response = self.response
         response.pop('usage', None)
 
         if self.engine in API_NAME_DICT["openai"]["gpt3"]:
-            content = response["choices"][0]["text"]
+            content = response["choices"][0]["text"].strip()
             for index, prompt in enumerate(self.prompt_list):
                 prompt_res = copy.deepcopy(response)
                 prompt_res["choices"][0]["text"]= self.batch_split(index=index, input_str=content)
                 prompt.response = copy.deepcopy(prompt_res)
-                print(f"A[{index}]:")
-                print(prompt.response)
+                prompt.output = prompt_res["choices"][0]["text"]
         else:
-            content = response["choices"][0]["message"]["content"]
+            content = response["choices"][0]["message"]["content"].strip()
             for index, prompt in enumerate(self.prompt_list):
                 prompt_res = copy.deepcopy(response)
                 prompt_res["choices"][0]["message"]["content"] = self.batch_split(index=index, input_str=content)
                 prompt.response = copy.deepcopy(prompt_res)
-                print(f"A[{index}]:")
-                print(prompt.response)
+                prompt.output = prompt_res["choices"][0]["message"]["content"]
         return self.response
 
 

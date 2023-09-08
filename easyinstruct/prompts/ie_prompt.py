@@ -119,7 +119,7 @@ class IEPrompt(ICLPrompt):
             self.prompt = prompt
 
         self.prompt = self.instruction + self.prompt
-
+        print(self.prompt)
         return self.prompt
 
     def _get_default_instruction(self):
