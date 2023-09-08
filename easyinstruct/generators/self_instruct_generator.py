@@ -15,7 +15,7 @@ from .base_generator import BaseGenerator
 class SelfInstructGenerator(BaseGenerator):
     
     def __init__(self,
-                 batch_dir: str = "data/generations/",
+                 target_dir: str = "data/generations/",
                  seed_tasks_path: str = "data/seed_tasks.jsonl",
                  num_instructions_to_generate: int = 100,
                  engine: str = "gpt-3.5-turbo",
@@ -23,7 +23,7 @@ class SelfInstructGenerator(BaseGenerator):
                  batch_size: int = 1
                  ):
         super().__init__()
-        self.batch_dir = batch_dir
+        self.target_dir = target_dir
         self.seed_tasks_path = seed_tasks_path
         self.num_instructions_to_generate = num_instructions_to_generate
         self.engine = engine
@@ -65,17 +65,18 @@ class SelfInstructGenerator(BaseGenerator):
                 continue
             instructions.append(inst)
         return instructions
-    
+
+
     def generate(self):
         seed_tasks = [json.loads(l) for l in open(self.seed_tasks_path, "r")]
         seed_instructions = [t["instruction"] for t in seed_tasks]
         print(f"Loaded {len(seed_instructions)} human-written seed instructions.")
 
-        os.makedirs(self.batch_dir, exist_ok=True)
+        os.makedirs(self.target_dir, exist_ok=True)
         request_idx = 0
         generated_instructions = []
-        if os.path.exists(os.path.join(self.batch_dir, "generated_instructions.jsonl")):
-            with open(os.path.join(self.batch_dir, "generated_instructions.jsonl"), "r") as f:
+        if os.path.exists(os.path.join(self.target_dir, "generated_instructions.jsonl")):
+            with open(os.path.join(self.target_dir, "generated_instructions.jsonl"), "r") as f:
                 for l in f:
                     instruction_info = json.loads(l)
                     generated_instructions.append(instruction_info["instruction"])
@@ -88,7 +89,7 @@ class SelfInstructGenerator(BaseGenerator):
         if len(generated_instructions) > 0:
             progress_bar.update(len(generated_instructions))
 
-        with open(os.path.join(self.batch_dir, "generated_instructions.jsonl"), "a") as fout:
+        with open(os.path.join(self.target_dir, "generated_instructions.jsonl"), "a") as fout:
             while len(generated_instructions) < self.num_instructions_to_generate:
 
                 batch_inputs = []
@@ -105,10 +106,10 @@ class SelfInstructGenerator(BaseGenerator):
                 batch_prompt.build_prompt(batch_inputs)
                 batch_prompt.get_openai_result(
                     engine = self.engine,
-                    temperature = 0.7,
+                    temperature = 0.5,
                     top_p = 0.5,
-                    frequency_penalty=0,
-                    presence_penalty=2
+                    frequency_penalty = 0,
+                    presence_penalty = 2
                 )
                 batch_prompt.parse_response()
 
@@ -136,7 +137,3 @@ class SelfInstructGenerator(BaseGenerator):
                     }) + "\n")
                     progress_bar.update(1)
                 request_idx += 1
-
-
-    def post_process():
-        raise NotImplementedError

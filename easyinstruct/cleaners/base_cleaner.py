@@ -1,7 +1,7 @@
-class BaseGenerator:
+class BaseCleaner:
     def __init__(self, *args, **kwargs):
         self.args = args
         self.kwargs = kwargs
 
-    def generate(self):
+    def clean(self):
         raise NotImplementedError

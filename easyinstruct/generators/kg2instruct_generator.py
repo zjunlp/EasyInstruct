@@ -6,6 +6,3 @@ class KG2InstructGenerator(BaseGenerator):
     
     def generate(self):
         raise NotImplementedError
-    
-    def post_process(self):
-        raise NotImplementedError
