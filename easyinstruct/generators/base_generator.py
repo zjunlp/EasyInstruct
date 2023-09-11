@@ -1,7 +1,8 @@
 class BaseGenerator:
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
+    def __init__(self, 
+                 target_dir: str = "data/generations/"
+                 ):
+        self.target_dir = target_dir
 
     def generate(self):
         raise NotImplementedError
