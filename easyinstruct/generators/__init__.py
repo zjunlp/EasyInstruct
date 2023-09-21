@@ -1,3 +1,4 @@
 from .base_generator import BaseGenerator
 from .self_instruct_generator import SelfInstructGenerator
 from .kg2instruct_generator import KG2InstructGenerator
+from .backtranslation_generator import BacktranslationGenerator
