@@ -24,6 +24,7 @@ RESPONSE:"""
 
 
 class BacktranslationGenerator(BaseGenerator):
+    
     def __init__(self,
                  seed_data_path: str = "data/seed_data.jsonl",
                  unlabelled_data_path: str = "data/unlabelled_data.jsonl",
@@ -43,7 +44,6 @@ class BacktranslationGenerator(BaseGenerator):
         unlabelled_content = [d["content"] for d in unlabelled_data]
         print(f"Loaded {len(unlabelled_content)} unlabelled data.")
 
-        os.makedirs(self.target_dir, exist_ok=True)
         augmented_instructions = []
         if os.path.exists(self.augmented_data_path):
             with open(self.augmented_data_path, "r") as f:

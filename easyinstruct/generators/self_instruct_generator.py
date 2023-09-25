@@ -114,7 +114,6 @@ class SelfInstructGenerator(BaseGenerator):
                  seed_tasks_path: str = "data/seed_tasks.jsonl",
                  generated_instructions_path: str = "generated_instructions.jsonl",
                  generated_instances_path: str = "generated_instances.jsonl",
-                 parsed_instances_path: str = "parsed_instances.jsonl",
                  num_instructions_to_generate: int = 100,
                  engine: str = "gpt-3.5-turbo",
                  num_prompt_instructions: int = 8,
@@ -123,7 +122,6 @@ class SelfInstructGenerator(BaseGenerator):
         self.seed_tasks_path = seed_tasks_path
         self.generated_instructions_path = os.path.join(self.target_dir, generated_instructions_path)
         self.generated_instances_path = os.path.join(self.target_dir, generated_instances_path)
-        self.parsed_instances_path = os.path.join(self.target_dir, parsed_instances_path)
         self.num_instructions_to_generate = num_instructions_to_generate
         self.engine = engine
         self.num_prompt_instructions = num_prompt_instructions
@@ -145,7 +143,7 @@ class SelfInstructGenerator(BaseGenerator):
             if len(inst.split()) <= 3 or len(inst.split()) > 150:
                 continue
             # filter based on keywords that are not suitable for language models.
-            if any(self.find_word_in_string(word, inst) for word in ["image", "images", "graph", "graphs", "picture", "pictures", "file", "files", "map", "maps", "draw", "plot", "go to", "program"]):
+            if any(self.find_word_in_string(word, inst) for word in ["image", "images", "graph", "graphs", "picture", "pictures", "file", "files", "map", "maps", "draw", "plot", "go to", "program", "sorry"]):
                 continue
             # We found that the model tends to add "write a program" to some existing instructions, which lead to a lot of such instructions.
             # And it's a bit comfusing whether the model need to write a program or directly output the result. 
@@ -177,21 +175,15 @@ class SelfInstructGenerator(BaseGenerator):
         return inst_input, inst_output
 
     def generate_instructions(self):
-        seed_tasks = [json.loads(l) for l in open(self.seed_tasks_path, "r")]
-        seed_instructions = [t["instruction"] for t in seed_tasks]
+        seed_instructions = [t["instruction"] for t in self.load_data_from_file(self.seed_tasks_path)]
         print(f"Loaded {len(seed_instructions)} human-written seed instructions.")
 
-        os.makedirs(self.target_dir, exist_ok=True)
-        request_idx = 0
         generated_instructions = []
         if os.path.exists(self.generated_instructions_path):
-            with open(self.generated_instructions_path, "r") as f:
-                for l in f:
-                    instruction_info = json.loads(l)
-                    generated_instructions.append(instruction_info["instruction"])
-                    request_idx = instruction_info["request_idx"] + 1
+            generated_instructions = [inst["instruction"] for inst in self.load_data_from_file(self.generated_instructions_path)]
             print(f"Loaded {len(generated_instructions)} generated instructions.")
 
+        
         scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=False)
 
         progress_bar = tqdm(total=self.num_instructions_to_generate)
@@ -237,30 +229,21 @@ class SelfInstructGenerator(BaseGenerator):
                     fout.write(json.dumps({
                         "instruction": inst,
                         "most_similar": most_similar_instructions,
-                        "avg_similarity_score": float(np.mean(rouge_scores)),
-                        "request_idx": request_idx
+                        "avg_similarity_score": float(np.mean(rouge_scores))
                     }) + "\n")
                     progress_bar.update(1)
-                request_idx += 1
 
     def generate_instances(self):
         generated_instructions = []
         if os.path.exists(self.generated_instructions_path):
-            with open(self.generated_instructions_path, "r") as f:
-                lines = f.readlines()
-                if self.num_instructions_to_generate is not None:
-                    lines = lines[:self.num_instructions_to_generate]
-                for l in lines:
-                    instruction_info = json.loads(l)
-                    generated_instructions.append(instruction_info["instruction"])
+            generated_instructions = [inst["instruction"] for inst in self.load_data_from_file(self.generated_instructions_path)]
+            if self.num_instructions_to_generate is not None:
+                generated_instructions = generated_instructions[:self.num_instructions_to_generate]
             print(f"Loaded {len(generated_instructions)} generated instructions.")
 
         existing_requests = []
         if os.path.exists(self.generated_instances_path):
-            with open(self.generated_instances_path, "r") as f:
-                for l in f:
-                    instance_info = json.loads(l)
-                    existing_requests.append(instance_info["instruction"])
+            existing_requests = [inst["instruction"] for inst in self.load_data_from_file(self.generated_instances_path)]
             print(f"Loaded {len(existing_requests)} existing requests.")
 
         progress_bar = tqdm(total=len(generated_instructions))
@@ -286,47 +269,35 @@ class SelfInstructGenerator(BaseGenerator):
 
                 data = {}
                 data["instruction"] = inst
-                data["raw_instances"] = prompt.output
-                fout.write(json.dumps(data, ensure_ascii=False) + "\n")
-                progress_bar.update(1)
-
-    def parse_instances(self):
-        instances = []
-        with open(self.generated_instances_path, "r") as f:
-            for l in f:
-                instance_info = json.loads(l)
-                instances.append(instance_info)
-
-        with open(self.parsed_instances_path, "w") as fout:
-            for inst in instances:
-                raw_instance = inst["raw_instances"]
+                # data["raw_instances"] = prompt.output
+                raw_instance = prompt.output
                 if re.findall("Example\s?\d*\.?", raw_instance):
-                    inst["instances"] = []
-                    for example in re.split(r"Example\s?\d*\.?",    raw_instance):
+                    data["instances"] = []
+                    for example in re.split(r"Example\s?\d*\.?", raw_instance):
                         if example.strip() == "":
                             continue
-                        inst_input, inst_output = self.parse_input_output   (example)
-                        inst["instances"].append({
+                        inst_input, inst_output = self.parse_input_output(example)
+                        data["instances"].append({
                             "input": inst_input,
                             "output": inst_output
                         })
 
                 elif re.findall(r"Output\s*\d*\s*:", raw_instance):
-                    inst_input, inst_output = self.parse_input_output   (raw_instance)
-                    inst["instances"] = [{
+                    inst_input, inst_output = self.parse_input_output(raw_instance)
+                    data["instances"] = [{
                         "input": inst_input,
                         "output": inst_output
                     }]
 
                 else:
-                    inst["instances"] = [{
+                    data["instances"] = [{
                         "input": "",
                         "output": raw_instance
                     }]
-                del inst["raw_instances"]
-                fout.write(json.dumps(inst, ensure_ascii=False) + "\n")
+
+                fout.write(json.dumps(data, ensure_ascii=False) + "\n")
+                progress_bar.update(1)
             
     def generate(self):
         self.generate_instructions()
         self.generate_instances()
-        self.parse_instances()
