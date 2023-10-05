@@ -216,12 +216,12 @@ class SelfInstructGenerator(BaseGenerator):
                 instructions += new_instructions
 
                 for inst in instructions:
+                    all_instructions = seed_instructions + generated_instructions
                     with Pool(4) as p:
-                        rouge_scores = p.map(partial(scorer.score, inst), seed_instructions + generated_instructions)
+                        rouge_scores = p.map(partial(scorer.score, inst), all_instructions)
                     rouge_scores = [score["rougeL"].fmeasure for score in rouge_scores]
                     if max(rouge_scores) > 0.7:
                         continue
-                    all_instructions = seed_instructions + generated_instructions
                     most_similar_instructions = {
                         all_instructions[i] : rouge_scores[i] for i in np.argsort(rouge_scores)[-10:][::-1]
                     }
