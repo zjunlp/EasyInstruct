@@ -26,7 +26,6 @@ class RougeScoreSelector(BaseSelector):
             if max(rouge_scores) > self.threshold:
                     continue
             selected_instructions.append(data[i]["instruction"])
-
             selected_data.append(data[i])
         
         return selected_data

@@ -22,69 +22,95 @@ INSTRUCTION: How does the phenomenon of an observer affect the way quantum compu
 
 RESPONSE:"""
 
+self_curation_prompt_template = """Below is an instruction from an user and a candidate answer. Evaluate whether or not the answer is a good example of how AI Assistant should respond to the user's instruction. Please assign a score using the following 5-point scale:
+1: It means the answer is incomplete, vague, off-topic, controversial, or not exactly what the user asked for. For example, some content seems missing, numbered list does not start from the beginning, the opening sentence repeats user's question. Or the response is from another person's perspective with their personal experience (e.g. taken from blog posts), or looks like an answer from a forum. Or it contains promotional text, navigation text, or other irrelevant information.
+2: It means the answer addresses most of the asks from the user. It does not directly address the user's question. For example, it only provides a high-level methodology instead of the exact solution to user's question.
+3: It means the answer is helpful but not written by an AI Assistant. It addresses all the basic asks from the user. It is complete and self contained with the drawback that the response is not written from an AI assistant's perspective, but from other people's perspective. The content looks like an excerpt from a blog post, web page, or web search results. For example, it contains personal experience or opinion, mentions comments section, or share on social media, etc.
+4: It means the answer is written from an AI assistant's perspective with a clear focus of addressing the instruction. It provide a complete, clear, and comprehensive response to user's question or instruction without missing or irrelevant information. It is well organized, self-contained, and written in a helpful tone. It has minor room for improvement, e.g. more concise and focused.
+5: It means it is a perfect answer from an AI Assistant. It has a clear focus on being a helpful AI Assistant, where the response looks like intentionally written to address the user's question or instruction without any irrelevant sentences. The answer provides high quality content, demonstrating expert knowledge in the area, is very well written, logical, easy-to-follow, engaging and insightful. 
+
+Please first provide a brief reasoning you used to derive the rating score, and then write "Score: <rating>" in the last line.
+
+"""
+
 
 class BacktranslationGenerator(BaseGenerator):
     
     def __init__(self,
-                 seed_data_path: str = "data/seed_data.jsonl",
                  unlabelled_data_path: str = "data/unlabelled_data.jsonl",
-                 augmented_data_path: str = "augmented_data.jsonl",
-                 num_instructions_to_augement: int = 10,
+                 generated_data_path: str = "generated_data.jsonl",
+                 num_instructions_to_generate: int = 100,
                  engine: str = "gpt-3.5-turbo",
+                 threshold: int = 3
                  ):
         super().__init__()
-        self.seed_data_path = seed_data_path
         self.unlabelled_data_path = unlabelled_data_path
-        self.augmented_data_path = os.path.join(self.target_dir, augmented_data_path)
-        self.num_instructions_to_augement = num_instructions_to_augement
-        self.engine = engine     
+        self.generated_data_path = os.path.join(self.target_dir, generated_data_path)
+        self.num_instructions_to_generate = num_instructions_to_generate
+        self.engine = engine
+        self.threshold = threshold
 
-    def self_augmentation(self):
-        unlabelled_data = [json.loads(l) for l in open(self.unlabelled_data_path, "r")]
+    def self_augmentation(self, unlabelled_data):
         unlabelled_content = [d["content"] for d in unlabelled_data]
-        print(f"Loaded {len(unlabelled_content)} unlabelled data.")
 
-        augmented_instructions = []
-        if os.path.exists(self.augmented_data_path):
-            with open(self.augmented_data_path, "r") as f:
-                for l in f:
-                    instruction_info = json.loads(l)
-                    augmented_instructions.append(instruction_info["instruction"])
-            print(f"Loaded {len(augmented_instructions)} augmented instructions.")
+        augmented_data = []
+        progress_bar = tqdm(total=self.num_instructions_to_generate)
 
-        progress_bar = tqdm(total=self.num_instructions_to_augement)
-        if len(augmented_instructions) > 0:
-            progress_bar.update(len(augmented_instructions))
+        while len(augmented_data) < self.num_instructions_to_generate:
+            content = random.choice(unlabelled_content)
+            prompt = BasePrompt()
+            prompt.build_prompt(f"{self_augmentation_prompt_template} {content}")
+            prompt.get_openai_result(
+                engine = self.engine,
+                max_tokens = 150,
+                temperature = 0,
+                top_p = 0,
+                frequency_penalty = 0,
+                presence_penalty = 0
+            )
 
-        with open(self.augmented_data_path, "a") as fout:
-            while len(augmented_instructions) < self.num_instructions_to_augement:
-                content = random.choice(unlabelled_content)
-                prompt = BasePrompt()
-                prompt.build_prompt(f"{self_augmentation_prompt_template} {content}")
-                prompt.get_openai_result(
-                    engine = self.engine,
-                    max_tokens = 150,
-                    temperature = 0,
-                    top_p = 0,
-                    frequency_penalty = 0,
-                    presence_penalty = 1.5
-                )
+            if re.findall(r"INSTRUCTION:", prompt.output):
+                new_instruction = re.split(r"INSTRUCTION:", prompt.output)[1].strip()
+            else:
+                new_instruction = prompt.output
 
-                if re.findall(r"INSTRUCTION:", prompt.output):
-                    new_instruction = re.split(r"INSTRUCTION:", prompt.output)[1].strip()
-                else:
-                    new_instruction = prompt.output
+            data = {}
+            data["instruction"] = new_instruction
+            data["instances"] = [{
+                    "input": "",
+                    "output": content
+                }]
+            augmented_data.append(data)
+            progress_bar.update(1)
 
-                augmented_instructions.append(new_instruction)
-
-                fout.write(json.dumps({
-                    "instruction": new_instruction,
-                    "response": content
-                }) + "\n")
-                progress_bar.update(1)
+        return augmented_data
     
-    def self_curation(self):
-        raise NotImplementedError
+    def self_curation(self, augmented_data):
+        regex = re.compile(r"[Ss]core:\s*(\d+)")
+        curated_data = []
+
+        for data in tqdm(augmented_data):
+            prompt = BasePrompt()
+            prompt.build_prompt(f"{self_curation_prompt_template}\n\nInstruction: {data['instruction']}\n\n Response:{data['instances'][0]['output']}")
+            prompt.get_openai_result(
+                engine = self.engine,
+                max_tokens = 150,
+                temperature = 0,
+                top_p = 0,
+                frequency_penalty = 0,
+                presence_penalty = 0
+            )
+
+            curation_response = prompt.output
+            data["curation_response"] = curation_response
+            score_matched = regex.search(curation_response)
+            data["score"] = int(score_matched.group(1)) if score_matched else None
+            curated_data.append(data)
+
+        return curated_data
     
     def generate(self):
-        self.self_augmentation()
+        unlabelled_data = self.load_data_from_file(self.unlabelled_data_path)
+        augmented_data = self.self_augmentation(unlabelled_data)
+        curated_data = self.self_curation(augmented_data)
+        self.dump_data_to_file(curated_data, self.generated_data_path)

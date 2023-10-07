@@ -9,7 +9,19 @@ class Deduplicator(BaseSelector):
 
     def __process__(self, data):
         for d in tqdm(data):
-            instances = d["instances"]
+            filtered_instances = []
+            for instance in instances:
+                # if input and output are the same, we will not use such instances
+                if instance[1] == instance[2]:
+                    continue
+                # if output is empty, we will not use such instances
+                if instance[2] == "":
+                    continue
+                # if input or output ends with a colon, these are usually imcomplete generation. We will not use such instances
+                if instance[1].strip().endswith(":") or instance[2].strip().endswith(":"):
+                    continue
+                instances = filtered_instances
+
             # if the instances have same non-empty input, but different output, we will not use such instances
             same_input_diff_output = False
             for i in range(1, len(instances)):
@@ -21,7 +33,7 @@ class Deduplicator(BaseSelector):
                         break
             
             # remove duplicate instances
-            if same_input_diff_output:
+            if same_input_diff_output or len(instances) == 0:
                 data.remove(d)
                 continue
 

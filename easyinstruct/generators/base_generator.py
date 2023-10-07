@@ -14,6 +14,11 @@ class BaseGenerator:
         
         data = [json.loads(l) for l in open(data_path, "r")]
         return data
+    
+    def dump_data_to_file(self, data, data_path: str):
+        with open(data_path, "w") as f:
+            for d in data:
+                f.write(json.dumps(d) + "\n")
 
     def generate(self):
         raise NotImplementedError
