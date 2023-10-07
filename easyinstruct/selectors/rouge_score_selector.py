@@ -6,11 +6,14 @@ from rouge_score import rouge_scorer
 from .base_selector import BaseSelector
 
 class RougeScoreSelector(BaseSelector):
-    def __init__(self,
+    def __init__(self, 
+                 source_dir: str = "data/generations/",
+                 target_dir: str = "data/selections/",
+                 source_file_path: str = "generated_instances.jsonl",
+                 target_file_path: str = "selected_instructions.jsonl",
                  threshold: float = 0.7
                  ):
-
-        super().__init__()
+        super(RougeScoreSelector, self).__init__(source_dir, target_dir, source_file_path, target_file_path)
         self.threshold = threshold
 
     def __process__(self, data):

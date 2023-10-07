@@ -101,7 +101,7 @@ Output: Alan Turing
 
 Task: Turn down a job offer by sending an email to a recruiter explaining the reason.
 Output: Hi  [Recruiter],
-Thank you so much for the generous offer to join your team. As we discussed, I’ve admired the company for a number of years, and am a proud endorser of its products. However, after further consideration of where I currently am in my career, I’ve decided to accept an offer at another company.
+Thank you so much for the generous offer to join your team. As we discussed, I've admired the company for a number of years, and am a proud endorser of its products. However, after further consideration of where I currently am in my career, I've decided to accept an offer at another company.
 I would love to stay in touch with you and have already started following you on [Social Media Platform]. Again, thank you so much for your time and consideration.
 Thanks again,
 [Your Name]
@@ -110,7 +110,8 @@ Task:'''
 
 class SelfInstructGenerator(BaseGenerator):
     
-    def __init__(self,
+    def __init__(self, 
+                 target_dir: str = "data/generations/",
                  seed_tasks_path: str = "data/seed_tasks.jsonl",
                  generated_instructions_path: str = "generated_instructions.jsonl",
                  generated_instances_path: str = "generated_instances.jsonl",
@@ -118,7 +119,7 @@ class SelfInstructGenerator(BaseGenerator):
                  engine: str = "gpt-3.5-turbo",
                  num_prompt_instructions: int = 8,
                  ):
-        super().__init__()
+        super(SelfInstructGenerator, self).__init__(target_dir)
         self.seed_tasks_path = seed_tasks_path
         self.generated_instructions_path = os.path.join(self.target_dir, generated_instructions_path)
         self.generated_instances_path = os.path.join(self.target_dir, generated_instances_path)

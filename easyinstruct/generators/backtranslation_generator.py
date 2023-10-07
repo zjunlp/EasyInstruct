@@ -37,13 +37,14 @@ Please first provide a brief reasoning you used to derive the rating score, and 
 class BacktranslationGenerator(BaseGenerator):
     
     def __init__(self,
+                 target_dir: str = "data/generations/",
                  unlabelled_data_path: str = "data/unlabelled_data.jsonl",
                  generated_data_path: str = "generated_data.jsonl",
                  num_instructions_to_generate: int = 100,
                  engine: str = "gpt-3.5-turbo",
                  threshold: int = 3
                  ):
-        super().__init__()
+        super(BacktranslationGenerator, self).__init__(target_dir)
         self.unlabelled_data_path = unlabelled_data_path
         self.generated_data_path = os.path.join(self.target_dir, generated_data_path)
         self.num_instructions_to_generate = num_instructions_to_generate

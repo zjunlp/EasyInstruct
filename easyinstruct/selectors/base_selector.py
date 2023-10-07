@@ -8,7 +8,6 @@ class BaseSelector:
                  source_file_path: str = "generated_instances.jsonl",
                  target_file_path: str = "selected_instructions.jsonl"
                  ):
-        
         self.source_dir = source_dir
         self.target_dir = target_dir
         os.makedirs(self.source_dir, exist_ok=True)

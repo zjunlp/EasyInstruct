@@ -3,22 +3,27 @@ from tqdm import tqdm
 from .base_selector import BaseSelector
 
 class Deduplicator(BaseSelector):
-    def __init__(self):
-
-        super().__init__()
+    def __init__(self, 
+                 source_dir: str = "data/generations/",
+                 target_dir: str = "data/selections/",
+                 source_file_path: str = "generated_instances.jsonl",
+                 target_file_path: str = "selected_instructions.jsonl"
+        ):
+        super(Deduplicator, self).__init__(source_dir, target_dir, source_file_path, target_file_path)
 
     def __process__(self, data):
         for d in tqdm(data):
+            instances = d["instances"]
             filtered_instances = []
             for instance in instances:
                 # if input and output are the same, we will not use such instances
-                if instance[1] == instance[2]:
+                if instance["input"] == instance["output"]:
                     continue
                 # if output is empty, we will not use such instances
-                if instance[2] == "":
+                if instance["output"] == "":
                     continue
                 # if input or output ends with a colon, these are usually imcomplete generation. We will not use such instances
-                if instance[1].strip().endswith(":") or instance[2].strip().endswith(":"):
+                if instance["input"].strip().endswith(":") or instance["output"].strip().endswith(":"):
                     continue
                 instances = filtered_instances
 
