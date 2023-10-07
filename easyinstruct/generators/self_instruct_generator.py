@@ -117,7 +117,7 @@ class SelfInstructGenerator(BaseGenerator):
                  generated_instances_path: str = "generated_instances.jsonl",
                  num_instructions_to_generate: int = 100,
                  engine: str = "gpt-3.5-turbo",
-                 num_prompt_instructions: int = 8,
+                 num_prompt_instructions: int = 8
                  ):
         super(SelfInstructGenerator, self).__init__(target_dir)
         self.seed_tasks_path = seed_tasks_path
@@ -184,7 +184,6 @@ class SelfInstructGenerator(BaseGenerator):
             generated_instructions = [inst["instruction"] for inst in self.load_data_from_file(self.generated_instructions_path)]
             print(f"Loaded {len(generated_instructions)} generated instructions.")
 
-        
         scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=False)
 
         progress_bar = tqdm(total=self.num_instructions_to_generate)
