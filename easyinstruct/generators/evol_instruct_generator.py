@@ -10,8 +10,7 @@ base_breadth_instruction = """I want you act as a Prompt Creator.
 Your goal is to draw inspiration from the #Given Prompt# to create a brand new prompt.
 This new prompt should belong to the same domain as the #Given Prompt# but be even more rare.
 The LENGTH and complexity of the #Created Prompt# should be similar to that of the #Given Prompt#.
-The #Created Prompt# must be reasonable and must be understood and responded by humans.
-'#Given Prompt#', '#Created Prompt#', 'given prompt' and 'created prompt' are not allowed to appear in #Created Prompt#"""
+The #Created Prompt# must be reasonable and must be understood and responded by humans."""
 
 base_depth_instruction = """I want you act as a Prompt Rewriter.
 Your objective is to rewrite a given prompt into a more complex version to make those famous AI systems (e.g., chatgpt and GPT4) a bit harder to handle.
@@ -19,8 +18,7 @@ But the rewritten prompt must be reasonable and must be understood and responded
 Your rewriting cannot omit the non-text parts such as the table and code in #The Given Prompt#:. Also, please do not omit the input in #The Given Prompt#.
 You SHOULD complicate the given prompt using the following method: 
 {}
-You should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#.
-'#The Given Prompt#', '#Rewritten Prompt#', 'given prompt' and 'rewritten prompt' are not allowed to appear in #Rewritten Prompt#"""
+You should try your best not to make the #Rewritten Prompt# become verbose, #Rewritten Prompt# can only add 10 to 20 words into #The Given Prompt#."""
 
 class EvolInstructGenerator(SelfInstructGenerator):
 
@@ -89,20 +87,24 @@ class EvolInstructGenerator(SelfInstructGenerator):
                 evol_prompts.append(self.createConcretizingPrompt(instruction))
                 evol_prompts.append(self.createReasoningPrompt(instruction))
 
-                for prompt_instruction in evol_prompts:
-                    prompt = BasePrompt()
-                    prompt.build_prompt(prompt_instruction)
-                    prompt.get_openai_result(
-                        engine = self.engine,
-                        max_tokens = 2048,
-                        temperature = 1,
-                        top_p = 0.95,
-                        frequency_penalty = 0,
-                        presence_penalty = 0
-                    )
-                    generated_instructions.append(prompt.output)
+                prompt_instruction = random.choice(evol_prompts)
 
-                    fout.write(json.dumps({
-                        "instruction": prompt.output
-                    }) + "\n")
-                    progress_bar.update(1)
+                prompt = BasePrompt()
+                prompt.build_prompt(prompt_instruction)
+                prompt.get_openai_result(
+                    engine = self.engine,
+                    max_tokens = 2048,
+                    temperature = 1,
+                    top_p = 0.95,
+                    frequency_penalty = 0,
+                    presence_penalty = 0
+                )
+
+                if any(self.find_word_in_string(word, prompt.output) for word in ["#Given Prompt#", "given prompt" "#The Given Prompt#", "#Created Prompt#", "created prompt", "#Rewritten Prompt#", "rewritten prompt"]):
+                    continue
+                generated_instructions.append(prompt.output)
+
+                fout.write(json.dumps({
+                    "instruction": prompt.output
+                }) + "\n")
+                progress_bar.update(1)
