@@ -27,7 +27,7 @@ class RougeScoreSelector(BaseSelector):
                 rouge_scores = p.map(partial(scorer.score, data[i]["instruction"]), selected_instructions)
             rouge_scores = [score["rougeL"].fmeasure for score in rouge_scores]
             if max(rouge_scores) > self.threshold:
-                    continue
+                continue
             selected_instructions.append(data[i]["instruction"])
             selected_data.append(data[i])
         

@@ -14,32 +14,31 @@ class Deduplicator(BaseSelector):
     def __process__(self, data):
         for d in tqdm(data):
             instances = d["instances"]
-            filtered_instances = []
             for instance in instances:
                 # if input and output are the same, we will not use such instances
                 if instance["input"] == instance["output"]:
+                    instances.remove(instance)
                     continue
                 # if output is empty, we will not use such instances
                 if instance["output"] == "":
+                    instances.remove(instance)
                     continue
                 # if input or output ends with a colon, these are usually imcomplete generation. We will not use such instances
                 if instance["input"].strip().endswith(":") or instance["output"].strip().endswith(":"):
-                    continue
-                instances = filtered_instances
-
+                    instances.remove(instance)
+            
             # if the instances have same non-empty input, but different output, we will not use such instances
             same_input_diff_output = False
             for i in range(1, len(instances)):
                 for j in range(0, i):
-                    if instances[i][1] == "":
+                    if instances[i]["input"] == "":
                         continue
-                    if instances[i][1] == instances[j][1] and instances[i][2] != instances[j][2]:
+                    if instances[i]["input"] == instances[j]["input"] and instances[i]["output"] != instances[j]["output"]:
                         same_input_diff_output = True
                         break
             
             # remove duplicate instances
             if same_input_diff_output or len(instances) == 0:
                 data.remove(d)
-                continue
 
         return data
