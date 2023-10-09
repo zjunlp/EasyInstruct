@@ -13,6 +13,12 @@ anthropic>=0.3.0
 cohere>=4.19.0
 llama-index==0.4.29
 langchain==0.0.116
+hanlp==2.1.0b50
+zhconv==1.4.3
+beautifulsoup4==4.11.2
+bs4==0.0.1
+lxml==4.9.2
+sqlitedict==2.1.0
 Pillow
 tiktoken
 nltk
