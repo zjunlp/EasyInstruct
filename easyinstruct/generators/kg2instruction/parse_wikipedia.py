@@ -5,7 +5,7 @@ import requests
 import urllib3
 from tqdm import tqdm
 
-from kg2instruction.util import LOG_FORMAT, load_already
+from .util import LOG_FORMAT, load_already
 
 urllib3.disable_warnings()
 logger = logging.getLogger(__name__)  

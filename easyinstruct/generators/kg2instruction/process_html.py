@@ -7,8 +7,8 @@ from tqdm import tqdm
 from bs4 import BeautifulSoup
 from sqlitedict import SqliteDict
 
-from kg2instruction.util import format_wikilink, format_title, format_titletext, load_already, language_convert, clean_u200b, get_length
-from kg2instruction.clean_html import clean_soup
+from .util import format_wikilink, format_title, format_titletext, load_already, language_convert, clean_u200b, get_length
+from .clean_html import clean_soup
 logger = logging.getLogger(__name__) 
 
 

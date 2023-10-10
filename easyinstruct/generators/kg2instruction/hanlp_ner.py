@@ -5,7 +5,7 @@ from tqdm import tqdm
 import logging
 from typing import List
 
-from kg2instruction.util import load_already
+from .util import load_already
 
 logger = logging.getLogger(__name__)
 

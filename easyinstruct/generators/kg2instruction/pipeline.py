@@ -3,10 +3,10 @@ import logging
 from sqlitedict import SqliteDict
 import hanlp
 
-from kg2instruction.util import LOG_FORMAT, stable_hash, format_wikilink
-from kg2instruction.hanlp_ner import ner
-from kg2instruction.match_qid import match_qid
-from kg2instruction.find_rel import Annotator
+from .util import LOG_FORMAT, stable_hash, format_wikilink
+from .hanlp_ner import ner
+from .match_qid import match_qid
+from .find_rel import Annotator
 logger = logging.getLogger(__name__) 
 
 

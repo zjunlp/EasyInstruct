@@ -6,7 +6,7 @@ import re
 from tqdm import tqdm
 from bs4 import BeautifulSoup, Comment
 
-from kg2instruction.util import LOG_FORMAT
+from .util import LOG_FORMAT
 
 logger = logging.getLogger(__name__) 
 

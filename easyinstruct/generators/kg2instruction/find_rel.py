@@ -7,10 +7,11 @@ from multiprocessing import JoinableQueue, Lock, Process
 from tqdm import tqdm
 from sqlitedict import SqliteDict
 
-from kg2instruction.render import render_quantity, render_time_zh, render_time_en
-from kg2instruction.util import load_already
+from .render import render_quantity, render_time_zh, render_time_en
+from .util import load_already
 
 logger = logging.getLogger(__name__) 
+
 
 
 def clean_space(s):

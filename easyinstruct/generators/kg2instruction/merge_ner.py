@@ -6,7 +6,7 @@ import logging
 from sqlitedict import SqliteDict
 from multiprocessing import JoinableQueue, Lock, Process
 
-from kg2instruction.util import add_space, remove_space, containEnglish, clean_u200b, format_wikilink, load_already
+from .util import add_space, remove_space, containEnglish, clean_u200b, format_wikilink, load_already
 logger = logging.getLogger(__name__)
 
 BAD = ["CARDINAL", "ORDINAL", "TIME", "LANGUAGE", "DATE", "MONEY", "QUANTITY", "PERCENT", "LANGUAGE"]

@@ -7,7 +7,7 @@ from multiprocessing import JoinableQueue, Lock, Process
 import logging
 from sqlitedict import SqliteDict
 
-from kg2instruction.util import format_wikilink, format_title, load_already, stable_hash
+from .util import format_wikilink, format_title, load_already, stable_hash
 
 logger = logging.getLogger(__name__)
 
