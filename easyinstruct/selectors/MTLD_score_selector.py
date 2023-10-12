@@ -10,7 +10,7 @@ class MTLDScoreSelector(BaseSelector):
                  source_file_path: str = "generated_instances.jsonl",
                  target_file_path: str = "selected_instructions.jsonl",
                  lower_threshold: float = 20,
-                 upper_threshold: float = 124,
+                 upper_threshold: float = 150,
                  ttr_standard=0.72
                  ):
         super(MTLDScoreSelector, self).__init__(source_dir, target_dir, source_file_path, target_file_path)
