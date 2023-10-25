@@ -1,15 +1,9 @@
-from abc import ABC, abstractmethod
-from typing import List, Optional
-from pydantic import Extra, BaseModel
+from transformers import AutoTokenizer
 
-class BaseEngine(BaseModel, ABC):
 
-    class Config:
-        """Configuration for this pydantic object."""
+class BaseEngine:
+    def __init__(self, pretrained_model_name_or_path: str):
+        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
 
-        extra = Extra.forbid
-        arbitrary_types_allowed = True
-
-    @abstractmethod
-    def _call(self, prompt: str, stop: Optional[List[str]] = None,**kwargs) -> str:
-        """Run the LLM on the given prompt and input."""
+    def predict(self, text):
+        raise NotImplementedError
