@@ -5,16 +5,19 @@ from .base_selector import BaseSelector
 
 
 class PPLScoreSelector(BaseSelector):
-    def __init__(self,
-                 source_dir: str = "data/generations/",
-                 target_dir: str = "data/selections/",
-                 source_file_path: str = "generated_instances.jsonl",
-                 target_file_path: str = "selected_instructions.jsonl",
-                 threshold: float = 200,
-                 model_name: str = "gpt2",
-                 device: str = "cuda"
-                 ):
-        super(PPLScoreSelector, self).__init__(source_dir, target_dir, source_file_path, target_file_path)
+    def __init__(
+        self,
+        source_dir: str = "data/generations/",
+        target_dir: str = "data/selections/",
+        source_file_path: str = "generated_instances.jsonl",
+        target_file_path: str = "selected_instructions.jsonl",
+        threshold: float = 200,
+        model_name: str = "gpt2",
+        device: str = "cuda",
+    ):
+        super(PPLScoreSelector, self).__init__(
+            source_dir, target_dir, source_file_path, target_file_path
+        )
         self.threshold = threshold
         self.model_name = model_name
         self.device = device
@@ -35,7 +38,9 @@ class PPLScoreSelector(BaseSelector):
             prev_end_loc = 0
             for begin_loc in range(0, seq_len, stride):
                 end_loc = min(begin_loc + max_length, seq_len)
-                trg_len = end_loc - prev_end_loc  # may be different from stride on last loop
+                trg_len = (
+                    end_loc - prev_end_loc
+                )  # may be different from stride on last loop
                 input_ids = encodings.input_ids[:, begin_loc:end_loc].to(self.device)
                 target_ids = input_ids.clone()
                 target_ids[:, :-trg_len] = -100

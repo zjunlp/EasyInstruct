@@ -4,7 +4,7 @@ from langchain import OpenAI
 
 INDEX_CLASSES = {
     "simple_vector_index": GPTSimpleVectorIndex,
-    "kg_index": GPTKnowledgeGraphIndex
+    "kg_index": GPTKnowledgeGraphIndex,
 }
 
 
@@ -49,11 +49,11 @@ class IndexPrompt:
         self.documents = SimpleDirectoryReader(data_path).load_data()
 
     def build_index(
-            self,
-            data_path=None,
-            llm_model_name="text-davinci-002",
-            chunk_size_limit=512,
-            max_triplets_per_chunk=5,
+        self,
+        data_path=None,
+        llm_model_name="text-davinci-002",
+        chunk_size_limit=512,
+        max_triplets_per_chunk=5,
     ):
         """Build index from raw documents
 
@@ -75,21 +75,28 @@ class IndexPrompt:
             self._build_simple_vector_index(chunk_size_limit=chunk_size_limit)
 
         elif self.index_name == "kg_index":
-            self._build_index_kg(llm_model_name=llm_model_name, chunk_size_limit=chunk_size_limit,
-                                 max_triplets_per_chunk=max_triplets_per_chunk)
+            self._build_index_kg(
+                llm_model_name=llm_model_name,
+                chunk_size_limit=chunk_size_limit,
+                max_triplets_per_chunk=max_triplets_per_chunk,
+            )
 
         return self.documents
 
     def _build_index_kg(self, llm_model_name, chunk_size_limit, max_triplets_per_chunk):
         """Build KG Index"""
-        llm_predictor = LLMPredictor(llm=OpenAI(temperature=0, model_name=llm_model_name))
+        llm_predictor = LLMPredictor(
+            llm=OpenAI(temperature=0, model_name=llm_model_name)
+        )
         self.index = GPTKnowledgeGraphIndex(
             self.documents,
             chunk_size_limit=chunk_size_limit,
             max_triplets_per_chunk=max_triplets_per_chunk,
-            llm_predictor=llm_predictor
+            llm_predictor=llm_predictor,
         )
 
     def _build_simple_vector_index(self, chunk_size_limit):
         """Build Simple Vector Index"""
-        self.index = GPTSimpleVectorIndex(self.documents, chunk_size_limit=chunk_size_limit)
+        self.index = GPTSimpleVectorIndex(
+            self.documents, chunk_size_limit=chunk_size_limit
+        )

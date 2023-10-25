@@ -35,15 +35,15 @@ Please first provide a brief reasoning you used to derive the rating score, and 
 
 
 class BacktranslationGenerator(BaseGenerator):
-    
-    def __init__(self,
-                 target_dir: str = "data/generations/",
-                 unlabelled_data_path: str = "data/unlabelled_data.jsonl",
-                 generated_data_path: str = "generated_data.jsonl",
-                 num_instructions_to_generate: int = 100,
-                 engine: str = "gpt-3.5-turbo",
-                 threshold: int = 3
-                 ):
+    def __init__(
+        self,
+        target_dir: str = "data/generations/",
+        unlabelled_data_path: str = "data/unlabelled_data.jsonl",
+        generated_data_path: str = "generated_data.jsonl",
+        num_instructions_to_generate: int = 100,
+        engine: str = "gpt-3.5-turbo",
+        threshold: int = 3,
+    ):
         super(BacktranslationGenerator, self).__init__(target_dir)
         self.unlabelled_data_path = unlabelled_data_path
         self.generated_data_path = os.path.join(self.target_dir, generated_data_path)
@@ -62,12 +62,12 @@ class BacktranslationGenerator(BaseGenerator):
             prompt = BasePrompt()
             prompt.build_prompt(f"{self_augmentation_prompt_template} {content}")
             prompt.get_openai_result(
-                engine = self.engine,
-                max_tokens = 150,
-                temperature = 0,
-                top_p = 0,
-                frequency_penalty = 0,
-                presence_penalty = 0
+                engine=self.engine,
+                max_tokens=150,
+                temperature=0,
+                top_p=0,
+                frequency_penalty=0,
+                presence_penalty=0,
             )
 
             if re.findall(r"INSTRUCTION:", prompt.output):
@@ -77,29 +77,28 @@ class BacktranslationGenerator(BaseGenerator):
 
             data = {}
             data["instruction"] = new_instruction
-            data["instances"] = [{
-                    "input": "",
-                    "output": content
-                }]
+            data["instances"] = [{"input": "", "output": content}]
             augmented_data.append(data)
             progress_bar.update(1)
 
         return augmented_data
-    
+
     def self_curation(self, augmented_data):
         regex = re.compile(r"[Ss]core:\s*(\d+)")
         curated_data = []
 
         for data in tqdm(augmented_data):
             prompt = BasePrompt()
-            prompt.build_prompt(f"{self_curation_prompt_template}\n\nInstruction: {data['instruction']}\n\n Response:{data['instances'][0]['output']}")
+            prompt.build_prompt(
+                f"{self_curation_prompt_template}\n\nInstruction: {data['instruction']}\n\n Response:{data['instances'][0]['output']}"
+            )
             prompt.get_openai_result(
-                engine = self.engine,
-                max_tokens = 150,
-                temperature = 0,
-                top_p = 0,
-                frequency_penalty = 0,
-                presence_penalty = 0
+                engine=self.engine,
+                max_tokens=150,
+                temperature=0,
+                top_p=0,
+                frequency_penalty=0,
+                presence_penalty=0,
             )
 
             curation_response = prompt.output
@@ -109,7 +108,7 @@ class BacktranslationGenerator(BaseGenerator):
             curated_data.append(data)
 
         return curated_data
-    
+
     def generate(self):
         unlabelled_data = self.load_data_from_file(self.unlabelled_data_path)
         augmented_data = self.self_augmentation(unlabelled_data)

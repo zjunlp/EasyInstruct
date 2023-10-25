@@ -15,16 +15,20 @@ Please first provide a brief reasoning you used to derive the rating score, and 
 
 """
 
+
 class GPTScoreSelector(BaseSelector):
-    def __init__(self, 
-                 source_dir: str = "data/generations/",
-                 target_dir: str = "data/selections/",
-                 source_file_path: str = "generated_instances.jsonl",
-                 target_file_path: str = "selected_instructions.jsonl",
-                 engine: str = "gpt-3.5-turbo",
-                 threshold: int = 4
-        ):
-        super(GPTScoreSelector, self).__init__(source_dir, target_dir, source_file_path, target_file_path)
+    def __init__(
+        self,
+        source_dir: str = "data/generations/",
+        target_dir: str = "data/selections/",
+        source_file_path: str = "generated_instances.jsonl",
+        target_file_path: str = "selected_instructions.jsonl",
+        engine: str = "gpt-3.5-turbo",
+        threshold: int = 4,
+    ):
+        super(GPTScoreSelector, self).__init__(
+            source_dir, target_dir, source_file_path, target_file_path
+        )
         self.engine = engine
         self.threshold = threshold
 
@@ -33,14 +37,16 @@ class GPTScoreSelector(BaseSelector):
 
         for d in tqdm(data):
             prompt = BasePrompt()
-            prompt.build_prompt(f"{prompt_template}\n\nInstruction: {d['instruction']}\n\n Response:{d['instances'][0]['output']}")
+            prompt.build_prompt(
+                f"{prompt_template}\n\nInstruction: {d['instruction']}\n\n Response:{d['instances'][0]['output']}"
+            )
             prompt.get_openai_result(
-                engine = self.engine,
-                max_tokens = 150,
-                temperature = 0,
-                top_p = 0,
-                frequency_penalty = 0,
-                presence_penalty = 0
+                engine=self.engine,
+                max_tokens=150,
+                temperature=0,
+                top_p=0,
+                frequency_penalty=0,
+                presence_penalty=0,
             )
 
             score_matched = regex.search(prompt.output)

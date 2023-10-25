@@ -12,7 +12,7 @@ from rouge_score import rouge_scorer
 from easyinstruct import BasePrompt, FewshotCoTPrompt
 from .base_generator import BaseGenerator
 
-generate_instances_prompt_template = '''Come up with examples for the following tasks. Try to generate multiple examples when possible. If the task doesn't require additional input, you can generate the output directly.
+generate_instances_prompt_template = """Come up with examples for the following tasks. Try to generate multiple examples when possible. If the task doesn't require additional input, you can generate the output directly.
 
 Task: Which exercises are best for reducing belly fat at home?
 Output:
@@ -106,29 +106,34 @@ I would love to stay in touch with you and have already started following you on
 Thanks again,
 [Your Name]
 
-Task:'''
+Task:"""
+
 
 class SelfInstructGenerator(BaseGenerator):
-    
-    def __init__(self, 
-                 target_dir: str = "data/generations/",
-                 seed_tasks_path: str = "data/seed_tasks.jsonl",
-                 generated_instructions_path: str = "generated_instructions.jsonl",
-                 generated_instances_path: str = "generated_instances.jsonl",
-                 num_instructions_to_generate: int = 100,
-                 engine: str = "gpt-3.5-turbo",
-                 num_prompt_instructions: int = 8
-                 ):
+    def __init__(
+        self,
+        target_dir: str = "data/generations/",
+        seed_tasks_path: str = "data/seed_tasks.jsonl",
+        generated_instructions_path: str = "generated_instructions.jsonl",
+        generated_instances_path: str = "generated_instances.jsonl",
+        num_instructions_to_generate: int = 100,
+        engine: str = "gpt-3.5-turbo",
+        num_prompt_instructions: int = 8,
+    ):
         super(SelfInstructGenerator, self).__init__(target_dir)
         self.seed_tasks_path = seed_tasks_path
-        self.generated_instructions_path = os.path.join(self.target_dir, generated_instructions_path)
-        self.generated_instances_path = os.path.join(self.target_dir, generated_instances_path)
+        self.generated_instructions_path = os.path.join(
+            self.target_dir, generated_instructions_path
+        )
+        self.generated_instances_path = os.path.join(
+            self.target_dir, generated_instances_path
+        )
         self.num_instructions_to_generate = num_instructions_to_generate
         self.engine = engine
         self.num_prompt_instructions = num_prompt_instructions
 
     def find_word_in_string(self, w, s):
-        return re.compile(r'\b({0})\b'.format(w), flags=re.IGNORECASE).search(s)
+        return re.compile(r"\b({0})\b".format(w), flags=re.IGNORECASE).search(s)
 
     def post_process_generations(self, response, message):
         if response is None or response["choices"][0]["finish_reason"] == "length":
@@ -144,10 +149,29 @@ class SelfInstructGenerator(BaseGenerator):
             if len(inst.split()) <= 3 or len(inst.split()) > 150:
                 continue
             # filter based on keywords that are not suitable for language models.
-            if any(self.find_word_in_string(word, inst) for word in ["image", "images", "graph", "graphs", "picture", "pictures", "file", "files", "map", "maps", "draw", "plot", "go to", "program", "sorry"]):
+            if any(
+                self.find_word_in_string(word, inst)
+                for word in [
+                    "image",
+                    "images",
+                    "graph",
+                    "graphs",
+                    "picture",
+                    "pictures",
+                    "file",
+                    "files",
+                    "map",
+                    "maps",
+                    "draw",
+                    "plot",
+                    "go to",
+                    "program",
+                    "sorry",
+                ]
+            ):
                 continue
             # We found that the model tends to add "write a program" to some existing instructions, which lead to a lot of such instructions.
-            # And it's a bit comfusing whether the model need to write a program or directly output the result. 
+            # And it's a bit comfusing whether the model need to write a program or directly output the result.
             # Here we filter them out.
             # Note this is not a comprehensive filtering for all programming instructions.
             if inst.startswith("Write a program"):
@@ -160,7 +184,7 @@ class SelfInstructGenerator(BaseGenerator):
                 continue
             instructions.append(inst)
         return instructions
-    
+
     def parse_input_output(self, response_text):
         if re.findall(r"Output\s*\d*\s*:", response_text):
             inst_input = re.split(r"Output\s*\d*\s*:", response_text)[0].strip()
@@ -176,12 +200,17 @@ class SelfInstructGenerator(BaseGenerator):
         return inst_input, inst_output
 
     def generate_instructions(self):
-        seed_instructions = [t["instruction"] for t in self.load_data_from_file(self.seed_tasks_path)]
+        seed_instructions = [
+            t["instruction"] for t in self.load_data_from_file(self.seed_tasks_path)
+        ]
         print(f"Loaded {len(seed_instructions)} human-written seed instructions.")
 
         generated_instructions = []
         if os.path.exists(self.generated_instructions_path):
-            generated_instructions = [inst["instruction"] for inst in self.load_data_from_file(self.generated_instructions_path)]
+            generated_instructions = [
+                inst["instruction"]
+                for inst in self.load_data_from_file(self.generated_instructions_path)
+            ]
             print(f"Loaded {len(generated_instructions)} generated instructions.")
 
         scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=False)
@@ -192,58 +221,77 @@ class SelfInstructGenerator(BaseGenerator):
 
         with open(self.generated_instructions_path, "a") as fout:
             while len(generated_instructions) < self.num_instructions_to_generate:
-
-                prompt_instructions = random.sample(seed_instructions, self.num_prompt_instructions)
+                prompt_instructions = random.sample(
+                    seed_instructions, self.num_prompt_instructions
+                )
                 random.shuffle(prompt_instructions)
                 fewshot_prompt = FewshotCoTPrompt()
                 fewshot_prompt.build_prompt(
-                    prompt = "Come up with a series of tasks:\n", 
-                    in_context_examples = prompt_instructions,
-                    n_shots = self.num_prompt_instructions
+                    prompt="Come up with a series of tasks:\n",
+                    in_context_examples=prompt_instructions,
+                    n_shots=self.num_prompt_instructions,
                 )
 
                 fewshot_prompt.get_openai_result(
-                    engine = self.engine,
-                    max_tokens = 1024,
-                    temperature = 0.7,
-                    top_p = 0.5,
-                    frequency_penalty = 0,
-                    presence_penalty = 2
+                    engine=self.engine,
+                    max_tokens=1024,
+                    temperature=0.7,
+                    top_p=0.5,
+                    frequency_penalty=0,
+                    presence_penalty=2,
                 )
 
                 instructions = []
-                new_instructions = self.post_process_generations(fewshot_prompt.response, fewshot_prompt.output)
+                new_instructions = self.post_process_generations(
+                    fewshot_prompt.response, fewshot_prompt.output
+                )
                 instructions += new_instructions
 
                 for inst in instructions:
                     all_instructions = seed_instructions + generated_instructions
                     with Pool(4) as p:
-                        rouge_scores = p.map(partial(scorer.score, inst), all_instructions)
+                        rouge_scores = p.map(
+                            partial(scorer.score, inst), all_instructions
+                        )
                     rouge_scores = [score["rougeL"].fmeasure for score in rouge_scores]
                     if max(rouge_scores) > 0.7:
                         continue
                     most_similar_instructions = {
-                        all_instructions[i] : rouge_scores[i] for i in np.argsort(rouge_scores)[-10:][::-1]
+                        all_instructions[i]: rouge_scores[i]
+                        for i in np.argsort(rouge_scores)[-10:][::-1]
                     }
                     generated_instructions.append(inst)
-                    fout.write(json.dumps({
-                        "instruction": inst,
-                        "most_similar": most_similar_instructions,
-                        "avg_similarity_score": float(np.mean(rouge_scores))
-                    }) + "\n")
+                    fout.write(
+                        json.dumps(
+                            {
+                                "instruction": inst,
+                                "most_similar": most_similar_instructions,
+                                "avg_similarity_score": float(np.mean(rouge_scores)),
+                            }
+                        )
+                        + "\n"
+                    )
                     progress_bar.update(1)
 
     def generate_instances(self):
         generated_instructions = []
         if os.path.exists(self.generated_instructions_path):
-            generated_instructions = [inst["instruction"] for inst in self.load_data_from_file(self.generated_instructions_path)]
+            generated_instructions = [
+                inst["instruction"]
+                for inst in self.load_data_from_file(self.generated_instructions_path)
+            ]
             if self.num_instructions_to_generate is not None:
-                generated_instructions = generated_instructions[:self.num_instructions_to_generate]
+                generated_instructions = generated_instructions[
+                    : self.num_instructions_to_generate
+                ]
             print(f"Loaded {len(generated_instructions)} generated instructions.")
 
         existing_requests = []
         if os.path.exists(self.generated_instances_path):
-            existing_requests = [inst["instruction"] for inst in self.load_data_from_file(self.generated_instances_path)]
+            existing_requests = [
+                inst["instruction"]
+                for inst in self.load_data_from_file(self.generated_instances_path)
+            ]
             print(f"Loaded {len(existing_requests)} existing requests.")
 
         progress_bar = tqdm(total=len(generated_instructions))
@@ -256,15 +304,18 @@ class SelfInstructGenerator(BaseGenerator):
                 prompt = BasePrompt()
                 prompt.build_prompt(f"{generate_instances_prompt_template} {inst}\n")
                 prompt.get_openai_result(
-                    engine = self.engine,
-                    max_tokens = 350,
-                    temperature = 0,
-                    top_p = 0,
-                    frequency_penalty = 0,
-                    presence_penalty = 1.5
+                    engine=self.engine,
+                    max_tokens=350,
+                    temperature=0,
+                    top_p=0,
+                    frequency_penalty=0,
+                    presence_penalty=1.5,
                 )
 
-                if prompt.response is None or prompt.response["choices"][0]["finish_reason"] == "length":
+                if (
+                    prompt.response is None
+                    or prompt.response["choices"][0]["finish_reason"] == "length"
+                ):
                     continue
 
                 data = {}
@@ -277,27 +328,20 @@ class SelfInstructGenerator(BaseGenerator):
                         if example.strip() == "":
                             continue
                         inst_input, inst_output = self.parse_input_output(example)
-                        data["instances"].append({
-                            "input": inst_input,
-                            "output": inst_output
-                        })
+                        data["instances"].append(
+                            {"input": inst_input, "output": inst_output}
+                        )
 
                 elif re.findall(r"Output\s*\d*\s*:", raw_instance):
                     inst_input, inst_output = self.parse_input_output(raw_instance)
-                    data["instances"] = [{
-                        "input": inst_input,
-                        "output": inst_output
-                    }]
+                    data["instances"] = [{"input": inst_input, "output": inst_output}]
 
                 else:
-                    data["instances"] = [{
-                        "input": "",
-                        "output": raw_instance
-                    }]
+                    data["instances"] = [{"input": "", "output": raw_instance}]
 
                 fout.write(json.dumps(data, ensure_ascii=False) + "\n")
                 progress_bar.update(1)
-            
+
     def generate(self):
         self.generate_instructions()
         self.generate_instances()

@@ -4,16 +4,19 @@ from .base_selector import BaseSelector
 
 
 class MTLDScoreSelector(BaseSelector):
-    def __init__(self,
-                 source_dir: str = "data/generations/",
-                 target_dir: str = "data/selections/",
-                 source_file_path: str = "generated_instances.jsonl",
-                 target_file_path: str = "selected_instructions.jsonl",
-                 lower_threshold: float = 20,
-                 upper_threshold: float = 150,
-                 ttr_standard=0.72
-                 ):
-        super(MTLDScoreSelector, self).__init__(source_dir, target_dir, source_file_path, target_file_path)
+    def __init__(
+        self,
+        source_dir: str = "data/generations/",
+        target_dir: str = "data/selections/",
+        source_file_path: str = "generated_instances.jsonl",
+        target_file_path: str = "selected_instructions.jsonl",
+        lower_threshold: float = 20,
+        upper_threshold: float = 150,
+        ttr_standard=0.72,
+    ):
+        super(MTLDScoreSelector, self).__init__(
+            source_dir, target_dir, source_file_path, target_file_path
+        )
         self.lower_threshold = lower_threshold
         self.upper_threshold = upper_threshold
         self.ttr_standard = ttr_standard
@@ -60,8 +63,12 @@ class MTLDScoreSelector(BaseSelector):
         selected_data = []
 
         for i in tqdm(range(0, len(data))):
-            mtld_score = self.calculate_MTLD(text=data[i]["instruction"], ttr_standard=self.ttr_standard)
-            if (mtld_score < self.lower_threshold or mtld_score > self.upper_threshold) and mtld_score != -1:
+            mtld_score = self.calculate_MTLD(
+                text=data[i]["instruction"], ttr_standard=self.ttr_standard
+            )
+            if (
+                mtld_score < self.lower_threshold or mtld_score > self.upper_threshold
+            ) and mtld_score != -1:
                 continue
             # if not isinstance(data[i], dict):
             #         data[i] = {}
