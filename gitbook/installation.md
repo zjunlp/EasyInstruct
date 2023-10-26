@@ -3,7 +3,7 @@
 **Installation using PyPI:**
 
 ```
-pip install easyinstruct==0.0.2 -i https://pypi.org/simple
+pip install easyinstruct -i https://pypi.org/simple
 ```
 
 **Installation for local development:**
