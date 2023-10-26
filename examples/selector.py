@@ -1,14 +1,14 @@
 from easyinstruct.utils.api import set_openai_key, set_proxy
-from easyinstruct import LengthSelector, Deduplicator, RougeScoreSelector, CompositionalSelector, GPTScoreSelector, MTLDScoreSelector, PPLScoreSelector
+from easyinstruct import LengthSelector, Deduplicator, RougeSelector, CompositionalSelector, GPTScoreSelector, MTLDSelector, PPLSelector
 
 set_openai_key("")
-set_proxy("http://127.0.0.1:7890")
+set_proxy("")
 
 selector1 = Deduplicator()
-selector2 = RougeScoreSelector()
+selector2 = RougeSelector()
 selector3 = LengthSelector()
 selector4 = GPTScoreSelector()
-selector5 = MTLDScoreSelector()
-selector6 = PPLScoreSelector()
+selector5 = MTLDSelector()
+selector6 = PPLSelector()
 selector = CompositionalSelector(source_file_path="evolved_instances.jsonl", selectors_list=[selector4])
 selector.process()

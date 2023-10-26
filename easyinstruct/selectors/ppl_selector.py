@@ -4,7 +4,7 @@ import torch
 from .base_selector import BaseSelector
 
 
-class PPLScoreSelector(BaseSelector):
+class PPLSelector(BaseSelector):
     def __init__(
         self,
         source_dir: str = "data/generations/",
@@ -15,7 +15,7 @@ class PPLScoreSelector(BaseSelector):
         model_name: str = "gpt2",
         device: str = "cuda",
     ):
-        super(PPLScoreSelector, self).__init__(
+        super(PPLSelector, self).__init__(
             source_dir, target_dir, source_file_path, target_file_path
         )
         self.threshold = threshold

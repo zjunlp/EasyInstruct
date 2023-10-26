@@ -3,7 +3,7 @@ from tqdm import tqdm
 from .base_selector import BaseSelector
 
 
-class MTLDScoreSelector(BaseSelector):
+class MTLDSelector(BaseSelector):
     def __init__(
         self,
         source_dir: str = "data/generations/",
@@ -14,7 +14,7 @@ class MTLDScoreSelector(BaseSelector):
         upper_threshold: float = 150,
         ttr_standard=0.72,
     ):
-        super(MTLDScoreSelector, self).__init__(
+        super(MTLDSelector, self).__init__(
             source_dir, target_dir, source_file_path, target_file_path
         )
         self.lower_threshold = lower_threshold
