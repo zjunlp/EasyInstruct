@@ -163,7 +163,7 @@ class BasePrompt:
         return self.output
 
     def get_engine_result(self, engine: BaseEngine, **kwargs):
-        self.output = engine.predict(self.prompt, **kwargs)
+        self.output = engine.inference(self.prompt, **kwargs)
         return self.output
 
     def parse_response(self):

@@ -5,5 +5,5 @@ class BaseEngine:
     def __init__(self, pretrained_model_name_or_path: str):
         self.tokenizer = AutoTokenizer.from_pretrained(pretrained_model_name_or_path)
 
-    def predict(self, text):
+    def inference(self, text):
         raise NotImplementedError

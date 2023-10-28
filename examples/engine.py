@@ -6,6 +6,6 @@ question = "Natalia sold clips to 48 of her friends in April, and then she sold 
 
 zeroshot_prompts = ZeroshotCoTPrompt()
 zeroshot_prompts.build_prompt(question)
-engine = Llama2Engine()
+engine = Llama2Engine(pretrained_model_name_or_path="/mnt/16t/share/llama-2-converted/llama2-7b-chat")
 # engine = ChatGLM2Engine()
 print(zeroshot_prompts.get_engine_result(engine = engine))

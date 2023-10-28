@@ -19,7 +19,7 @@ class Llama2Engine(BaseEngine):
             device_map="auto",
         )
 
-    def predict(self, text, **kwargs):
+    def inference(self, text, **kwargs):
         sequences = self.pipline(
             text,
             do_sample=True,

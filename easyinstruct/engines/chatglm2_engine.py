@@ -18,6 +18,6 @@ class ChatGLM2Engine(BaseEngine):
         )
         self.model = self.model.eval()
 
-    def predict(self, text):
+    def inference(self, text):
         response, history = self.model.chat(self.tokenizer, text, history=[])
         return response
