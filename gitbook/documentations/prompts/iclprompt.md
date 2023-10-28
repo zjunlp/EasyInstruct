@@ -28,5 +28,9 @@ Build a prompt from a given string input and a list of in-context examples.
 ```python
 from easyinstruct import ICLPrompt
 prompts = ICLPrompt()
-prompts.build_prompt("Identify the animals mentioned in the sentences.", in_context_examples = [{"text": "The cat is on the mat.", "label": "cat"}, {"text": "The dog is on the rug.", "label": "dog"}], n_shots = 2)
+prompts.build_prompt(
+     "Identify the animals mentioned in the sentences.", 
+     in_context_examples = [{"text": "The cat is on the mat.", "label": "cat"}, {"text": "The dog is on the rug.", "label": "dog"}], 
+     n_shots = 2
+)
 ```

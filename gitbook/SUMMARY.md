@@ -27,6 +27,6 @@
     * [LengthSelector](documentations/selectors/lengthselector.md)
     * [RougeSelector](documentations/selectors/rougeselector.md)
     * [GPTScoreSelector](documentations/selectors/gptscoreselector.md)
-    * [MTLDSelector](documentations/selectors/mtldselector.md)
     * [PPLSelector](documentations/selectors/pplselector.md)
-    * [CompositionalSelector](documentations/selectors/compositionalselector.md)
+    * [MTLDSelector](documentations/selectors/mtldselector.md)
+    * [MultiSelector](documentations/selectors/multiselector.md)
