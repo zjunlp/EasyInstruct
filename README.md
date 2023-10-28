@@ -2,7 +2,7 @@
 
 <img src="figs/logo.png" width="300px">
 
-**An Easy-to-use Instruction Generation Framework for Large Language Models.**
+**An Easy-to-use Instruction Processing Framework for Large Language Models.**
 
 ---
 
@@ -15,14 +15,12 @@
   <a href="#contributors">Contributors</a>
 </p>
 
-![](https://img.shields.io/badge/version-v0.0.6-blue)
+![](https://img.shields.io/badge/version-v0.1.1-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ![](https://img.shields.io/github/last-commit/zjunlp/EasyInstruct?color=green) 
 ![](https://img.shields.io/badge/PRs-Welcome-red) 
 
 </div>
-
-EasyInstruct is still under fast developement, and stay tuned for **new features (e.g., KG2Instructions, Instruction Enhancement)**!
 
 ## Table of Contents
 
@@ -30,19 +28,24 @@ EasyInstruct is still under fast developement, and stay tuned for **new features
 - <a href="#overview">Overview</a>
 - <a href="#installation">Installation</a>
 - <a href="#use-easyinstruct">Use EasyInstruct</a>
+  - <a href="#prompts">Prompts</a>
+  - <a href="#engines">Engines</a>
+  - <a href="#generators">Generators</a>
+  - <a href="#selectors">Selectors</a>
 - <a href="#citation">Citation</a>
 - <a href="#contributors">Contributors</a>
 
 ## 🔔News
 
+- **2023-10-28 We release version 0.1.1, supporting for new features of instruction generation and instruction selection.**
 - **2023-8-9 We release version 0.0.6, supporting Cohere API calls.**
 - **2023-7-12 We release [EasyEdit](https://github.com/zjunlp/EasyEdit), an easy-to-use framework to edit Large Language Models.**
-- **2023-5-23 We release version 0.0.5, removing requirement of llama-cpp-python.**
-- **2023-5-16 We release version 0.0.4, fixing some problems.**
 <details>
 <summary><b>Previous news</b></summary>
-  
-- **2023-4-21 We release version 0.0.3. Check out our [documentations](https://zjunlp.gitbook.io/easyinstruct/documentations) for more details!**
+
+- **2023-5-23 We release version 0.0.5, removing requirement of llama-cpp-python.**
+- **2023-5-16 We release version 0.0.4, fixing some problems.**
+- **2023-4-21 We release version 0.0.3, check out our [documentations](https://zjunlp.gitbook.io/easyinstruct/documentations) for more details.**
 - **2023-3-25 We release version 0.0.2, suporting IndexPrompt, MMPrompt, IEPrompt and more LLMs**
 - **2023-3-13 We release version 0.0.1, supporting in-context learning, chain-of-thought with ChatGPT.**
   
@@ -55,9 +58,11 @@ This repository is a subproject of [KnowLM](https://github.com/zjunlp/KnowLM).
 
 ## 🌟Overview
 
-EasyInstruct is a Python package to generate instructions and instruct Large Language Models (LLMs) like GPT-3, Llama, ChatGLM in your research experiments. It is designed to be easy to use and easy to extend.
+EasyInstruct is a Python package which is proposed as an easy-to-use instruction processing framework for Large Language Models(LLMs) like GPT-3, Llama, ChatGLM in your research experiments. EasyInstruct is designed to be easy to use and easy to extend.
 
 [KnowLM](https://github.com/zjunlp/KnowLM) | [Falcon](https://github.com/falconry/falcon) | [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) | [ChatGLM](https://github.com/THUDM/ChatGLM-6B) | [Chinese-LLaMA-Alpaca](https://github.com/ymcui/Chinese-LLaMA-Alpaca) | [MOSS](https://github.com/OpenLMLab/MOSS) | [Baize](https://github.com/project-baize/baize-chatbot) | [Vicuna](https://github.com/lm-sys/FastChat) | [BenTsao](https://github.com/SCIR-HI/Huatuo-Llama-Med-Chinese) | [Linly](https://github.com/CVI-SZU/Linly) | [ChatYuan](https://github.com/clue-ai/ChatYuan) | [Dolly](https://github.com/databrickslabs/dolly) | [MPT](https://github.com/mosaicml/llm-foundry) | [HuatuoGPT](https://github.com/FreedomIntelligence/HuatuoGPT) | [BayLing](https://github.com/ictnlp/BayLing)| [BELLE](https://github.com/LianjiaTech/BELLE) | [ChatGPT](https://chat.openai.com/)  
+
+<img src="figs/overview.png">
 
 ---
 
@@ -81,9 +86,15 @@ pip install -e .
 
 Please refer to our [documentations](https://zjunlp.gitbook.io/easyinstruct/documentations) for more details.
 
-### BasePrompt
+### Prompts
 
-> `BasePrompt` is the base class for all prompts.Currently we support building prompts to instruct LLM by calling LLM API service of OpenAI (GPT-3, ChatGPT) and Anthropic (Claude). 
+<img src="figs/prompt.png">
+
+> The `Prompts` module standardizes the instruction prompting step, where user requests are constructed as instruction prompts and sent to specific LLMs to obtain responses. You can choose the appropriate prompting method based on your specific needs.
+
+#### BasePrompt
+
+> `BasePrompt` is the base class for all prompts. Currently we support building prompts to instruct LLM by calling LLM API service of OpenAI (GPT-3, ChatGPT), Anthropic (Claude) and Cohere (Command) or by requesting locally deployed LLM like Llama2, ChatGLM2, etc. We will support more available LLM products in the future.
 
 > You can also easily inherit this base class to customize your own prompt class. Just override the `build_prompt` method and `parse_response` method.
 
@@ -106,12 +117,12 @@ prompt.build_prompt("Give me three names of cats.")
 prompt.get_openai_result(engine = "gpt-3.5-turbo")
 ```
 
-
-### ICLPrompt
+#### ICLPrompt
 
 > `ICLPrompt` is the class for in-context learning prompts. You can desgin a few task-specific examples as prompt for instructing LLM, and then LLM can quickly figures out how to perform well on that task.
 
-**Example**
+<details>
+<summary><b>Example</b></summary>
 
 ```python
 from easyinstruct import ICLPrompt
@@ -131,18 +142,21 @@ prompt.build_prompt("Identify the animals mentioned in the sentences.", in_conte
 
 # Step5: Get the result from LLM API service
 prompt.get_openai_result(engine="gpt-3.5-turbo")
+
 ```
 
+</details>
 
-### CoTPrompt
+#### CoTPrompt
 
 > Chain-of-Thought prompting is a recently developed prompting method, which encourages the LLM to explain its reasoning process when answering the prompt. This explanation of reasoning often leads to more accurate results. Specifically, we implement `FewshotCoTPrompt` and `ZeroshotCoTPrompt`.
 
-#### FewshotCoTPrompt
+##### FewshotCoTPrompt
 
 > `FewshotCoTPrompt` is the class for few-shot Chain-of-Thought prompts. By showing the LLM some few shot exemplars where the reasoning process is explained in the exemplars, the LLM will also show the reasoning process when answering the prompt.
 
-**Example**
+<details>
+<summary><b>Example</b></summary>
 
 ```python
 from easyinstruct import FewshotCoTPrompt
@@ -166,11 +180,14 @@ fewshot_prompt.build_prompt(question,  in_context_examples, n_shots=1)
 fewshot_prompt.get_openai_result(engine="gpt-3.5-turbo")
 ```
 
-#### ZeroshotCoTPrompt
+</details>
 
-> `ZeroshotCoTPrompt` is the class for few-shot Chain-of-Thought prompts. LLMs are demonstrated to be zero-shot reasoners by simply adding "Let's think step by step" before each answer, which is refered as Zeroshot-CoT.
+##### ZeroshotCoTPrompt
 
-**Example**
+> `ZeroshotCoTPrompt` is the class for zero-shot Chain-of-Thought prompts. LLMs are demonstrated to be zero-shot reasoners by simply adding "Let's think step by step" before each answer, which is refered as Zeroshot-CoT.
+
+<details>
+<summary><b>Example</b></summary>
 
 ```python
 from easyinstruct import FewshotCoTPrompt
@@ -190,14 +207,16 @@ zeroshot_prompt.build_prompt(question)
 zeroshot_prompt.get_openai_result(engine="gpt-3.5-turbo")
 ```
 
+</details>
 
-### IndexPrompt
+#### IndexPrompt
 
 > `IndexPrompt` is the class for retrieving from an index and concat the retrieved context information with the query input, to get the result from LLM.  The class is implemented based on `llama_index`.
 
 > NOTE: the class only supports `SimpleVectorIndex` and `KGIndex` right now.
 
-**Example**
+<details>
+<summary><b>Example</b></summary>
 
 ```python
 from easyinstruct import IndexPrompt
@@ -222,13 +241,16 @@ response = kg_index.query("Where is A.E Dimitra Efxeinoupolis club?")
 kg_index.save_to_disk("./index/kg_index.json")
 ```
 
-### IEPrompt
+</details>
+
+#### IEPrompt
 
 > `IEPrompt` is the class for information extraction prompt. We are now supporting Named Entity Recognition (ner), Relation Extraction (re), Event Extraction (ee), Relational Triple Extraction (rte) and Data Augmentation (da) for re.
 
-**Example**
-
 (Please see [Deepke llm](https://github.com/zjunlp/DeepKE/tree/main/example/llm) for more details)
+
+<details>
+<summary><b>Example</b></summary>
 
 ```python
 import os
@@ -295,12 +317,14 @@ if __name__ == '__main__':
     main()
 ```
 
+</details>
 
-### MMPrompt
+#### MMPrompt
 
 > `MMPrompt` is the class for multimodal prompt, supporting input an image and question LLMs. We are now supporting two types of image encoding methods which are ASCII and caption.
 
-**Example**
+<details>
+<summary><b>Example</b></summary>
 
 ```python
 from easyinstruct import MMPrompt
@@ -322,11 +346,14 @@ mm_prompt.build_prompt(prompt='What is the image about?',
 mm_prompt.get_openai_result(engine="gpt-3.5-turbo")
 ```
 
-### BatchPrompt
+</details>
+
+#### BatchPrompt
 
 > `BatchPrompt` is the class for batch prompts. Batch prompting is a simple alternative prompting approach that enables the LLM to run inference in batches, instead of one sample at a time. Batch prompting can reduce both token and time costs while retaining downstream performance.
 
-**Example**
+<details>
+<summary><b>Example</b></summary>
 
 ```python
 from easyinstruct import BasePrompt, IEPrompt, ZeroshotCoTPrompt, FewshotCoTPrompt, BatchPrompt
@@ -373,40 +400,189 @@ batch_prompt.get_openai_result(engine = "gpt-3.5-turbo")
 batch_prompt.parse_response()
 ```
 
-### llamaEngine
-> `llamaEngine` is the class for local Llama models. It's an alternative to the openAI engine which supports local deployment.
+</details>
 
-**Example**
+### Engines
+
+> The `Engines` module standardizes the instruction execution process, enabling the execution of instruction prompts on specific locally deployed LLMs. You can choose the appropriate engine based on your specific needs.
+
+#### BaseEngine
+
+> `BaseEngine` is the base class for all engines. It's an alternative to the LLM API service which supports local deployment.
+
+> You can also easily inherit this base class to customize your own engine class. Just override the `__init__` and `inference` method.
+
+#### Llama2Engine
+
+> `Llama2Engine` is the class for local Llama2 model. Llama 2 is a collection of pretrained and fine-tuned generative text models ranging in scale from 7 billion to 70 billion parameters. This is the engine for the 7B pretrained model. 
+
+> We load the model weights from Huggingface, see [here](https://huggingface.co/meta-llama/Llama-2-7b) for more details. You can also load the model weights from your local disk.
+
+<b>Example</b>
+
 ```python
-from easyinstruct import llamaEngine
-from transformers import GenerationConfig
-# Step1: Initialize according to the your model path and the weight format
-# Load the model in hf format
-lengine=llamaEngine(base_path=YOUR_BASE_PATH,adapter_path=YOUR_ADAPTER_PATH,gpu=True,multi_gpu=True) 
-# Load the model in cpp format
-# lengine=llamaEngine(base_path=YOUR_BASE_PATH,gpu=False)
+from easyinstruct import BasePrompt
+from easyinstruct import Llama2Engine
 
-# Step2: do inference
-generation_config = GenerationConfig(
-                    temperature=0.6,
-                    top_p=0.95,
-                    repetition_penalty=1.15,
-                )
-print(lengine('介绍一下浙江大学',generation_config))
+# Step1: Declare a prompt class
+prompt = BasePrompt()
+
+# Step2: Build a prompt
+prompt.build_prompt("Give me three names of cats.")
+
+# Step3: Declare a engine class
+engine = Llama2Engine()
+
+# Step4: Get the result from locally deployed LLM
+prompt.get_engine_result(engine = engine)
 ```
+
+#### ChatGLM2Engine
+
+> `ChatGLM2Engine` is the class for local ChatGLM2 model. ChatGLM2-6B is the second-generation version of the open-source bilingual (Chinese-English) chat model ChatGLM-6B based on General Language Model (GLM) framework.
+
+> We load the model weights from Huggingface, see [here](https://huggingface.co/THUDM/chatglm2-6b) for more details. You can also load the model weights from your local disk.
+
+<details>
+<summary><b>Example</b></summary>
+
+```python
+from easyinstruct import BasePrompt
+from easyinstruct import ChatGLM2Engine
+
+# Step1: Declare a prompt class
+prompt = BasePrompt()
+
+# Step2: Build a prompt
+prompt.build_prompt("Give me three names of cats.")
+
+# Step3: Declare a engine class
+engine = ChatGLM2Engine()
+
+# Step4: Get the result from locally deployed LLM
+prompt.get_engine_result(engine = engine)
+```
+</details>
+
+### Generators
+
+> The `Generators` module streamlines the process of instruction data generation, allowing for the generation of instruction data based on seed data.
+
+#### BaseGenerator
+
+> `BaseGenerator` is the base class for all generators.
+
+> You can also easily inherit this base class to customize your own generator class. Just override the `__init__` and `generate` method.
+
+#### SelfInstructGenerator
+
+> `SelfInstructGenerator` is the class for the instruction generation method of Self-Instruct. See [Self-Instruct: Aligning Language Model with Self Generated Instructions](http://arxiv.org/abs/2212.10560) for more details.
+
+<b>Example</b>
+
+```python
+from easyinstruct import SelfInstructGenerator
+from easyinstruct.utils.api import set_openai_key
+
+# Step1: Set your own API-KEY
+set_openai_key("YOUR-KEY")
+
+# Step2: Declare a generator class
+generator = SelfInstructGenerator(num_instructions_to_generate=10)
+
+# Step3: Generate self-instruct data
+generator.generate()
+```
+
+#### BackTranslationGenerator
+
+> `BackTranslationGenerator` is the class for the instruction generation method of Instruction Backtranslation. See [Self-Alignment with Instruction Backtranslation](http://arxiv.org/abs/2308.06259) for more details.
+
+<details>
+<summary><b>Example</b></summary>
+
+```python
+from easyinstruct import BacktranslationGenerator
+from easyinstruct.utils.api import set_openai_key
+
+# Step1: Set your own API-KEY
+set_openai_key("YOUR-KEY")
+
+# Step2: Declare a generator class
+generator = BacktranslationGenerator(num_instructions_to_generate=10)
+
+# Step3: Generate backtranslation data
+generator.generate()
+```
+
+</details>
+
+#### EvolInstructGenerator
+
+> `EvolInstructGenerator` is the class for the instruction generation method of EvolInstruct. See [WizardLM: Empowering Large Language Models to Follow Complex Instructions](http://arxiv.org/abs/2304.12244) for more details.
+
+<details>
+<summary><b>Example</b></summary>
+
+```python
+from easyinstruct import EvolInstructGenerator
+from easyinstruct.utils.api import set_openai_key
+
+# Step1: Set your own API-KEY
+set_openai_key("YOUR-KEY")
+
+# Step2: Declare a generator class
+generator = EvolInstructGenerator(num_instructions_to_generate=10)
+
+# Step3: Generate evolution data
+generator.generate()
+```
+
+</details>
+
+#### KG2InstructGenerator
+
+> `KG2InstructGenerator` is the class for the instruction generation method of KG2Instruct. See [InstructIE: A Chinese Instruction-based Information Extraction Dataset](https://arxiv.org/abs/2305.11527) for more details.
+
+### Selectors
+
+> The `Selectors` module standardizes the instruction selection process, enabling the extraction of high-quality instruction datasets from raw, unprocessed instruction data. The raw data can be sourced from publicly available instruction datasets or generated by the framework itself.
+
+#### BaseSelector
+
+> `BaseSelector` is the base class for all selectors.
+
+> You can also easily inherit this base class to customize your own selector class. Just override the `__init__` and `__process__` method.
+
+#### Deduplicator
+
+> `Deduplicator` is the class for the instruction selection method of Deduplication.
+
+#### LengthSelector
+
+#### RougeSelector
+
+#### GPTScoreSelector
+
+#### PPLSelector
+
+#### MTLDSelector
+
+#### MultiSelector
 
 ---
 ### 🚩Citation
 
 Please cite our repository if you use EasyInstruct in your work.
 
-```
+```bibtex
 @misc{easyinstruct,
   author = {Yixin Ou and Ningyu Zhang and Honghao Gui and Zhen Bi and Yida Xue and Runnan Fang and Kangwei Liu and Lei Li and Shuofei Qiao and Huajun Chen},
-  title = {EasyInstruct: An Easy-to-use Instruction Generation Framework for Large Language Models},
+  title = {EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models},
   year = {2023},
   url = {https://github.com/zjunlp/EasyInstruct},
 }
+
 @misc{knowlm,
   author = {Ningyu Zhang and Jintian Zhang and Xiaohan Wang and Honghao Gui and Kangwei Liu and Yinuo Jiang and Xiang Chen and Shengyu Mao and Shuofei Qiao and Yuqi Zhu and Zhen Bi and Jing Chen and Xiaozhuan Liang and Yixin Ou and Runnan Fang and Zekun Xi and Xin Xu and Lei Li and Peng Wang and Mengru Wang and Yunzhi Yao and Bozhong Tian and Yin Fang and Guozhou Zheng and Huajun Chen},
   title = {KnowLM: An Open-sourced Knowledgeable Large Langugae Model Framework},
@@ -422,3 +598,5 @@ Please cite our repository if you use EasyInstruct in your work.
 <a href="https://github.com/zjunlp/EasyInstruct/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=zjunlp/EasyInstruct" />
 </a>
+
+We will offer long-term maintenance to fix bugs, solve issues and meet new requests. So if you have any problems, please put issues to us.
