@@ -19,6 +19,11 @@ prompt_template3 = (
     " following sentences unchanged and provide as much professional knowledge as possible."
     "\nSentences:\n")
 
+prompt_template4 = (
+    "Assuming you are an expert in marine engineering and resources, if any ocean name or place name appears in the following question, you should replace it with a different ocean name or place name. "
+    " Then rewrite the question in a more professional way, but do not answer the question."
+    " Question:\n")
+
 
 class AgentInstructGenerator(BaseGenerator):
 
@@ -91,6 +96,42 @@ class AgentInstructGenerator(BaseGenerator):
                 }]
 
                 fout.write(json.dumps(data, ensure_ascii=False) + "\n")
+
+                prompt4 = BasePrompt()
+                prompt4.build_prompt(prompt_template4 + instruction)
+                prompt4.get_openai_result(
+                    engine=self.engine,
+                    max_tokens=150,
+                    temperature=0,
+                    top_p=0,
+                    frequency_penalty=0,
+                    presence_penalty=0
+                )
+
+                aug_instruction = prompt4.output
+
+                prompt5 = BasePrompt()
+                prompt5.build_prompt(aug_instruction)
+                prompt5.get_openai_result(
+                    engine=self.engine,
+                    max_tokens=150,
+                    temperature=0,
+                    top_p=0,
+                    frequency_penalty=0,
+                    presence_penalty=0
+                )
+
+                aug_content = prompt5.output
+
+                aug_data = {}
+                aug_data["instruction"] = aug_instruction
+                aug_data["instances"] = [{
+                    "input": "",
+                    "output": aug_content
+                }]
+
+                fout.write(json.dumps(aug_data, ensure_ascii=False) + "\n")
+
                 progress_bar.update(1)
 
     def generate(self):
