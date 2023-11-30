@@ -4,7 +4,7 @@
 
 > You can also easily inherit this base class to customize your own prompt class. Just override the `build_prompt` method and `parse_response` method.
 
-**Constructor**
+#### **Constructor**
 
 `__init__(self)`
 
@@ -19,7 +19,7 @@ from easyinstruct import BasePrompt
 prompts = BasePrompt()
 ```
 
-**build\_prompt**
+#### **build\_prompt**
 
 `build_prompt(self, prompt: str)`
 
@@ -37,7 +37,7 @@ Build a prompt from a given string input.
 prompts.build_prompt("Give me three names of cats.")
 ```
 
-**get\_openai\_result**
+#### **get\_openai\_result**
 
 ```python
 get_openai_result(
@@ -74,7 +74,7 @@ Get the response from OpenAI API.
 prompts.get_openai_result(engine = "gpt-3.5-turbo")
 ```
 
-**get\_anthropic\_result**
+#### **get\_anthropic\_result**
 
 ```python
 get_anthropic_result(
@@ -107,7 +107,7 @@ Get the response from Anthropic API.
 prompts.get_anthropic_result(engine="claude-2")
 ```
 
-**get\_cohere\_result**
+#### **get\_cohere\_result**
 
 ```python
 get_cohere_result(
@@ -143,7 +143,7 @@ Get the response from Anthropic API.
 prompts.get_cohere_result(engine="command")
 ```
 
-**get\_engine\_result**
+#### **get\_engine\_result**
 
 ```python
 get_engine_result(
@@ -168,6 +168,6 @@ engine = Llama2Engine()
 prompts.get_engine_result(engine = engine)
 ```
 
-**parse\_response**
+#### **parse\_response**
 
 Implemented in subclasses.

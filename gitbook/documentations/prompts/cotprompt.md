@@ -6,7 +6,7 @@
 
 > `FewshotCoTPrompt` is the class for few-shot Chain-of-Thought prompts. By showing the LLM some few shot exemplars where the reasoning process is explained in the exemplars, the LLM will also show the reasoning process when answering the prompt.
 
-**build\_prompt**
+#### **build\_prompt**
 
 ```python
 build_prompt(
@@ -47,7 +47,7 @@ fewshot_prompts.build_prompt(
 
 > `ZeroshotCoTPrompt` is the class for few-shot Chain-of-Thought prompts. LLMs are demonstrated to be zero-shot reasoners by simply adding "Let's think step by step" before each answer, which is refered as Zeroshot-CoT.
 
-**build\_prompt**
+#### **build\_prompt**
 
 ```python
 build_prompt(self, prompt: str)

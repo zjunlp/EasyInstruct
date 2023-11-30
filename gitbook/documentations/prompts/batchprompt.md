@@ -1,30 +1,30 @@
-### BatchPrompt
+# BatchPrompt
 
 > `BatchPrompt` is the class for batch prompts. Batch prompting is a simple alternative prompting approach that enables the LLM to run inference in batches, instead of one sample at a time. Batch prompting can reduce both token and time costs while retaining downstream performance.
 
-- #### build_prompt
+#### **build\_prompt**
 
-  ```
-  build_prompt(self, prompt_list:list)
-  ```
+```
+build_prompt(self, prompt_list:list)
+```
 
-  **Description**
+**Description**
 
-  Build a batch_prompt from a given list of different types of prompts.
+Build a batch\_prompt from a given list of different types of prompts.
 
-  **Parameters**
+**Parameters**
 
-  - `prompt_list` (list): The prompt list.
+* `prompt_list` (list): The prompt list.
 
-- #### **parse_response**
+#### **parse\_response**
 
-  ```
-  parse_response(self)
-  ```
+```
+parse_response(self)
+```
 
-  **Description**
+**Description**
 
-  Divide the overall response of batch_prompt into corresponding responses for prompt_list and pass them back into the response of the corresponding prompt.
+Divide the overall response of batch\_prompt into corresponding responses for prompt\_list and pass them back into the response of the corresponding prompt.
 
 **Example**
 
@@ -64,4 +64,3 @@ batch_prompt.build_prompt([prompts, ieprompts, zeroshot_prompts, fewshot_prompts
 batch_prompt.get_openai_result(engine = "gpt-3.5-turbo-0301")
 batch_prompt.parse_response()
 ```
-

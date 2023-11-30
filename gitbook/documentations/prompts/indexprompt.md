@@ -1,10 +1,10 @@
 # IndexPrompt
 
-> `IndexPrompt` is the class for retrieving from an index and concat the retrieved context information with the query input, to get the result from LLM.  The class is implemented based on `llama_index`.
+> `IndexPrompt` is the class for retrieving from an index and concat the retrieved context information with the query input, to get the result from LLM. The class is implemented based on `llama_index`.
 
 > NOTE: the class only supports `SimpleVectorIndex` and `KGIndex` right now.
 
-**Constructor**
+#### **Constructor**
 
 ```python
 __init__(self, index_name="simple_vector_index", index_path=None)
@@ -22,7 +22,7 @@ from easyinstruct.prompts import IndexPrompt
 simple_index = IndexPrompt("simple_vector_index")
 ```
 
-**build\_index**
+#### **build\_index**
 
 ```python
 build_index(
@@ -49,7 +49,7 @@ Build a index on your custom data.
 
 * `List[Document]`: A list of documents. `Document` is a class from llama\_index.
 
-**load\_from\_disk**
+#### **load\_from\_disk**
 
 ```python
 load_from_disk(self, index_path)
@@ -61,7 +61,7 @@ Load index from saved path
 
 * `index_path` (str): The path to your saved index.
 
-**save\_to\_disk**
+#### **save\_to\_disk**
 
 ```python
 save_to_disk(self, save_path)
@@ -75,7 +75,7 @@ Save index to local path
 
 * `save_path` (str): The path to save your index.
 
-**query**
+#### **query**
 
 ```python
 query(self, prompt)

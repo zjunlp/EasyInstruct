@@ -2,7 +2,7 @@
 
 > `IEPrompt` is the class for information extraction prompt. We are now supporting Named Entity Recognition (ner), Relation Extraction (re), Event Extraction (ee), Relational Triple Extraction (rte) and Data Augmentation (da) for re.
 
-**Constructor**
+#### **Constructor**
 
 ```python
 __init__(self, task='ner')
@@ -19,7 +19,7 @@ from easyinstruct.prompts import IEPrompt
 ie_prompt = IEPrompt("ner")
 ```
 
-**build\_index**
+#### **build\_index**
 
 ```python
 build_prompt(

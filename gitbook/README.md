@@ -6,5 +6,4 @@
 
 EasyInstruct is a Python package which is proposed as an easy-to-use instruction processing framework for Large Language Models(LLMs). EasyInstruct is designed to be easy to use and easy to extend.
 
-<figure><img src=".gitbook/assets/overview.png" alt=""><figcaption><p><strong>Overview of EasyInstruct.</strong></p></figcaption></figure>
-
+<figure><img src=".gitbook/assets/overview.jpg" alt=""><figcaption><p><strong>Overview of EasyInstruct.</strong></p></figcaption></figure>

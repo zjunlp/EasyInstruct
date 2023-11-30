@@ -2,7 +2,7 @@
 
 > `MMPrompt` is the class for multimodal prompt, supporting input an image and question LLMs. We are now supporting two types of image encoding methods which are ASCII and caption.
 
-**Constructor**
+#### **Constructor**
 
 ```python
 __init__(self, resize=224)
@@ -19,7 +19,7 @@ from easyinstruct import MMPrompt
 mm_prompts = MMPrompt(resize=32)
 ```
 
-**build\_prompt**
+#### **build\_prompt**
 
 ```python
 build_prompt(self, 
@@ -40,7 +40,6 @@ Build a prompt from a given Image path and a question prompt.
 * `img_path` (str): The path of the input image.
 * `encode_format` (str): The format to encode the input image. `ASCII` or `caption`.
 * `scale` (float): Control the encoding granularity in `ASCII` encoding format.
-
 
 **Example**
 
