@@ -60,8 +60,6 @@ This repository is a subproject of [KnowLM](https://github.com/zjunlp/KnowLM).
 
 EasyInstruct is a Python package which is proposed as an easy-to-use instruction processing framework for Large Language Models(LLMs) like GPT-3, Llama, ChatGLM in your research experiments. EasyInstruct modularizes instruction generation, selection, and prompting, while also considering their combination and interaction. 
 
-[KnowLM](https://github.com/zjunlp/KnowLM) | [Falcon](https://github.com/falconry/falcon) | [Alpaca](https://github.com/tatsu-lab/stanford_alpaca) | [ChatGLM](https://github.com/THUDM/ChatGLM-6B) | [Chinese-LLaMA-Alpaca](https://github.com/ymcui/Chinese-LLaMA-Alpaca) | [MOSS](https://github.com/OpenLMLab/MOSS) | [Baize](https://github.com/project-baize/baize-chatbot) | [Vicuna](https://github.com/lm-sys/FastChat) | [BenTsao](https://github.com/SCIR-HI/Huatuo-Llama-Med-Chinese) | [Linly](https://github.com/CVI-SZU/Linly) | [ChatYuan](https://github.com/clue-ai/ChatYuan) | [Dolly](https://github.com/databrickslabs/dolly) | [MPT](https://github.com/mosaicml/llm-foundry) | [HuatuoGPT](https://github.com/FreedomIntelligence/HuatuoGPT) | [BayLing](https://github.com/ictnlp/BayLing)| [BELLE](https://github.com/LianjiaTech/BELLE) | [ChatGPT](https://chat.openai.com/)  
-
 <img src="figs/overview.jpg">
 
 - API service providers and their corresponding LLM products that are currently available:
