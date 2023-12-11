@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=1 accelerate launch finetune.py --data_path /mnt/16t/oyx/EasyInstruct/data/all_instances_82K.jsonl --base_model /mnt/16t/share/llama-2-converted/7b

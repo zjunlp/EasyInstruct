@@ -134,3 +134,4 @@ data/generations/*
 data/selections/*
 data/seed_data.jsonl
 data/unlabelled_data.jsonl
+experiments/lora/output/*
