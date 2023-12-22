@@ -6,3 +6,4 @@ from .gpt_score_selector import GPTScoreSelector
 from .mtld_selector import MTLDSelector
 from .ppl_selector import PPLSelector
 from .multi_selector import MultiSelector
+from .code_selector import CodeSelector
