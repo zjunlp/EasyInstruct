@@ -134,4 +134,7 @@ data/generations/*
 data/selections/*
 data/seed_data.jsonl
 data/unlabelled_data.jsonl
+data/evol_instruct_70k.json
 experiments/lora/output/*
+experiments/instruction_visualization/*.json
+experiments/instruction_visualization/*.html
