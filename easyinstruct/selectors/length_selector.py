@@ -6,17 +6,16 @@ from .base_selector import BaseSelector
 class LengthSelector(BaseSelector):
     def __init__(
         self,
-        source_dir: str = "data/generations/",
+        source_file_path: str = "",
         target_dir: str = "data/selections/",
-        source_file_path: str = "generated_instances.jsonl",
-        target_file_path: str = "selected_instructions.jsonl",
+        target_file_name: str = "selected_instructions.jsonl",
         min_instruction_length: int = 3,
         max_instruction_length: int = 150,
         min_response_length: int = 3,
         max_response_length: int = 350,
     ):
         super(LengthSelector, self).__init__(
-            source_dir, target_dir, source_file_path, target_file_path
+            source_file_path, target_dir, target_file_name
         )
         self.min_instruction_length = min_instruction_length
         self.max_instruction_length = max_instruction_length
