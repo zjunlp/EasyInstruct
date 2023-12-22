@@ -4,11 +4,13 @@ from easyinstruct import LengthSelector, Deduplicator, RougeSelector, GPTScoreSe
 set_openai_key("")
 set_proxy("")
 
+src_file = ""
+
 selector1 = Deduplicator()
 selector2 = RougeSelector()
 selector3 = LengthSelector()
 selector4 = GPTScoreSelector()
 selector5 = MTLDSelector()
 selector6 = PPLSelector()
-selector = MultiSelector(source_file_path="evolved_instances.jsonl", selectors_list=[selector4])
+selector = MultiSelector(source_file_path=src_file, selectors_list=[selector1])
 selector.process()

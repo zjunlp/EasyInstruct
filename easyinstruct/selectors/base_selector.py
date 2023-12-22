@@ -5,17 +5,13 @@ import json
 class BaseSelector:
     def __init__(
         self,
-        source_dir: str = "data/generations/",
+        source_file_path: str = "",
         target_dir: str = "data/selections/",
-        source_file_path: str = "generated_instances.jsonl",
-        target_file_path: str = "selected_instructions.jsonl",
+        target_file_name: str = "selected_instructions.jsonl",
     ):
-        self.source_dir = source_dir
-        self.target_dir = target_dir
-        os.makedirs(self.source_dir, exist_ok=True)
-        os.makedirs(self.target_dir, exist_ok=True)
-        self.source_file_path = os.path.join(self.source_dir, source_file_path)
-        self.target_file_path = os.path.join(self.target_dir, target_file_path)
+        self.source_file_path = source_file_path
+        os.makedirs(target_dir, exist_ok=True)
+        self.target_file_path = os.path.join(target_dir, target_file_name)
         self.data = None
 
     def load_data_from_file(self):
@@ -23,7 +19,13 @@ class BaseSelector:
         if not os.path.exists(data_path):
             raise FileNotFoundError(f"File not found: {data_path}")
 
-        data = [json.loads(l) for l in open(data_path, "r")]
+        if data_path.endswith(".jsonl"):
+            data = [json.loads(l) for l in open(data_path, "r")]
+        elif data_path.endswith(".json"):
+            data = json.load(open(data_path, "r"))
+        else:
+            raise ValueError("Unknown file format")
+        
         self.data = data
         return data
 

@@ -19,15 +19,14 @@ Please first provide a brief reasoning you used to derive the rating score, and 
 class GPTScoreSelector(BaseSelector):
     def __init__(
         self,
-        source_dir: str = "data/generations/",
+        source_file_path: str = "",
         target_dir: str = "data/selections/",
-        source_file_path: str = "generated_instances.jsonl",
-        target_file_path: str = "selected_instructions.jsonl",
+        target_file_name: str = "selected_instructions.jsonl",
         engine: str = "gpt-3.5-turbo",
         threshold: int = 4,
     ):
         super(GPTScoreSelector, self).__init__(
-            source_dir, target_dir, source_file_path, target_file_path
+            source_file_path, target_dir, target_file_name
         )
         self.engine = engine
         self.threshold = threshold
