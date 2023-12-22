@@ -250,7 +250,7 @@ class CodeSelector(BaseSelector):
         target_file_path: str = "",
     ):
         super(CodeSelector, self).__init__(
-            source_dir, target_dir, source_file_path, target_file_path
+            source_file_path, target_dir, target_file_name
         )
         self.min_boundary = min_boundary
         self.max_boundary = max_boundary
