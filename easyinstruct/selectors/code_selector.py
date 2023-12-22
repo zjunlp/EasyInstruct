@@ -249,14 +249,18 @@ class CodeSelector(BaseSelector):
         target_dir: str = "",
         target_file_path: str = "",
     ):
-        super(CodeSelector, self).__init__(
-            source_file_path, target_dir, target_file_name
-        )
+        super(CodeSelector, self).__init__()
         self.min_boundary = min_boundary
         self.max_boundary = max_boundary
         self.manually_partion_data = manually_partion_data
         self.automatically_partion_data = automatically_partion_data
         self.cluster_number = k_means_cluster_number
+
+        self.source_dir = source_dir
+        self.target_dir = target_dir
+        os.makedirs(self.source_dir, exist_ok=True)
+        os.makedirs(self.target_dir, exist_ok=True)
+        self.source_file_path = os.path.join(self.source_dir, source_file_path)
 
     def load_data_from_file(self):
         data_path = self.source_file_path
