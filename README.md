@@ -269,6 +269,15 @@ Please cite our repository if you use EasyInstruct in your work.
   year = {2023},
  url = {http://knowlm.zjukg.cn/},
 }
+
+@misc{bi2023programofthoughts,
+      author={Zhen Bi and Ningyu Zhang and Yinuo Jiang and Shumin Deng and Guozhou Zheng and Huajun Chen},
+      title={When Do Program-of-Thoughts Work for Reasoning?}, 
+      year={2023},
+      eprint={2308.15452},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
 ```
 
 ---
