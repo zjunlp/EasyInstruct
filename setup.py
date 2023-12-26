@@ -22,6 +22,8 @@ Pillow
 tiktoken
 nltk
 rouge-score
+matplotlib
+scikit-learn
 """
 
 def get_install_requires():

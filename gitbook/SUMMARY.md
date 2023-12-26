@@ -29,4 +29,5 @@
     * [GPTScoreSelector](documentations/selectors/gptscoreselector.md)
     * [PPLSelector](documentations/selectors/pplselector.md)
     * [MTLDSelector](documentations/selectors/mtldselector.md)
+    * [CodeSelector](documentations/selectors/codeselector.md)
     * [MultiSelector](documentations/selectors/multiselector.md)

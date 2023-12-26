@@ -1,17 +1,16 @@
-from tqdm import tqdm
-
-import ast
 import os
 import re
-import random
-import numpy as np
-
-import matplotlib.pyplot as plt
+import ast
 import math
 import json
-import ast
-import re
+import random
+
+import numpy as np
+import matplotlib.pyplot as plt
+from tqdm import tqdm
 from sklearn.cluster import KMeans
+
+from .base_selector import BaseSelector
 
 ''''
     代码分数 = 代码结构复杂度 * 代码逻辑复杂度
@@ -38,51 +37,6 @@ from sklearn.cluster import KMeans
     注意，程序的可能错误和高的圈复杂度有着很大关系，圈复杂度最高的模块和方法，其缺陷个数也可能最多。
     圈复杂度大说明程序代码的判断逻辑复杂，可能质量低，且难于测试和维护
 '''
-
-from .base_selector import BaseSelector
-
-# class BaseSelector:
-#     def __init__(
-#         self,
-#         source_dir: str = "data/generations/",
-#         target_dir: str = "data/selections/",
-#         source_file_path: str = "generated_instances.jsonl",
-#         target_file_path: str = "selected_instructions.jsonl",
-#     ):
-#         self.source_dir = source_dir
-#         self.target_dir = target_dir
-#         os.makedirs(self.source_dir, exist_ok=True)
-#         os.makedirs(self.target_dir, exist_ok=True)
-#         self.source_file_path = os.path.join(self.source_dir, source_file_path)
-#         self.target_file_path = os.path.join(self.target_dir, target_file_path)
-#         self.data = None
-
-#     def load_data_from_file(self):
-#         data_path = self.source_file_path
-#         if not os.path.exists(data_path):
-#             raise FileNotFoundError(f"File not found: {data_path}")
-
-#         data = [json.loads(l) for l in open(data_path, "r")]
-#         self.data = data
-#         return data
-
-#     def dump_data_to_file(self):
-#         data_path = self.target_file_path
-#         with open(data_path, "w") as f:
-#             for d in self.data:
-#                 f.write(json.dumps(d) + "\n")
-
-#     def __process__(self, data):
-#         raise NotImplementedError
-
-#     def process(self):
-#         self.load_data_from_file()
-#         self.data = self.__process__(self.data)
-#         self.dump_data_to_file()
-#         return self.data
-
-
-
 
 def batch_normalization(x, epsilon=1e-8):
     mean = np.mean(x, axis=0)
@@ -239,38 +193,25 @@ def calculate_logic_complexity(code):
 class CodeSelector(BaseSelector):
     def __init__(
         self,
-        source_dir: str = "data",
-        source_file_path: str = "generated_instances.jsonl",
+        source_file_path: str = "",
+        target_dir: str = "",
+        target_file_name: str = "",
         min_boundary: float = 0.125,
         max_boundary: float = 0.5,
         manually_partion_data: bool = True,
         automatically_partion_data: bool = True,
         k_means_cluster_number: int = 2,
-        target_dir: str = "",
-        target_file_path: str = "",
     ):
-        super(CodeSelector, self).__init__()
+        super(CodeSelector, self).__init__(
+            source_file_path, target_dir, target_file_name
+        )
+        
+        self.target_dir = target_dir
         self.min_boundary = min_boundary
         self.max_boundary = max_boundary
         self.manually_partion_data = manually_partion_data
         self.automatically_partion_data = automatically_partion_data
         self.cluster_number = k_means_cluster_number
-
-        self.source_dir = source_dir
-        self.target_dir = target_dir
-        os.makedirs(self.source_dir, exist_ok=True)
-        os.makedirs(self.target_dir, exist_ok=True)
-        self.source_file_path = os.path.join(self.source_dir, source_file_path)
-
-    def load_data_from_file(self):
-        data_path = self.source_file_path
-        if not os.path.exists(data_path):
-            raise FileNotFoundError(f"File not found: {data_path}")
-
-        with open(data_path, 'r') as f:
-            data = json.load(f)
-        self.data = data
-        return data
 
     def dump_data_to_file(self):
         return
@@ -570,16 +511,16 @@ class CodeSelector(BaseSelector):
 
             os.makedirs(os.path.join(self.target_dir, 'manually_pration_results'), exist_ok=True)
 
-            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_low.jsonl', 'w') as f:
+            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_low.json', 'w') as f:
                 json.dump(data_cleaned_low, f, indent=4)
             
-            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_medium.jsonl', 'w') as f:
+            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_medium.json', 'w') as f:
                 json.dump(data_cleaned_medium, f, indent=4)
                 
-            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_high.jsonl', 'w') as f:
+            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_high.json', 'w') as f:
                 json.dump(data_cleaned_high, f, indent=4)
 
-            print(f'Results saved to {os.path.join(self.source_dir, "manually_pration_results")}\n')
+            print(f'Results saved to {os.path.join(self.target_dir, "manually_pration_results")}\n')
 
         if self.automatically_partion_data:
             
@@ -619,6 +560,6 @@ class CodeSelector(BaseSelector):
                 with open(os.path.join(self.target_dir, 'automatically_pration_results') + f'/data_cluster_{cluster_id+1}.jsonl', 'w') as f:
                     json.dump(pation_result[cluster_id], f, indent=4)
 
-            print(f'Results saved to {os.path.join(self.source_dir, "automaticallypration_results")}\n')
+            print(f'Results saved to {os.path.join(self.target_dir, "automaticallypration_results")}\n')
 
         return 
