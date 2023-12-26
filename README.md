@@ -37,6 +37,7 @@
 
 ## 🔔News
 
+- **2023-12-9 The paper "When Do Program-of-Thoughts Work for Reasoning" (supported by EasyInstruct), is accepted by AAAI 2024.**
 - **2023-10-28 We release version 0.1.1, supporting for new features of instruction generation and instruction selection.**
 - **2023-8-9 We release version 0.0.6, supporting Cohere API calls.**
 - **2023-7-12 We release [EasyEdit](https://github.com/zjunlp/EasyEdit), an easy-to-use framework to edit Large Language Models.**
