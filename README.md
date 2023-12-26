@@ -63,22 +63,6 @@ EasyInstruct is a Python package which is proposed as an easy-to-use instruction
 
 <img src="figs/overview.jpg">
 
-- API service providers and their corresponding LLM products that are currently available:
-  
-   **Model** | **Description**                                                                                                                  | **Default Version** 
-  --------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------------------------
-  ***OpenAI***
-   GPT-3.5            | A set of models that improve on GPT-3 and can understand as well as generate natural language or code.                                    | `gpt-3.5-turbo`       
-   GPT-4              | A set of models that improve on GPT-3.5 and can understand as well as generate natural language or code.                                  | `gpt-4`
-   ***Anthropic***               
-   Claude             | A next-generation AI assistant based on Anthropic’s research into training helpful, honest, and harmless AI systems.                      | `claude-2.0`          
-   Claude-Instant     | A lighter, less expensive, and much faster option than Claude.                                                                            | `claude-instant-1.2`
-  ***Cohere***     
-   Command            | A flagship text generation model of Cohere trained to follow user commands and to be instantly useful in practical business applications. | `command`             
-   Command-Light      | A light version of Command models that are faster but may produce lower-quality generated text.                                           | `command-light`       
-
-
-
 - The current supported instruction generation techniques are as follows:
   - [Self-Instruct](https://arxiv.org/abs/2212.10560): Wang et al., 2023
   - [Instruction Backtranslation](https://arxiv.org/abs/2308.06259): Li
@@ -95,8 +79,21 @@ et al., 2023
   | MTLD                 | $MTLD$                | Measure of Textual Lexical Diversity.                                                                                   |
   | ROUGE                | $ROUGE$               | Recall-Oriented Understudy for Gisting Evaluation.                                                                                   |
   | GPT score            | $GPT$                 | The score of whether the output is a good example of how AI Assistant should respond to the user's instruction, provided by ChatGPT. |
+  | CIRS                 | $CIRS$                | Complexity-Impacted Reasoning Score.                                                                                   |
 
-
+- API service providers and their corresponding LLM products that are currently available:
+  
+   **Model** | **Description**                                                                                                                  | **Default Version** 
+  --------------------|-------------------------------------------------------------------------------------------------------------------------------------------|------------------------------
+  ***OpenAI***
+   GPT-3.5            | A set of models that improve on GPT-3 and can understand as well as generate natural language or code.                                    | `gpt-3.5-turbo`       
+   GPT-4              | A set of models that improve on GPT-3.5 and can understand as well as generate natural language or code.                                  | `gpt-4`
+   ***Anthropic***               
+   Claude             | A next-generation AI assistant based on Anthropic’s research into training helpful, honest, and harmless AI systems.                      | `claude-2.0`          
+   Claude-Instant     | A lighter, less expensive, and much faster option than Claude.                                                                            | `claude-instant-1.2`
+  ***Cohere***     
+   Command            | A flagship text generation model of Cohere trained to follow user commands and to be instantly useful in practical business applications. | `command`             
+   Command-Light      | A light version of Command models that are faster but may produce lower-quality generated text.                                           | `command-light`    
 ---
 
 ## 🔧Installation
