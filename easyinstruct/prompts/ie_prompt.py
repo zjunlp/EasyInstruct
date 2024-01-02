@@ -260,7 +260,7 @@ class IEPrompt(ICLPrompt):
             else:
                 key = "示例"
             self.examples.append({key: ""})
-            for example in self.examples:
+            for example in examples:
                 if self.task in ["ee", "rte"]:
                     self.examples.append(
                         {"输入": example["input"], "输出": str(example["output"])}
