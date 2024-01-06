@@ -1,6 +1,7 @@
 from .base_selector import BaseSelector
 from .length_selector import LengthSelector
 from .deduplicator import Deduplicator
+from .random_selector import RandomSelector
 from .rouge_selector import RougeSelector
 from .gpt_score_selector import GPTScoreSelector
 from .mtld_selector import MTLDSelector
