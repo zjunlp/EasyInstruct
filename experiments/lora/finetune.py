@@ -26,6 +26,9 @@ from utils.prompter import Prompter
 
 from easyinstruct.utils import setup_logger
 
+import wandb
+
+wandb.init(project="easyinstruct")
 
 def train(
     # model/data params
@@ -35,10 +38,10 @@ def train(
     # training hyperparams
     batch_size: int = 256,
     micro_batch_size: int = 8,
-    num_epochs: int = 3,
+    num_epochs: int = 2,
     learning_rate: float = 3e-4,
     cutoff_len: int = 512,
-    val_set_size: int = 2000,
+    val_set_size: int = 0,
     # lora hyperparams
     lora_r: int = 16,
     lora_alpha: int = 32,
@@ -162,13 +165,13 @@ def train(
     def generate_and_tokenize_prompt(data_point):
         full_prompt = prompter.generate_prompt(
             data_point["instruction"],
-            data_point["input"],
+            data_point["input"] if "input" in data_point.keys() else None,
             data_point["output"],
         )
         tokenized_full_prompt = tokenize(full_prompt)
         if not train_on_inputs:
             user_prompt = prompter.generate_prompt(
-                data_point["instruction"], data_point["input"]
+                data_point["instruction"], data_point["input"] if "input" in data_point.keys() else None
             )
             tokenized_user_prompt = tokenize(user_prompt, add_eos_token=False)
             user_prompt_len = len(tokenized_user_prompt["input_ids"])

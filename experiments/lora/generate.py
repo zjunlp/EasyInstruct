@@ -9,6 +9,8 @@ from transformers import GenerationConfig, LlamaForCausalLM, LlamaTokenizer
 import json
 from tqdm import tqdm
 
+from utils.prompter import Prompter
+
 if torch.cuda.is_available():
     device = "cuda"
 else:
@@ -33,6 +35,7 @@ def main(
         base_model
     ), "Please specify a --base_model, e.g. --base_model='decapoda-research/llama-7b-hf'"
 
+    prompter = Prompter()
     tokenizer = LlamaTokenizer.from_pretrained(base_model)
     if device == "cuda":
         model = LlamaForCausalLM.from_pretrained(
@@ -54,10 +57,7 @@ def main(
         max_new_tokens=512,
         **kwargs,
     ):
-        prompt = instruction['instruction']
-        if instruction['input']:
-            prompt += " Input: {instruction['input']}"
-        prompt = template.format_map(dict(instruction=prompt))
+        prompt = prompter.generate_prompt(instruction, input)
         inputs = tokenizer(prompt, return_tensors="pt")
         input_ids = inputs["input_ids"].to(device)
         generation_config = GenerationConfig(
@@ -77,19 +77,23 @@ def main(
             )
         s = generation_output.sequences[0]
         output = tokenizer.decode(s)
-        return output.split("\n\n[|AI|]:")[1].strip().strip('</s>')
+        return prompter.get_response(output)
 
 
     instructions = json.load(open(input_file, 'r'))
-    results = []
     for instruction in tqdm(instructions):
-        instruction['generator'] = model_name
-        instruction['output'] = evaluate(instruction)
+        result = {
+            'instruction': instruction['instruction'],
+            'input': instruction['input'],
+            'output': evaluate(instruction),
+            'generator': model_name,
+            "dataset": instruction["dataset"],
+            "datasplit": instruction["datasplit"],
+        }
         print("Instruction:", instruction)
-        print("Response:", instruction['output'])
-
-    json.dump(instructions, open(output_file, 'w'))
-
+        print("Response:", result['output'])
+        with open(output_file, "a+") as f:
+            f.write(json.dumps(result) + "\n")
 
 
 if __name__ == "__main__":
