@@ -16,5 +16,6 @@ class MultiSelector(BaseSelector):
 
     def __process__(self, data):
         for selector in self.selectors_list:
+            selector.data_format = self.data_format
             data = selector.__process__(data)
         return data

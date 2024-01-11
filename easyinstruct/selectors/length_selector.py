@@ -24,23 +24,30 @@ class LengthSelector(BaseSelector):
 
     def __process__(self, data):
         for d in tqdm(data):
-            if len(d["instruction"]) < self.min_instruction_length:
+            if (len(d["instruction"]) < self.min_instruction_length
+                or len(d["instruction"]) > self.max_instruction_length
+            ):
                 data.remove(d)
                 continue
+            
+            if self.data_format == "self_instruct":
+                instances = d["instances"]
+                for instance in instances:
+                    if (
+                        len(instance["output"]) < self.min_response_length
+                        or len(instance["output"]) > self.max_response_length
+                    ):
+                        instances.remove(instance)
 
-            if len(d["instruction"]) > self.max_instruction_length:
-                data.remove(d)
-                continue
-
-            instances = d["instances"]
-            for instance in instances:
+                if len(instances) == 0:
+                    data.remove(d)
+            elif self.data_format == "alpaca" or self.data_format == "alpaca_wo_input":
                 if (
-                    len(instance["output"]) < self.min_response_length
-                    or len(instance["output"]) > self.max_response_length
+                    len(d["output"]) < self.min_response_length
+                    or len(d["output"]) > self.max_response_length
                 ):
-                    instances.remove(instance)
-
-            if len(instances) == 0:
-                data.remove(d)
+                    data.remove(d)
+            else:
+                raise ValueError("Unknown data format")
 
         return data

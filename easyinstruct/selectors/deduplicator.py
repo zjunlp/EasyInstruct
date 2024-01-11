@@ -16,37 +16,53 @@ class Deduplicator(BaseSelector):
 
     def __process__(self, data):
         for d in tqdm(data):
-            instances = d["instances"]
-            for instance in instances:
-                # if input and output are the same, we will not use such instances
-                if instance["input"] == instance["output"]:
-                    instances.remove(instance)
-                    continue
-                # if output is empty, we will not use such instances
-                if instance["output"] == "":
-                    instances.remove(instance)
-                    continue
-                # if input or output ends with a colon, these are usually imcomplete generation. We will not use such instances
-                if instance["input"].strip().endswith(":") or instance[
-                    "output"
-                ].strip().endswith(":"):
-                    instances.remove(instance)
-
-            # if the instances have same non-empty input, but different output, we will not use such instances
-            same_input_diff_output = False
-            for i in range(1, len(instances)):
-                for j in range(0, i):
-                    if instances[i]["input"] == "":
+            if self.data_format == "self_instruct":
+                instances = d["instances"]
+                for instance in instances:
+                    # if input and output are the same, we will not use such instances
+                    if instance["input"] == instance["output"]:
+                        instances.remove(instance)
                         continue
-                    if (
-                        instances[i]["input"] == instances[j]["input"]
-                        and instances[i]["output"] != instances[j]["output"]
-                    ):
-                        same_input_diff_output = True
-                        break
+                    # if output is empty, we will not use such instances
+                    if instance["output"] == "":
+                        instances.remove(instance)
+                        continue
+                    # if input or output ends with a colon, these are usually imcomplete generation. We will not use such instances
+                    if instance["input"].strip().endswith(":") or instance["output"].strip().endswith(":"):
+                        instances.remove(instance)
 
-            # remove duplicate instances
-            if same_input_diff_output or len(instances) == 0:
-                data.remove(d)
+                # if the instances have same non-empty input, but different output, we will not use such instances
+                same_input_diff_output = False
+                for i in range(1, len(instances)):
+                    for j in range(0, i):
+                        if instances[i]["input"] == "":
+                            continue
+                        if (
+                            instances[i]["input"] == instances[j]["input"]
+                            and instances[i]["output"] != instances[j]["output"]
+                        ):
+                            same_input_diff_output = True
+                            break
+
+                # remove duplicate instances
+                if same_input_diff_output or len(instances) == 0:
+                    data.remove(d)
+                    
+            elif self.data_format == "alpaca":
+                if (d["input"] == d["output"]
+                    or d["output"] == ""
+                    or d["input"].strip().endswith(":")
+                    or d["output"].strip().endswith(":")
+                ):
+                    data.remove(d)
+                    
+            elif self.data_format == "alpaca_wo_input":
+                if (d["output"] == ""
+                    or d["output"].strip().endswith(":")
+                ):
+                    data.remove(d)
+            
+            else:
+                raise ValueError("Unknown data format")
 
         return data

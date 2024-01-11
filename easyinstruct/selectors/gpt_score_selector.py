@@ -36,9 +36,20 @@ class GPTScoreSelector(BaseSelector):
 
         for d in tqdm(data):
             prompt = BasePrompt()
-            prompt.build_prompt(
-                f"{prompt_template}\n\nInstruction: {d['instruction']}\n\n Response:{d['instances'][0]['output']}"
-            )
+            if self.data_format == "self_instruct":
+                prompt.build_prompt(
+                    f'{prompt_template}\n\nInstruction: {d["instruction"]}\n\n Response:{d["instances"][0]["output"]}'
+                )
+            elif self.data_format == "alpaca":
+                prompt.build_prompt(
+                    f'{prompt_template}\n\nInstruction: {d["instruction"]} {d["input"]}\n\n Response:{d["output"]}'
+                )
+            elif self.data_format == "alpaca_wo_input":
+                prompt.build_prompt(
+                    f'{prompt_template}\n\nInstruction: {d["instruction"]}\n\n Response:{d["output"]}'
+                )
+            else:
+                raise ValueError("Unknown data format")
             prompt.get_openai_result(
                 engine=self.engine,
                 max_tokens=150,

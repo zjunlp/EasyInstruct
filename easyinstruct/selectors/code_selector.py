@@ -255,7 +255,9 @@ class CodeSelector(BaseSelector):
 
 
     def __process__(self, data):
-
+        
+        if self.data_format != "alpaca":
+            raise ValueError("Data format should be alpaca")
 
         '''
             extract code blocks from data
