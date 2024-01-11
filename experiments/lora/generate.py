@@ -16,12 +16,6 @@ if torch.cuda.is_available():
 else:
     device = "cpu"
 
-template = (
-        "The following is a conversation between a human and an AI assistant. "
-        "The AI assistant gives helpful, detailed, and polite answers to the user's questions.\n"
-        "[|Human|]: {instruction}\n\n[|AI|]:"
-    )
-
 def main(
     load_8bit: bool = False,
     base_model: str = "",
@@ -41,9 +35,15 @@ def main(
         model = LlamaForCausalLM.from_pretrained(
             base_model,
             load_in_8bit=load_8bit,
-            torch_dtype=torch.float16,
+            torch_dtype=torch.bfloat16,
             device_map="auto",
         )
+        if lora_weights != "":
+            model = PeftModel.from_pretrained(
+                model,
+                lora_weights,
+                torch_dtype=torch.bfloat16,
+            )
 
     model.eval()
 

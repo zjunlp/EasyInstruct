@@ -38,10 +38,10 @@ def train(
     # training hyperparams
     batch_size: int = 256,
     micro_batch_size: int = 8,
-    num_epochs: int = 2,
+    num_epochs: int = 3,
     learning_rate: float = 3e-4,
     cutoff_len: int = 512,
-    val_set_size: int = 0,
+    val_set_size: int = 1000,
     # lora hyperparams
     lora_r: int = 16,
     lora_alpha: int = 32,
@@ -125,8 +125,8 @@ def train(
         os.environ["WANDB_LOG_MODEL"] = wandb_log_model
     model = LlamaForCausalLM.from_pretrained(
         base_model,
-        load_in_8bit=True,
-        torch_dtype=torch.float16,
+        # load_in_8bit=True,
+        torch_dtype=torch.bfloat16,
         device_map=device_map,
     )
 
@@ -258,7 +258,7 @@ def train(
             warmup_steps=warmup_steps,
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
-            fp16=True,
+            bf16=True,
             logging_steps=logging_steps,
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
