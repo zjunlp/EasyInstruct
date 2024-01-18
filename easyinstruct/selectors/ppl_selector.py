@@ -25,9 +25,14 @@ class PPLSelector(BaseSelector):
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         model = AutoModelForCausalLM.from_pretrained(self.model_name).to(self.device)
 
-        selected_data = []
-        for i in tqdm(range(0, len(data))):
-            input_text = data[i]["instruction"]
+        for d in tqdm(data):
+            if self.data_format == "self_instruct":
+                input_text = d["instances"][0]["output"]
+            elif self.data_format == "alpaca" or self.data_format == "alpaca_wo_input":
+                input_text = d["output"]
+            else:
+                raise ValueError("Unknown data format")
+
             encodings = tokenizer(input_text, return_tensors="pt")
             max_length = model.config.n_positions
             stride = 512
@@ -59,13 +64,9 @@ class PPLSelector(BaseSelector):
                     break
 
             ppl = torch.exp(torch.stack(nlls).mean())
-            ppl_score = ppl.item()
 
             if ppl > self.threshold:
-                continue
-            # if not isinstance(data[i], dict):
-            #         data[i] = {}
-            # data[i]["ppl_score"] = ppl_score
-            selected_data.append(data[i])
+                print(f'PPL: {ppl.item()}')
+                data.remove(d)
 
-        return selected_data
+        return data

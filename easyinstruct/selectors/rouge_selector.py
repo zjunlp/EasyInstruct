@@ -1,3 +1,4 @@
+import random
 from tqdm import tqdm
 from multiprocessing import Pool
 from functools import partial
@@ -21,7 +22,8 @@ class RougeSelector(BaseSelector):
 
     def __process__(self, data):
         scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=False)
-
+        
+        random.shuffle(data)
         selected_instructions = [data[0]["instruction"]]
         selected_data = [data[0]]
 

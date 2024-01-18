@@ -41,23 +41,33 @@ class GPTScoreSelector(BaseSelector):
                     f'{prompt_template}\n\nInstruction: {d["instruction"]}\n\n Response:{d["instances"][0]["output"]}'
                 )
             elif self.data_format == "alpaca":
-                prompt.build_prompt(
-                    f'{prompt_template}\n\nInstruction: {d["instruction"]} {d["input"]}\n\n Response:{d["output"]}'
-                )
+                if "input" in d.keys():
+                    prompt.build_prompt(
+                        f'{prompt_template}\n\nInstruction: {d["instruction"]} {d["input"]}\n\n Response:{d["output"]}'
+                    )
+                else:
+                    prompt.build_prompt(
+                        f'{prompt_template}\n\nInstruction: {d["instruction"]}\n\n Response:{d["output"]}'
+                    )
             elif self.data_format == "alpaca_wo_input":
                 prompt.build_prompt(
                     f'{prompt_template}\n\nInstruction: {d["instruction"]}\n\n Response:{d["output"]}'
                 )
             else:
                 raise ValueError("Unknown data format")
-            prompt.get_openai_result(
-                engine=self.engine,
-                max_tokens=150,
-                temperature=0,
-                top_p=0,
-                frequency_penalty=0,
-                presence_penalty=0,
-            )
+
+            try:
+                prompt.get_openai_result(
+                    engine=self.engine,
+                    max_tokens=150,
+                    temperature=0,
+                    top_p=0,
+                    frequency_penalty=0,
+                    presence_penalty=0,
+                )
+            except Exception as e:
+                print(e)
+                continue
 
             score_matched = regex.search(prompt.output)
             if score_matched:
