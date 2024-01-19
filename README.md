@@ -61,23 +61,25 @@ This repository is a subproject of [KnowLM](https://github.com/zjunlp/KnowLM).
 
 EasyInstruct is a Python package which is proposed as an easy-to-use instruction processing framework for Large Language Models(LLMs) like GPT-3, Llama, ChatGLM in your research experiments. EasyInstruct modularizes instruction generation, selection, and prompting, while also considering their combination and interaction. 
 
-<img src="figs/overview.jpg">
+<img src="figs/overview.png">
 
 - The current supported instruction generation techniques are as follows:
-  - [Self-Instruct](https://arxiv.org/abs/2212.10560): Wang et al., 2023
-  - [Instruction Backtranslation](https://arxiv.org/abs/2308.06259): Li
-et al., 2023
-  - [Evol-Instruct](https://arxiv.org/abs/2304.12244): Xu et al., 2023
-  - [KG2Instruct](https://arxiv.org/abs/2305.11527): Gui et al., 2023
+
+  | **Methods** | **Description** |
+  | --- | --- |
+  | [Self-Instruct](https://arxiv.org/abs/2212.10560) | The method that randomly samples a few instructions from a human-annotated seed tasks pool as demonstrations and prompts an LLM to generate more instructions and corresponding input-output pairs. |
+  | [Evol-Instruct](https://arxiv.org/abs/2304.12244) | The method that incrementally upgrades an initial set of instructions into more complex instructions by prompting an LLM with specific prompts. |
+  | [Backtranslation](https://arxiv.org/abs/2308.06259) | The method that creates an instruction following training instance by predicting an instruction that would be correctly answered by a portion of a document of the corpus.  |
+  | [KG2Instruct](https://arxiv.org/abs/2305.11527) | The method that creates an instruction following training instance by predicting an instruction that would be correctly answered by a portion of a document of the corpus. |
 
 - The current supported instruction selection metrics are as follows:
 
   | **Metrics** | **Notation** | **Description**                                                                                                             |
   |----------------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------|
-  | Length               | $Len$                 | The average length of every response in the dataset.                                                                                 |
+  | Length               | $Len$                 | The bounded length of every pair of instruction and response.                                                                                 |
   | Perplexity           | $PPL$                 | The exponentiated average negative log-likelihood of response.                                                                       |
   | MTLD                 | $MTLD$                | Measure of Textual Lexical Diversity.                                                                                   |
-  | ROUGE                | $ROUGE$               | Recall-Oriented Understudy for Gisting Evaluation.                                                                                   |
+  | ROUGE                | $ROUGE$               | Recall-Oriented Understudy for Gisting Evaluation, a set of metrics used for evaluating similarities between sentences.                                                                                   |
   | GPT score            | $GPT$                 | The score of whether the output is a good example of how AI Assistant should respond to the user's instruction, provided by ChatGPT. |
   | CIRS                 | $CIRS$                | Complexity-Impacted Reasoning Score.                                                                                   |
 
@@ -98,9 +100,9 @@ et al., 2023
 
 ## 🔧Installation
 
-**Installation using PyPI:**
+**Installation from git repo branch:**
 ```
-pip install easyinstruct -i https://pypi.org/simple
+pip install git+https://github.com/zjunlp/EasyInstruct@main
 ```
 
 **Installation for local development:**
@@ -108,6 +110,11 @@ pip install easyinstruct -i https://pypi.org/simple
 git clone https://github.com/zjunlp/EasyInstruct
 cd EasyInstruct
 pip install -e .
+```
+
+**Installation using PyPI (not the latest version):**
+```
+pip install easyinstruct -i https://pypi.org/simple
 ```
 
 ---
@@ -146,9 +153,9 @@ generator = SelfInstructGenerator(num_instructions_to_generate=10)
 generator.generate()
 ```
 
-#### BackTranslationGenerator
+#### BacktranslationGenerator
 
-> `BackTranslationGenerator` is the class for the instruction generation method of Instruction Backtranslation. See [Self-Alignment with Instruction Backtranslation](http://arxiv.org/abs/2308.06259) for more details.
+> `BacktranslationGenerator` is the class for the instruction generation method of Instruction Backtranslation. See [Self-Alignment with Instruction Backtranslation](http://arxiv.org/abs/2308.06259) for more details.
 
 <details>
 <summary><b>Example</b></summary>
