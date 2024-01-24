@@ -10,8 +10,7 @@ API_NAME_DICT = {
         "claude": ["claude-2", "claude-2.0", "claude-2.1"],
         "claude-instant": ["claude-instant-1", "claude-instant-1.2"]
     },
-    "cohere": ["command", "command-nightly", "command-light", "command-light-nightly"],
-    "perplexity": ["pplx-7b-chat", "pplx-70b-chat", "pplx-7b-online"," pplx-70b-online", "llama-2-70b-chat", "codellama-34b-instruct", "mistral-7b-instruct", "mixtral-8x7b-instruct"]
+    "cohere": ["command", "command-nightly", "command-light", "command-light-nightly"]
 }
 
 def set_proxy(proxy):
