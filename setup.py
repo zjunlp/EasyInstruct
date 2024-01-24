@@ -7,7 +7,7 @@ torch>=1.13.0
 torchvision>=0.15.0
 transformers>=4.28.0
 accelerate>=0.20.3
-openai>=0.27.0
+openai==1.9.0
 anthropic>=0.3.0
 cohere>=4.19.0
 llama-index==0.4.29

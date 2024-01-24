@@ -1,4 +1,4 @@
-import openai
+from openai import OpenAI
 import anthropic
 import cohere
 from typing import Optional, Union, List
@@ -32,10 +32,10 @@ class BasePrompt:
         frequency_penalty: Optional[float] = 0.0,
         presence_penalty: Optional[float] = 0.0,
     ):
-        openai.api_key = get_openai_key()
+        client = OpenAI()
         self.engine = engine
-        if engine in API_NAME_DICT["openai"]["gpt3"]:
-            response = openai.Completion.create(
+        if engine in API_NAME_DICT["openai"]["gpt-3"]:
+            response = client.completions.create(
                 model=engine,
                 prompt=self.prompt,
                 temperature=temperature,
@@ -45,11 +45,11 @@ class BasePrompt:
                 frequency_penalty=frequency_penalty,
                 presence_penalty=presence_penalty,
             )
-            output = response["choices"][0]["text"].strip()
+            output = response.choices[0].text.strip()
 
         elif (
-            engine in API_NAME_DICT["openai"]["chatgpt"]
-            or engine in API_NAME_DICT["openai"]["gpt4"]
+            engine in API_NAME_DICT["openai"]["gpt-3.5"]
+            or engine in API_NAME_DICT["openai"]["gpt-4"]
         ):
             if isinstance(system_message, str):
                 messages = [
@@ -63,7 +63,7 @@ class BasePrompt:
                     "system_message should be either a string or a list of strings."
                 )
 
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model=engine,
                 messages=messages,
                 temperature=temperature,
@@ -73,7 +73,7 @@ class BasePrompt:
                 frequency_penalty=frequency_penalty,
                 presence_penalty=presence_penalty,
             )
-            output = response["choices"][0]["message"]["content"].strip()
+            output = response.choices[0].message.content.strip()
 
         else:
             print("[ERROR] Engine {engine} not found!".format(engine=engine))
