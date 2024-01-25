@@ -25,6 +25,7 @@ class EvolInstructGenerator(SelfInstructGenerator):
     def __init__(
         self,
         target_dir: str = "data/generations/",
+        data_format: str = "alpaca",
         seed_tasks_path: str = "data/seed_tasks.jsonl",
         generated_instructions_path: str = "evolved_instructions.jsonl",
         generated_instances_path: str = "evolved_instances.jsonl",
@@ -33,6 +34,7 @@ class EvolInstructGenerator(SelfInstructGenerator):
     ):
         super(EvolInstructGenerator, self).__init__(
             target_dir,
+            data_format,
             seed_tasks_path,
             generated_instructions_path,
             generated_instances_path,

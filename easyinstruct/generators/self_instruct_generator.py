@@ -113,6 +113,7 @@ class SelfInstructGenerator(BaseGenerator):
     def __init__(
         self,
         target_dir: str = "data/generations/",
+        data_format: str = "alpaca",
         seed_tasks_path: str = "data/seed_tasks.jsonl",
         generated_instructions_path: str = "generated_instructions.jsonl",
         generated_instances_path: str = "generated_instances.jsonl",
@@ -120,7 +121,9 @@ class SelfInstructGenerator(BaseGenerator):
         engine: str = "gpt-3.5-turbo",
         num_prompt_instructions: int = 8,
     ):
-        super(SelfInstructGenerator, self).__init__(target_dir)
+        super(SelfInstructGenerator, self).__init__(
+            target_dir, data_format
+        )
         self.seed_tasks_path = seed_tasks_path
         self.generated_instructions_path = os.path.join(
             self.target_dir, generated_instructions_path
@@ -136,7 +139,7 @@ class SelfInstructGenerator(BaseGenerator):
         return re.compile(r"\b({0})\b".format(w), flags=re.IGNORECASE).search(s)
 
     def post_process_generations(self, response, message):
-        if response is None or response["choices"][0]["finish_reason"] == "length":
+        if response is None or response.choices[0].finish_reason == "length":
             return []
         raw_instructions = re.split(r"\n\d+\s?\. ", message)
         instructions = []
@@ -314,34 +317,51 @@ class SelfInstructGenerator(BaseGenerator):
 
                 if (
                     prompt.response is None
-                    or prompt.response["choices"][0]["finish_reason"] == "length"
+                    or prompt.response.choices[0].finish_reason == "length"
                 ):
                     continue
 
                 data = {}
                 data["instruction"] = inst
-                # data["raw_instances"] = prompt.output
                 raw_instance = prompt.output
                 if re.findall("Example\s?\d*\.?", raw_instance):
-                    data["instances"] = []
-                    for example in re.split(r"Example\s?\d*\.?", raw_instance):
+                    if self.data_format == "self_instruct":
+                        data["instances"] = []
+                        for example in re.split(r"Example\s?\d*\.?", raw_instance):
+                            if example.strip() == "":
+                                continue
+                            inst_input, inst_output = self.parse_input_output(example)
+                            data["instances"].append(
+                                {"input": inst_input, "output": inst_output}
+                            )
+                    elif self.data_format == "alpaca":
+                        example = re.split(r"Example\s?\d*\.?", raw_instance)[1]
                         if example.strip() == "":
-                            continue
+                                continue
                         inst_input, inst_output = self.parse_input_output(example)
-                        data["instances"].append(
-                            {"input": inst_input, "output": inst_output}
-                        )
+                        data["input"] = inst_input
+                        data["output"] = inst_output
 
                 elif re.findall(r"Output\s*\d*\s*:", raw_instance):
                     inst_input, inst_output = self.parse_input_output(raw_instance)
-                    data["instances"] = [{"input": inst_input, "output": inst_output}]
+                    if self.data_format == "self_instruct":
+                        data["instances"] = [{"input": inst_input, "output": inst_output}]
+                    elif self.data_format == "alpaca":
+                        data["input"] = inst_input
+                        data["output"] = inst_output
 
                 else:
-                    data["instances"] = [{"input": "", "output": raw_instance}]
+                    if self.data_format == "self_instruct":
+                        data["instances"] = [{"input": "", "output": raw_instance}]
+                    elif self.data_format == "alpaca":
+                        data["input"] = ""
+                        data["output"] = raw_instance
 
                 fout.write(json.dumps(data, ensure_ascii=False) + "\n")
                 progress_bar.update(1)
+        return data
 
     def generate(self):
         self.generate_instructions()
-        self.generate_instances()
+        results = self.generate_instances()
+        return results

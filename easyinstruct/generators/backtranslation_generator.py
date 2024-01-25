@@ -38,13 +38,16 @@ class BacktranslationGenerator(BaseGenerator):
     def __init__(
         self,
         target_dir: str = "data/generations/",
+        data_format: str = "alpaca",
         unlabelled_data_path: str = "data/unlabelled_data.jsonl",
         generated_data_path: str = "generated_data.jsonl",
         num_instructions_to_generate: int = 100,
         engine: str = "gpt-3.5-turbo",
-        threshold: int = 3,
+        threshold: int = 4,
     ):
-        super(BacktranslationGenerator, self).__init__(target_dir)
+        super(BacktranslationGenerator, self).__init__(
+            target_dir, data_format
+        )
         self.unlabelled_data_path = unlabelled_data_path
         self.generated_data_path = os.path.join(self.target_dir, generated_data_path)
         self.num_instructions_to_generate = num_instructions_to_generate
@@ -77,7 +80,11 @@ class BacktranslationGenerator(BaseGenerator):
 
             data = {}
             data["instruction"] = new_instruction
-            data["instances"] = [{"input": "", "output": content}]
+            if self.data_format == "self_instruct":
+                data["instances"] = [{"input": "", "output": content}]
+            elif self.data_format == "alpaca":
+                data["input"] = ""
+                data["output"] = content
             augmented_data.append(data)
             progress_bar.update(1)
 
@@ -85,13 +92,17 @@ class BacktranslationGenerator(BaseGenerator):
 
     def self_curation(self, augmented_data):
         regex = re.compile(r"[Ss]core:\s*(\d+)")
-        curated_data = []
 
         for data in tqdm(augmented_data):
             prompt = BasePrompt()
-            prompt.build_prompt(
-                f"{self_curation_prompt_template}\n\nInstruction: {data['instruction']}\n\n Response:{data['instances'][0]['output']}"
-            )
+            if self.data_format == "self_instruct":
+                prompt.build_prompt(
+                    f"{self_curation_prompt_template}\n\nInstruction: {data['instruction']}\n\n Response:{data['instances'][0]['output']}"
+                )
+            elif self.data_format == "alpaca":
+                prompt.build_prompt(
+                    f"{self_curation_prompt_template}\n\nInstruction: {data['instruction']}\n\n Response:{data['output']}"
+                )
             prompt.get_openai_result(
                 engine=self.engine,
                 max_tokens=150,
@@ -103,11 +114,15 @@ class BacktranslationGenerator(BaseGenerator):
 
             curation_response = prompt.output
             data["curation_response"] = curation_response
-            score_matched = regex.search(curation_response)
-            data["score"] = int(score_matched.group(1)) if score_matched else None
-            curated_data.append(data)
+            score_matched = regex.search(curation_response)   
+            if score_matched:
+                score = int(score_matched.group(1))
+                if score < self.threshold:
+                    augmented_data.remove(data)
+            else:
+                augmented_data.remove(data)
 
-        return curated_data
+        return augmented_data
 
     def generate(self):
         unlabelled_data = self.load_data_from_file(self.unlabelled_data_path)
