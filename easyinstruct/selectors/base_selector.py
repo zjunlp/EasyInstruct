@@ -58,7 +58,7 @@ class BaseSelector:
         data_path = self.target_file_path
         with open(data_path, "w") as f:
             for d in self.data:
-                f.write(json.dumps(d) + "\n")
+                f.write(json.dumps(d, ensure_ascii=False) + "\n")
 
     def __process__(self, data):
         raise NotImplementedError
