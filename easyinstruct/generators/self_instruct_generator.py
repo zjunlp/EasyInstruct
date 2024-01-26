@@ -298,6 +298,7 @@ class SelfInstructGenerator(BaseGenerator):
             print(f"Loaded {len(existing_requests)} existing requests.")
 
         progress_bar = tqdm(total=len(generated_instructions))
+        generated_instances = []
         with open(self.generated_instances_path, "w") as fout:
             for inst in generated_instructions:
                 if inst in existing_requests:
@@ -357,11 +358,12 @@ class SelfInstructGenerator(BaseGenerator):
                         data["input"] = ""
                         data["output"] = raw_instance
 
+                generated_instances.append(data)
                 fout.write(json.dumps(data, ensure_ascii=False) + "\n")
                 progress_bar.update(1)
-        return data
+        return generated_instances
 
     def generate(self):
         self.generate_instructions()
-        results = self.generate_instances()
-        return results
+        generated_instances = self.generate_instances()
+        return generated_instances

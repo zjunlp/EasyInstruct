@@ -10,8 +10,6 @@ accelerate>=0.20.3
 openai==1.9.0
 anthropic>=0.3.0
 cohere>=4.19.0
-llama-index==0.4.29
-langchain==0.0.116
 hanlp
 zhconv==1.4.3
 beautifulsoup4==4.11.2
@@ -54,6 +52,7 @@ def do_setup():
                 "figs*",
                 "data*",
                 "experiments*"
+                "demo*"
             ]
         ),
         keywords=["AI", "NLP", "instruction", "language model"],

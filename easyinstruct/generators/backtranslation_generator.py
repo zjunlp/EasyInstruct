@@ -40,6 +40,7 @@ class BacktranslationGenerator(BaseGenerator):
         target_dir: str = "data/generations/",
         data_format: str = "alpaca",
         unlabelled_data_path: str = "data/unlabelled_data.jsonl",
+        column_name: str = "content",
         generated_data_path: str = "generated_data.jsonl",
         num_instructions_to_generate: int = 100,
         engine: str = "gpt-3.5-turbo",
@@ -49,13 +50,14 @@ class BacktranslationGenerator(BaseGenerator):
             target_dir, data_format
         )
         self.unlabelled_data_path = unlabelled_data_path
+        self.column_name = column_name
         self.generated_data_path = os.path.join(self.target_dir, generated_data_path)
         self.num_instructions_to_generate = num_instructions_to_generate
         self.engine = engine
         self.threshold = threshold
 
     def self_augmentation(self, unlabelled_data):
-        unlabelled_content = [d["content"] for d in unlabelled_data]
+        unlabelled_content = [d[self.column_name] for d in unlabelled_data]
 
         augmented_data = []
         progress_bar = tqdm(total=self.num_instructions_to_generate)
@@ -78,54 +80,52 @@ class BacktranslationGenerator(BaseGenerator):
             else:
                 new_instruction = prompt.output
 
-            data = {}
-            data["instruction"] = new_instruction
-            if self.data_format == "self_instruct":
-                data["instances"] = [{"input": "", "output": content}]
-            elif self.data_format == "alpaca":
-                data["input"] = ""
-                data["output"] = content
-            augmented_data.append(data)
-            progress_bar.update(1)
+            if new_instruction.startswith("It seems like") or new_instruction.startswith("I'm sorry"):
+                continue
+
+            data = self.self_curation(new_instruction, content)
+            if data:
+                augmented_data.append(data)
+                progress_bar.update(1)
 
         return augmented_data
 
-    def self_curation(self, augmented_data):
+    def self_curation(self, instruction, output):
         regex = re.compile(r"[Ss]core:\s*(\d+)")
 
-        for data in tqdm(augmented_data):
-            prompt = BasePrompt()
-            if self.data_format == "self_instruct":
-                prompt.build_prompt(
-                    f"{self_curation_prompt_template}\n\nInstruction: {data['instruction']}\n\n Response:{data['instances'][0]['output']}"
-                )
-            elif self.data_format == "alpaca":
-                prompt.build_prompt(
-                    f"{self_curation_prompt_template}\n\nInstruction: {data['instruction']}\n\n Response:{data['output']}"
-                )
-            prompt.get_openai_result(
-                engine=self.engine,
-                max_tokens=150,
-                temperature=0,
-                top_p=0,
-                frequency_penalty=0,
-                presence_penalty=0,
-            )
+        prompt = BasePrompt()
+        prompt.build_prompt(
+            f"{self_curation_prompt_template}\n\nInstruction: {instruction}\n\n Response:{output}"
+        )
+        prompt.get_openai_result(
+            engine=self.engine,
+            max_tokens=150,
+            temperature=0,
+            top_p=0,
+            frequency_penalty=0,
+            presence_penalty=0,
+        )
 
-            curation_response = prompt.output
-            data["curation_response"] = curation_response
-            score_matched = regex.search(curation_response)   
-            if score_matched:
-                score = int(score_matched.group(1))
-                if score < self.threshold:
-                    augmented_data.remove(data)
-            else:
-                augmented_data.remove(data)
-
-        return augmented_data
+        curation_response = prompt.output
+        score_matched = regex.search(curation_response)
+        if score_matched:
+            score = int(score_matched.group(1))
+            if score >= self.threshold:
+                data = {}
+                data["instruction"] = instruction
+                if self.data_format == "self_instruct":
+                    data["instances"] = [{"input": "", "output": output}]
+                elif self.data_format == "alpaca":
+                    data["input"] = ""
+                    data["output"] = output
+                data["score"] = score
+                data["curation_response"] = curation_response
+                return data
+                
+        return None
 
     def generate(self):
         unlabelled_data = self.load_data_from_file(self.unlabelled_data_path)
         augmented_data = self.self_augmentation(unlabelled_data)
-        curated_data = self.self_curation(augmented_data)
-        self.dump_data_to_file(curated_data, self.generated_data_path)
+        self.dump_data_to_file(augmented_data, self.generated_data_path)
+        return augmented_data
