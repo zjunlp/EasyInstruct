@@ -18,7 +18,6 @@ class BasePrompt:
 
     def build_prompt(self, prompt: str):
         self.prompt = prompt
-        print(self.prompt)
         return self.prompt
 
     def get_openai_result(

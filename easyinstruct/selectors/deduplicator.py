@@ -15,6 +15,8 @@ class Deduplicator(BaseSelector):
         )
 
     def __process__(self, data):
+        selected_data = []
+
         for d in tqdm(data):
             if self.data_format == "self_instruct":
                 instances = d["instances"]
@@ -28,8 +30,13 @@ class Deduplicator(BaseSelector):
                         instances.remove(instance)
                         continue
                     # if input or output ends with a colon, these are usually imcomplete generation. We will not use such instances
-                    if instance["input"].strip().endswith(":") or instance["output"].strip().endswith(":"):
+                    if instance["input"].strip().endswith(":") or instance[
+                        "output"
+                    ].strip().endswith(":"):
                         instances.remove(instance)
+
+                if len(instances) == 0:
+                    continue
 
                 # if the instances have same non-empty input, but different output, we will not use such instances
                 same_input_diff_output = False
@@ -44,25 +51,26 @@ class Deduplicator(BaseSelector):
                             same_input_diff_output = True
                             break
 
-                # remove duplicate instances
-                if same_input_diff_output or len(instances) == 0:
-                    data.remove(d)
-                    
+                # not use duplicate instances
+                if same_input_diff_output:
+                    continue
+
             elif self.data_format == "alpaca":
-                if (d["input"] == d["output"]
+                if (
+                    d["input"] == d["output"]
                     or d["output"] == ""
                     or d["input"].strip().endswith(":")
                     or d["output"].strip().endswith(":")
                 ):
-                    data.remove(d)
-                    
+                    continue
+
             elif self.data_format == "alpaca_wo_input":
-                if (d["output"] == ""
-                    or d["output"].strip().endswith(":")
-                ):
-                    data.remove(d)
-            
+                if d["output"] == "" or d["output"].strip().endswith(":"):
+                    continue
+
             else:
                 raise ValueError("Unknown data format")
 
-        return data
+            selected_data.append(d)
+
+        return selected_data

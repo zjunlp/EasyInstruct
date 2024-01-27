@@ -34,6 +34,8 @@ class GPTScoreSelector(BaseSelector):
     def __process__(self, data):
         regex = re.compile(r"[Ss]core:\s*(\d+)")
 
+        selected_data = []
+
         for d in tqdm(data):
             prompt = BasePrompt()
             if self.data_format == "self_instruct":
@@ -56,25 +58,20 @@ class GPTScoreSelector(BaseSelector):
             else:
                 raise ValueError("Unknown data format")
 
-            try:
-                prompt.get_openai_result(
-                    engine=self.engine,
-                    max_tokens=150,
-                    temperature=0,
-                    top_p=0,
-                    frequency_penalty=0,
-                    presence_penalty=0,
-                )
-            except Exception as e:
-                print(e)
-                continue
+            prompt.get_openai_result(
+                engine=self.engine,
+                max_tokens=150,
+                temperature=0,
+                top_p=0,
+                frequency_penalty=0,
+                presence_penalty=0,
+            )
 
             score_matched = regex.search(prompt.output)
             if score_matched:
                 score = int(score_matched.group(1))
-                if score < self.threshold:
-                    data.remove(d)
-            else:
-                data.remove(d)
+                if score >= self.threshold:
+                    d["gpt_score"] = score
+                    selected_data.append(d)
 
-        return data
+        return selected_data

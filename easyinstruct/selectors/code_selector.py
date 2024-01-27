@@ -12,7 +12,7 @@ from sklearn.cluster import KMeans
 
 from .base_selector import BaseSelector
 
-''''
+"""'
     代码分数 = 代码结构复杂度 * 代码逻辑复杂度
 
     （1）定义代码结构复杂度 = sigmoid(sum (归一化的节点数量,  归一化的节点深度,  归一化的节点类型)).
@@ -36,7 +36,8 @@ from .base_selector import BaseSelector
 
     注意，程序的可能错误和高的圈复杂度有着很大关系，圈复杂度最高的模块和方法，其缺陷个数也可能最多。
     圈复杂度大说明程序代码的判断逻辑复杂，可能质量低，且难于测试和维护
-'''
+"""
+
 
 def batch_normalization(x, epsilon=1e-8):
     mean = np.mean(x, axis=0)
@@ -153,15 +154,15 @@ def calculate_cyclomatic_complexity(code):
 
 def count_operators_and_operands(code):
     # 使用正则表达式匹配代码中的操作符和操作数
-    operators = re.findall(r'[-+*/%=<>!]+', code)
-    operands = re.findall(r'\b[A-Za-z_][A-Za-z0-9_]*\b', code)  # 假设操作数由合法的标识符组成
+    operators = re.findall(r"[-+*/%=<>!]+", code)
+    operands = re.findall(r"\b[A-Za-z_][A-Za-z0-9_]*\b", code)  # 假设操作数由合法的标识符组成
 
     # 统计操作符和操作数的数量和不重复的数量 ++++ -- /
-    operator_count = len(operators) # 7
+    operator_count = len(operators)  # 7
     operand_count = len(operands)  # 10
     unique_operator_count = len(set(operators))  # 3
     unique_operand_count = len(set(operands))  # 10
-    
+
     # 3 / 2  * 10/10
 
     return operator_count, operand_count, unique_operator_count, unique_operand_count
@@ -169,11 +170,18 @@ def count_operators_and_operands(code):
 
 def calculate_logic_complexity(code):
     # 统计操作符和操作数的数量
-    operator_count, operand_count, unique_operator_count, unique_operand_count = count_operators_and_operands(code)
+    (
+        operator_count,
+        operand_count,
+        unique_operator_count,
+        unique_operand_count,
+    ) = count_operators_and_operands(code)
 
     # 计算难度 D
     try:
-        difficulty = (unique_operator_count / 2) * (operand_count / unique_operand_count)
+        difficulty = (unique_operator_count / 2) * (
+            operand_count / unique_operand_count
+        )
     except:
         difficulty = 0
 
@@ -181,7 +189,7 @@ def calculate_logic_complexity(code):
     try:
         cyclomatic_complexity = calculate_cyclomatic_complexity(code)
     except:
-        print('1')
+        print("1")
         cyclomatic_complexity = 0
 
     # 计算代码逻辑复杂度
@@ -205,7 +213,7 @@ class CodeSelector(BaseSelector):
         super(CodeSelector, self).__init__(
             source_file_path, target_dir, target_file_name
         )
-        
+
         self.target_dir = target_dir
         self.min_boundary = min_boundary
         self.max_boundary = max_boundary
@@ -217,60 +225,57 @@ class CodeSelector(BaseSelector):
         return
 
     def check_and_process(self, codes):
-        '''
-            filter blank lines
-        '''
+        """
+        filter blank lines
+        """
         new_codes = []
-        for item in codes.split('\n'):
-            if len(item)!=0:
+        for item in codes.split("\n"):
+            if len(item) != 0:
                 new_codes.append(item)
-        codes = '\n'.join(new_codes)
-        
+        codes = "\n".join(new_codes)
+
         run_time = 0
 
-        '''
+        """
             syntax check
-        '''
+        """
         error = True
-        while error and run_time<100:
+        while error and run_time < 100:
             run_time = run_time + 1
             try:
                 ast_tree = ast.parse(codes)
                 error = False
             except SyntaxError as e:
                 error_line = e.lineno
-                lines = codes.split('\n')
-                lines[error_line-1] = '# ' + lines[error_line-1]
+                lines = codes.split("\n")
+                lines[error_line - 1] = "# " + lines[error_line - 1]
 
-                codes = '\n'.join(lines) 
+                codes = "\n".join(lines)
                 error = True
             except:
                 error = False
-        
-        if run_time==100:
-            print('error')
-        
+
+        if run_time == 100:
+            print("error")
+
         return codes
 
-
-
     def __process__(self, data):
-        
         if self.data_format != "alpaca":
             raise ValueError("Data format should be alpaca")
 
-        '''
+        """
             extract code blocks from data
-        '''
+        """
         dataset = []
         for d in tqdm(data):
-            python_codes = re.findall(r'```python([\s\S]+?)```', d['output'])
+            python_codes = re.findall(r"```python([\s\S]+?)```", d["output"])
             dataset.append(
                 {
-                    'instruction': 'Use python code to solve the following problem\n',
-                    'input': d['input'],
-                    'output': '\n'.join(python_codes)
-                }   
+                    "instruction": "Use python code to solve the following problem\n",
+                    "input": d["input"],
+                    "output": "\n".join(python_codes),
+                }
             )
 
         # '''测试'''
@@ -282,57 +287,54 @@ class CodeSelector(BaseSelector):
         # print("Number of loops: ", loop_count)
         # print("Number of operators: ", operator_count)
 
-
-        '''
+        """
             遍历所有代码
-        '''
+        """
 
         dataset_cleaned = []
         knowledge_structure_score = []
         logical_score_temp = []
 
         for item in tqdm(dataset):
-            instruction = item['instruction']
-            input_ = item['input']
-            code = item['output']
-            
-            '''检查并且修正代码基本错误'''
+            instruction = item["instruction"]
+            input_ = item["input"]
+            code = item["output"]
+
+            """检查并且修正代码基本错误"""
             code = self.check_and_process(code)
 
-            '''代码为空，跳过'''
-            if code == '':
+            """代码为空，跳过"""
+            if code == "":
                 continue
-            
+
             try:
-                '''将代码字符串解析为抽象语法树'''
+                """将代码字符串解析为抽象语法树"""
                 ast_tree = ast.parse(code)
-                
+
                 dataset_cleaned.append(
                     {
-                        'instruction': instruction,
-                        'input': input_,
-                        'output': '```python\n' + code + '\n```'
+                        "instruction": instruction,
+                        "input": input_,
+                        "output": "```python\n" + code + "\n```",
                     }
                 )
             except Exception as e:
-                print('----------------------------')
+                print("----------------------------")
                 print(e)
                 print(item)
 
-
-        print('cleaned dataset size: ', len(dataset_cleaned))
-        print('\t example: ', random.choice(dataset_cleaned))
-
+        print("cleaned dataset size: ", len(dataset_cleaned))
+        print("\t example: ", random.choice(dataset_cleaned))
 
         structure_count = []
 
-        for item in  tqdm(dataset_cleaned):
-            code = item['output']
-            matches = re.findall(r'```python([\s\S]*?)```', code)
+        for item in tqdm(dataset_cleaned):
+            code = item["output"]
+            matches = re.findall(r"```python([\s\S]*?)```", code)
             if len(matches) == 0:
-                print('error')
+                print("error")
             else:
-                codes = ('\n'.join(matches)).strip()
+                codes = ("\n".join(matches)).strip()
                 structure_count.append(calculate_structure_complexity(codes))
 
         # 每个特征归一化
@@ -352,26 +354,21 @@ class CodeSelector(BaseSelector):
         # print(max(structure_scores))
         # print(min(structure_scores))
 
-
-
         logical_count = []
 
-        for item in  tqdm(dataset_cleaned):
-            code = item['output']
-            matches = re.findall(r'```python([\s\S]*?)```', code)
+        for item in tqdm(dataset_cleaned):
+            code = item["output"]
+            matches = re.findall(r"```python([\s\S]*?)```", code)
             if len(matches) == 0:
-                print('error')
+                print("error")
             else:
-                codes = ('\n'.join(matches)).strip()
+                codes = ("\n".join(matches)).strip()
                 try:
                     logical_count.append(calculate_logic_complexity(codes))
-                except Exception as e :
+                except Exception as e:
                     print(e)
                     print(item)
                     break
-
-
-
 
         logical_features = np.array(logical_count)
         # print(max(logical_features))
@@ -390,23 +387,22 @@ class CodeSelector(BaseSelector):
 
         # print(max(logical_scores))
         # print(min(logical_scores))
-        
+
         # print(dataset_cleaned[np.argmin(logical_features)]['output'])
         # print(dataset_cleaned[np.argmax(logical_features)]['output'])
-
 
         code_score = np.multiply(structure_scores, logical_scores)
         # print(code_score)
 
-
-        '''
+        """
             结构和逻辑分数的比例，因为结构统计因子多，所以设置权重更低一点
-        '''
+        """
 
-        '''划分区间'''
-        bins = np.linspace(math.floor(code_score.min()), math.ceil(code_score.max()), 41)
+        """划分区间"""
+        bins = np.linspace(
+            math.floor(code_score.min()), math.ceil(code_score.max()), 41
+        )
         # print(list(bins))
-
 
         digitized = np.digitize(code_score, bins)
 
@@ -424,11 +420,9 @@ class CodeSelector(BaseSelector):
         # # plt.savefig('CIRS score.png', dpi=500)
         # plt.show()
 
-
-
-        '''
+        """
         分数最大和最小的测试例子
-        '''
+        """
 
         idx = np.argmin(code_score)
         # print(code_score[idx])
@@ -444,31 +438,26 @@ class CodeSelector(BaseSelector):
         # print(dataset_cleaned[idx]['input'])
         # print(dataset_cleaned[idx]['output'])
 
-
-
         labels_list = []
-        boundary = {
-                "low": 0.125, 
-                "high": 0.5
-        }
+        boundary = {"low": 0.125, "high": 0.5}
         data_cleaned_low = []
         data_cleaned_medium = []
         data_cleaned_high = []
-        for (s, item) in zip(code_score, dataset_cleaned):
-            if s < boundary['low']:
+        for s, item in zip(code_score, dataset_cleaned):
+            if s < boundary["low"]:
                 data_cleaned_low.append(item)
                 labels_list.append(0)
-            elif s > boundary['high']:
+            elif s > boundary["high"]:
                 data_cleaned_high.append(item)
                 labels_list.append(2)
             else:
                 data_cleaned_medium.append(item)
                 labels_list.append(1)
-                
+
         # print(len(data_cleaned_low))
         # print(len(data_cleaned_medium))
         # print(len(data_cleaned_high))
-        labels_numpy  = np.array(labels_list)
+        labels_numpy = np.array(labels_list)
         # print(labels_numpy)
         # plt.scatter(structure_scores, logical_scores, c=labels_numpy, s=1)
         # plt.xlabel('structure scores')
@@ -478,62 +467,75 @@ class CodeSelector(BaseSelector):
         # plt.savefig('distribution.png', dpi=500)
         # plt.show()
 
+        boundary = {"low": self.min_boundary, "high": self.max_boundary}
 
-
-        boundary = {
-                        "low": self.min_boundary, 
-                        "high": self.max_boundary
-                    }
-
-        '''
+        """
             low; medium; high
-        '''
+        """
         labels_list = []
 
         data_cleaned_low = []
         data_cleaned_medium = []
         data_cleaned_high = []
-        for (s, item) in zip(code_score, dataset_cleaned):
-            if s < boundary['low']:
+        for s, item in zip(code_score, dataset_cleaned):
+            if s < boundary["low"]:
                 data_cleaned_low.append(item)
                 labels_list.append(0)
-            elif s > boundary['high']:
+            elif s > boundary["high"]:
                 data_cleaned_high.append(item)
                 labels_list.append(2)
             else:
                 data_cleaned_medium.append(item)
                 labels_list.append(1)
-                
+
         if self.manually_partion_data:
-            print('\nManually Partion Result:')
-            print('\tSubset 1 size (small CIRS score): ', len(data_cleaned_low))
-            print('\tSubset 2 size (medium CIRS score): ', len(data_cleaned_medium))
-            print('\tSubset 3 size (high CIRS score): ', len(data_cleaned_high))
+            print("\nManually Partion Result:")
+            print("\tSubset 1 size (small CIRS score): ", len(data_cleaned_low))
+            print("\tSubset 2 size (medium CIRS score): ", len(data_cleaned_medium))
+            print("\tSubset 3 size (high CIRS score): ", len(data_cleaned_high))
 
+            os.makedirs(
+                os.path.join(self.target_dir, "manually_pration_results"), exist_ok=True
+            )
 
-            os.makedirs(os.path.join(self.target_dir, 'manually_pration_results'), exist_ok=True)
-
-            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_low.json', 'w') as f:
+            with open(
+                os.path.join(self.target_dir, "manually_pration_results")
+                + "/data_cleaned_low.json",
+                "w",
+            ) as f:
                 json.dump(data_cleaned_low, f, indent=4)
-            
-            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_medium.json', 'w') as f:
+
+            with open(
+                os.path.join(self.target_dir, "manually_pration_results")
+                + "/data_cleaned_medium.json",
+                "w",
+            ) as f:
                 json.dump(data_cleaned_medium, f, indent=4)
-                
-            with open(os.path.join(self.target_dir, 'manually_pration_results') + '/data_cleaned_high.json', 'w') as f:
+
+            with open(
+                os.path.join(self.target_dir, "manually_pration_results")
+                + "/data_cleaned_high.json",
+                "w",
+            ) as f:
                 json.dump(data_cleaned_high, f, indent=4)
 
-            print(f'Results saved to {os.path.join(self.target_dir, "manually_pration_results")}\n')
+            print(
+                f'Results saved to {os.path.join(self.target_dir, "manually_pration_results")}\n'
+            )
 
         if self.automatically_partion_data:
-            
-            os.makedirs(os.path.join(self.target_dir, 'automatically_pration_results'), exist_ok=True)
+            os.makedirs(
+                os.path.join(self.target_dir, "automatically_pration_results"),
+                exist_ok=True,
+            )
 
             features = np.vstack((structure_scores, logical_scores)).transpose()
             # print(features)
             # print(features.shape)
-        
 
-            kmeans = KMeans(n_clusters=self.cluster_number, random_state=0, max_iter=300)
+            kmeans = KMeans(
+                n_clusters=self.cluster_number, random_state=0, max_iter=300
+            )
             kmeans.fit(features)
 
             # 输出每个样本的标签
@@ -553,15 +555,20 @@ class CodeSelector(BaseSelector):
                 if cluster_id in pation_result.keys():
                     pation_result[cluster_id].append(item)
                 else:
-                     pation_result[cluster_id] = [item]
+                    pation_result[cluster_id] = [item]
 
-
-            print('\nAutomatically Partion Result:')            
+            print("\nAutomatically Partion Result:")
             for cluster_id in pation_result.keys():
                 print(f"\tCluster {cluster_id+1}: {len(pation_result[cluster_id])}")
-                with open(os.path.join(self.target_dir, 'automatically_pration_results') + f'/data_cluster_{cluster_id+1}.jsonl', 'w') as f:
+                with open(
+                    os.path.join(self.target_dir, "automatically_pration_results")
+                    + f"/data_cluster_{cluster_id+1}.jsonl",
+                    "w",
+                ) as f:
                     json.dump(pation_result[cluster_id], f, indent=4)
 
-            print(f'Results saved to {os.path.join(self.target_dir, "automaticallypration_results")}\n')
+            print(
+                f'Results saved to {os.path.join(self.target_dir, "automaticallypration_results")}\n'
+            )
 
-        return 
+        return

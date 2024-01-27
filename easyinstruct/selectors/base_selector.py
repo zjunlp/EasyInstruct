@@ -14,17 +14,17 @@ class BaseSelector:
         self.target_file_path = os.path.join(target_dir, target_file_name)
         self.data = None
         self.data_format = ""
-    
+
     def check_data_format(self):
         if not isinstance(self.data, list):
             raise ValueError("Data should be a list of dict")
-        
+
         if len(self.data) == 0:
             raise ValueError("Data should not be empty")
-        
+
         if not isinstance(self.data[0], dict):
             raise ValueError("Data item should be a dict")
-        
+
         alpaca_format_keys = ["instruction", "input", "output"]
         alpaca_format_wo_input_keys = ["instruction", "output"]
         self_instruct_format_keys = ["instruction", "instances"]
@@ -37,7 +37,7 @@ class BaseSelector:
             self.data_format = "self_instruct"
         else:
             raise ValueError("Unknown data format")
-        
+
     def load_data_from_file(self):
         data_path = self.source_file_path
         if not os.path.exists(data_path):
@@ -49,7 +49,7 @@ class BaseSelector:
             data = json.load(open(data_path, "r"))
         else:
             raise ValueError("Unknown file format")
-        
+
         self.data = data
         self.check_data_format()
         return data

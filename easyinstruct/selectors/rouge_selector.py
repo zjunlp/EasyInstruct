@@ -1,3 +1,4 @@
+import numpy as np
 import random
 from tqdm import tqdm
 from multiprocessing import Pool
@@ -22,7 +23,7 @@ class RougeSelector(BaseSelector):
 
     def __process__(self, data):
         scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=False)
-        
+
         random.shuffle(data)
         selected_instructions = [data[0]["instruction"]]
         selected_data = [data[0]]
@@ -33,9 +34,9 @@ class RougeSelector(BaseSelector):
                     partial(scorer.score, data[i]["instruction"]), selected_instructions
                 )
             rouge_scores = [score["rougeL"].fmeasure for score in rouge_scores]
-            if max(rouge_scores) > self.threshold:
-                continue
-            selected_instructions.append(data[i]["instruction"])
-            selected_data.append(data[i])
+            if max(rouge_scores) <= self.threshold:
+                data[i]["avg_rouge_score"] = float(np.mean(rouge_scores))
+                selected_instructions.append(data[i]["instruction"])
+                selected_data.append(data[i])
 
         return selected_data

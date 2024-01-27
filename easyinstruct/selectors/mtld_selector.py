@@ -11,7 +11,7 @@ class MTLDSelector(BaseSelector):
         target_file_name: str = "selected_instructions.jsonl",
         lower_threshold: float = 20,
         upper_threshold: float = 150,
-        ttr_standard=0.72,
+        ttr_standard: float = 0.72,
     ):
         super(MTLDSelector, self).__init__(
             source_file_path, target_dir, target_file_name
@@ -61,17 +61,15 @@ class MTLDSelector(BaseSelector):
     def __process__(self, data):
         selected_data = []
 
-        for i in tqdm(range(0, len(data))):
+        for d in tqdm(data):
             mtld_score = self.calculate_MTLD(
-                text=data[i]["instruction"], ttr_standard=self.ttr_standard
+                text=d["instruction"], ttr_standard=self.ttr_standard
             )
             if (
-                mtld_score < self.lower_threshold or mtld_score > self.upper_threshold
-            ) and mtld_score != -1:
-                continue
-            # if not isinstance(data[i], dict):
-            #         data[i] = {}
-            # data[i]["mtld_score"] = mtld_score
-            selected_data.append(data[i])
+                mtld_score >= self.lower_threshold
+                and mtld_score <= self.upper_threshold
+            ):
+                d["mtld_score"] = mtld_score
+                selected_data.append(d)
 
         return selected_data

@@ -10,6 +10,7 @@ selectors_priority = {
     "RandomSelector": 6,
 }
 
+
 class MultiSelector(BaseSelector):
     def __init__(
         self,
@@ -25,8 +26,6 @@ class MultiSelector(BaseSelector):
 
     def resort_selectors(self):
         self.selectors_list.sort(key=lambda x: selectors_priority[x.__class__.__name__])
-        for selector in self.selectors_list:
-            print(selector.__class__.__name__)
 
     def __process__(self, data):
         self.resort_selectors()

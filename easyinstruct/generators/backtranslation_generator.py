@@ -46,9 +46,7 @@ class BacktranslationGenerator(BaseGenerator):
         engine: str = "gpt-3.5-turbo",
         threshold: int = 4,
     ):
-        super(BacktranslationGenerator, self).__init__(
-            target_dir, data_format
-        )
+        super(BacktranslationGenerator, self).__init__(target_dir, data_format)
         self.unlabelled_data_path = unlabelled_data_path
         self.column_name = column_name
         self.generated_data_path = os.path.join(self.target_dir, generated_data_path)
@@ -80,7 +78,9 @@ class BacktranslationGenerator(BaseGenerator):
             else:
                 new_instruction = prompt.output
 
-            if new_instruction.startswith("It seems like") or new_instruction.startswith("I'm sorry"):
+            if new_instruction.startswith(
+                "It seems like"
+            ) or new_instruction.startswith("I'm sorry"):
                 continue
 
             data = self.self_curation(new_instruction, content)
@@ -118,10 +118,10 @@ class BacktranslationGenerator(BaseGenerator):
                 elif self.data_format == "alpaca":
                     data["input"] = ""
                     data["output"] = output
-                data["score"] = score
+                data["gpt_score"] = score
                 data["curation_response"] = curation_response
                 return data
-                
+
         return None
 
     def generate(self):

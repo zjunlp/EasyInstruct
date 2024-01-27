@@ -4,7 +4,7 @@ import json
 
 class BaseGenerator:
     def __init__(
-        self, 
+        self,
         target_dir: str = "data/generations/",
         data_format: str = "alpaca",
     ):

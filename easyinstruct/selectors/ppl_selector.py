@@ -25,6 +25,8 @@ class PPLSelector(BaseSelector):
         tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         model = AutoModelForCausalLM.from_pretrained(self.model_name).to(self.device)
 
+        selected_data = []
+
         for d in tqdm(data):
             if self.data_format == "self_instruct":
                 input_text = d["instances"][0]["output"]
@@ -65,8 +67,8 @@ class PPLSelector(BaseSelector):
 
             ppl = torch.exp(torch.stack(nlls).mean())
 
-            if ppl > self.threshold:
-                print(f'PPL: {ppl.item()}')
-                data.remove(d)
+            if ppl <= self.threshold:
+                d["ppl"] = ppl.item()
+                selected_data.append(d)
 
-        return data
+        return selected_data

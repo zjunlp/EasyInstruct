@@ -121,9 +121,7 @@ class SelfInstructGenerator(BaseGenerator):
         engine: str = "gpt-3.5-turbo",
         num_prompt_instructions: int = 8,
     ):
-        super(SelfInstructGenerator, self).__init__(
-            target_dir, data_format
-        )
+        super(SelfInstructGenerator, self).__init__(target_dir, data_format)
         self.seed_tasks_path = seed_tasks_path
         self.generated_instructions_path = os.path.join(
             self.target_dir, generated_instructions_path
@@ -338,7 +336,7 @@ class SelfInstructGenerator(BaseGenerator):
                     elif self.data_format == "alpaca":
                         example = re.split(r"Example\s?\d*\.?", raw_instance)[1]
                         if example.strip() == "":
-                                continue
+                            continue
                         inst_input, inst_output = self.parse_input_output(example)
                         data["input"] = inst_input
                         data["output"] = inst_output
@@ -346,7 +344,9 @@ class SelfInstructGenerator(BaseGenerator):
                 elif re.findall(r"Output\s*\d*\s*:", raw_instance):
                     inst_input, inst_output = self.parse_input_output(raw_instance)
                     if self.data_format == "self_instruct":
-                        data["instances"] = [{"input": inst_input, "output": inst_output}]
+                        data["instances"] = [
+                            {"input": inst_input, "output": inst_output}
+                        ]
                     elif self.data_format == "alpaca":
                         data["input"] = inst_input
                         data["output"] = inst_output
