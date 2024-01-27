@@ -1,0 +1,10 @@
+generator:
+  SelfInstructGenerator:
+    target_dir: data/generations/
+    data_format: alpaca
+    seed_tasks_path: data/seed_tasks.jsonl
+    generated_instructions_path: generated_instructions.jsonl
+    generated_instances_path: generated_instances.jsonl
+    num_instructions_to_generate: 100
+    engine: gpt-3.5-turbo
+    num_prompt_instructions: 8

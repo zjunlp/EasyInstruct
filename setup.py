@@ -51,8 +51,10 @@ def do_setup():
                 "gitbook*",
                 "figs*",
                 "data*",
-                "experiments*"
-                "demo*"
+                "experiments*",
+                "demo*",
+                "configs*",
+                "scripts*",
             ]
         ),
         keywords=["AI", "NLP", "instruction", "language model"],

@@ -1,0 +1,26 @@
+selector:
+  source_file_path: /zjunlp/oyx/EasyInstruct/data/seed_tasks.jsonl
+  target_dir: data/selections/
+  target_file_name: selected_tasks.jsonl
+  LengthSelector:
+    min_instruction_length: 3
+    max_instruction_length: 150
+    min_response_length: 3
+    max_response_length: 350
+  Deduplicator:
+  RougeSelector:
+    threshold: 0.7
+  GPTScoreSelector:
+    engine: gpt-3.5-turbo
+    threshold: 4
+  MTLDSelector:
+    lower_threshold: 20
+    upper_threshold: 150
+    ttr_standard: 0.72
+  PPLSelector:
+    threshold: 200
+    model_name: gpt2
+    device: cuda
+  RandomSelector:
+    num_instructions_to_sample: 100
+    seed: 42
