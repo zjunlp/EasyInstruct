@@ -7,8 +7,10 @@
 ---
 
 <p align="center">
+  <a href="https://huggingface.co/spaces/zjunlp/EasyInstruct">Demo</a> •
   <a href="#overview">Overview</a> •
   <a href="#installation">Installation</a> •
+  <a href="#quickstart">Quickstart</a> •
   <a href="#use-easyinstruct">How To Use</a> •
   <a href="https://zjunlp.gitbook.io/easyinstruct/">Docs</a> •
   <a href="#citation">Citation</a> •
@@ -27,6 +29,9 @@
 - <a href="#news">What's New</a>
 - <a href="#overview">Overview</a>
 - <a href="#installation">Installation</a>
+- <a href="#quickstart">Quickstart</a>
+  - <a href="#shell-script">Shell Script</a>
+  - <a href="#gradio-app">Gradio App</a>
 - <a href="#use-easyinstruct">Use EasyInstruct</a>
   - <a href="#generators">Generators</a>
   - <a href="#selectors">Selectors</a>
@@ -116,6 +121,56 @@ pip install -e .
 ```
 pip install easyinstruct -i https://pypi.org/simple
 ```
+
+---
+
+## ⏩Quickstart
+
+We provide two ways for users to quickly get started with EasyInstruct. You can either use the shell script or the Gradio app based on your specific needs.
+
+### Shell Script
+
+#### Step1: Write a configuration file in yaml format
+
+Users can easily configure the parameters of EasyInstruct in a yaml file or just quickly use the default parameters in the configuration file we provide. Following is an example of the configuration file for Self-Instruct.
+
+```yaml
+generator:
+  SelfInstructGenerator:
+    target_dir: data/generations/
+    data_format: alpaca
+    seed_tasks_path: data/seed_tasks.jsonl
+    generated_instructions_path: generated_instructions.jsonl
+    generated_instances_path: generated_instances.jsonl
+    num_instructions_to_generate: 100
+    engine: gpt-3.5-turbo
+    num_prompt_instructions: 8
+```
+
+More example configuration files can be found at [configs](https://github.com/zjunlp/EasyInstruct/tree/main/configs).
+
+#### Step2: Run the shell script
+
+Users should first specify the configuration file and provide their own OpenAI API key. Then, run the follwing shell script to launch the instruction generation or selection process.
+
+```shell
+config_file=""
+openai_api_key=""
+
+python demo/run.py \
+    --config  $config_file\
+    --openai_api_key $openai_api_key \
+```
+
+### Gradio App
+
+We provide a Gradio app for users to quickly get started with EasyInstruct. You can run the following command to launch the Gradio app locally on the port `7860` (if available).
+
+```shell
+python demo/app.py
+```
+
+We also host a running gradio app in HuggingFace Spaces. You can try it out [here](https://huggingface.co/spaces/zjunlp/EasyInstruct).
 
 ---
 
