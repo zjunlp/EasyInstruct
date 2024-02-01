@@ -68,7 +68,7 @@ class PPLSelector(BaseSelector):
             ppl = torch.exp(torch.stack(nlls).mean())
 
             if ppl <= self.threshold:
-                d["ppl"] = ppl.item()
+                d["ppl_score"] = ppl.item()
                 selected_data.append(d)
 
         return selected_data

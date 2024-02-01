@@ -3,9 +3,9 @@ from .base_selector import BaseSelector
 selectors_priority = {
     "Deduplicator": 0,
     "LengthSelector": 1,
-    "PPLSelector": 2,
+    "MTLDSelector": 2,
     "RougeSelector": 3,
-    "MTLDSelector": 4,
+    "PPLSelector": 4,
     "GPTScoreSelector": 5,
     "RandomSelector": 6,
 }

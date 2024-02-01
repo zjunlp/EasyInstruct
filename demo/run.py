@@ -23,16 +23,12 @@ set_proxy("")
 
 def main(args):
     print("Loading config from {}\n".format(args.config))
-    if args.openai_api_key is not None or args.openai_api_key != "":
-        set_openai_key(args.openai_api_key)
-    if args.https_proxy is not None or args.https_proxy != "":
-        set_proxy(args.https_proxy)
-
     config = yaml.load(open(args.config, "r"), Loader=yaml.FullLoader)
     print(f"Config: {config}\n")
-    import ipdb
+        
+    if args.openai_api_key is not None and args.openai_api_key != "":
+        set_openai_key(args.openai_api_key)
 
-    ipdb.set_trace()
     if "generator" in config:
         if "SelfInstructGenerator" in config["generator"]:
             generator = SelfInstructGenerator(
