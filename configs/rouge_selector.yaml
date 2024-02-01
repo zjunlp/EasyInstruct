@@ -1,0 +1,8 @@
+selector:
+  source_file_path: /zjunlp/oyx/EasyInstruct/data//zjunlp/oyx/EasyInstruct/data/alpaca_data_5k.jsonl
+  target_dir: data/selections/
+  target_file_name: rouge.jsonl
+  Deduplicator:
+  RougeSelector:
+    threshold: 0.7
+    score_only: True

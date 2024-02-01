@@ -22,6 +22,8 @@ nltk
 rouge-score
 matplotlib
 scikit-learn
+lexicalrichness
+pandarallel
 """
 
 def get_install_requires():

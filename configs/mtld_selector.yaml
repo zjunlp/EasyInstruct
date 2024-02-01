@@ -1,0 +1,10 @@
+selector:
+  source_file_path: /zjunlp/oyx/EasyInstruct/data/self_instruct_82k.jsonl
+  target_dir: data/selections/
+  target_file_name: mtld.jsonl
+  Deduplicator:
+  MTLDSelector:
+    ttr_threshold: 0.72
+    min_mtld: 8
+    max_mtld: 22
+    score_only: True

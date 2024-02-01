@@ -15,11 +15,13 @@ class RougeSelector(BaseSelector):
         target_dir: str = "data/selections/",
         target_file_name: str = "selected_instructions.jsonl",
         threshold: float = 0.7,
+        score_only: bool = False,
     ):
         super(RougeSelector, self).__init__(
             source_file_path, target_dir, target_file_name
         )
         self.threshold = threshold
+        self.score_only = score_only
 
     def __process__(self, data):
         scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=False)
@@ -34,9 +36,12 @@ class RougeSelector(BaseSelector):
                     partial(scorer.score, data[i]["instruction"]), selected_instructions
                 )
             rouge_scores = [score["rougeL"].fmeasure for score in rouge_scores]
-            if max(rouge_scores) <= self.threshold:
+
+            if self.score_only:
+                data[i]["avg_rouge_score"] = float(np.mean(rouge_scores))
+            elif max(rouge_scores) <= self.threshold:
                 data[i]["avg_rouge_score"] = float(np.mean(rouge_scores))
                 selected_instructions.append(data[i]["instruction"])
                 selected_data.append(data[i])
 
-        return selected_data
+        return data if self.score_only else selected_data

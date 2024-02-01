@@ -18,17 +18,16 @@ class MultiSelector(BaseSelector):
         target_dir: str = "data/selections/",
         target_file_name: str = "selected_instructions.jsonl",
         selectors_list: list = None,
+        resort: bool = True,
     ):
         super(MultiSelector, self).__init__(
             source_file_path, target_dir, target_file_name
         )
+        if resort:
+            selectors_list.sort(key=lambda x: selectors_priority[x.__class__.__name__])
         self.selectors_list = selectors_list
 
-    def resort_selectors(self):
-        self.selectors_list.sort(key=lambda x: selectors_priority[x.__class__.__name__])
-
     def __process__(self, data):
-        self.resort_selectors()
         for selector in self.selectors_list:
             print(f"Processing {selector.__class__.__name__}...")
             selector.data_format = self.data_format

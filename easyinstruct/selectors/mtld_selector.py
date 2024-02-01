@@ -1,4 +1,7 @@
+import pandas as pd
 from tqdm import tqdm
+from lexicalrichness import LexicalRichness
+from pandarallel import pandarallel
 
 from .base_selector import BaseSelector
 
@@ -9,67 +12,37 @@ class MTLDSelector(BaseSelector):
         source_file_path: str = "",
         target_dir: str = "data/selections/",
         target_file_name: str = "selected_instructions.jsonl",
-        lower_threshold: float = 20,
-        upper_threshold: float = 150,
-        ttr_standard: float = 0.72,
+        ttr_threshold: float = 0.72,
+        min_mtld: float = 8,
+        max_mtld: float = 22,
+        score_only: bool = False,
     ):
         super(MTLDSelector, self).__init__(
             source_file_path, target_dir, target_file_name
         )
-        self.lower_threshold = lower_threshold
-        self.upper_threshold = upper_threshold
-        self.ttr_standard = ttr_standard
+        self.ttr_threshold = ttr_threshold
+        self.min_mtld = min_mtld
+        self.max_mtld = max_mtld
+        self.score_only = score_only
 
-    def calculate_MTLD(self, text, ttr_standard):
-        tokens = text.split()
-        # if len(tokens) < 50:
-        #     return -1.0
-
-        types = []
-        factors = 0.0
-        now_ttr = 1.0
-        tokens_number = 0
-        types_number = 0
-
-        for token in tokens:
-            token = token.lower()
-            tokens_number += 1
-
-            if token not in types:
-                types_number += 1
-                types.append(token)
-
-            now_ttr = types_number * 1.0 / tokens_number
-
-            if now_ttr < ttr_standard:
-                factors += 1.0
-                now_ttr = 1.0
-                tokens_number = 0
-                types_number = 0
-                types = []
-
-        RS = now_ttr
-        IFS = (1 - RS) * 1.0 / (1 - ttr_standard)
-        IFS += factors
-
-        if IFS != 0:
-            mtld_score = len(tokens) / IFS
-            return mtld_score
-        else:
-            return -1.0
+    def mtld(self, text):
+        lex = LexicalRichness(text)
+        return lex.mtld(threshold=self.ttr_threshold)
 
     def __process__(self, data):
-        selected_data = []
+        tqdm.pandas()
+        df = pd.DataFrame(data)
+        if df.shape[0] > 15000:
+            pandarallel.initialize()
+            df["mtld_score"] = df["instruction"].parallel_apply(lambda x: self.mtld(x))
+        else:
+            df["mtld_score"] = df["instruction"].progress_apply(lambda x: self.mtld(x))
+        if self.score_only:
+            data = df.to_dict(orient="records")
+        else:
+            selected_data = df[
+                (df["mtld_score"] >= self.min_mtld)
+                & (df["mtld_score"] <= self.max_mtld)
+            ].to_dict(orient="records")
 
-        for d in tqdm(data):
-            mtld_score = self.calculate_MTLD(
-                text=d["instruction"], ttr_standard=self.ttr_standard
-            )
-            if (
-                mtld_score >= self.lower_threshold
-                and mtld_score <= self.upper_threshold
-            ):
-                d["mtld_score"] = mtld_score
-                selected_data.append(d)
-
-        return selected_data
+        return data if self.score_only else selected_data

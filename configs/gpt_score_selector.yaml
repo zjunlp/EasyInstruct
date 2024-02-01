@@ -1,0 +1,8 @@
+selector:
+  source_file_path: /zjunlp/oyx/EasyInstruct/data/alpaca_data_5k.jsonl
+  target_dir: data/selections/
+  target_file_name: gpt_score.jsonl
+  GPTScoreSelector:
+    engine: gpt-3.5-turbo
+    threshold: 4
+    score_only: True

@@ -1,0 +1,10 @@
+selector:
+  source_file_path: /zjunlp/oyx/EasyInstruct/data/selections/selected_tasks.jsonl
+  target_dir: data/selections/
+  target_file_name: ppl.jsonl
+  Deduplicator:
+  PPLSelector:
+    threshold: 200
+    model_name: gpt2
+    device: cuda
+    score_only: True

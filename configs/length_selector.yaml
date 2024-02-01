@@ -1,0 +1,10 @@
+selector:
+  source_file_path: /zjunlp/oyx/EasyInstruct/data/alpaca_data_5k.jsonl
+  target_dir: data/selections/
+  target_file_name: length.jsonl
+  LengthSelector:
+    min_instruction_length: 3
+    max_instruction_length: 50
+    min_response_length: 1
+    max_response_length: 50
+    score_only: True

@@ -24,12 +24,14 @@ class GPTScoreSelector(BaseSelector):
         target_file_name: str = "selected_instructions.jsonl",
         engine: str = "gpt-3.5-turbo",
         threshold: int = 4,
+        score_only: bool = False,
     ):
         super(GPTScoreSelector, self).__init__(
             source_file_path, target_dir, target_file_name
         )
         self.engine = engine
         self.threshold = threshold
+        self.score_only = score_only
 
     def __process__(self, data):
         regex = re.compile(r"[Ss]core:\s*(\d+)")
@@ -70,8 +72,10 @@ class GPTScoreSelector(BaseSelector):
             score_matched = regex.search(prompt.output)
             if score_matched:
                 score = int(score_matched.group(1))
-                if score >= self.threshold:
+                if self.score_only:
+                    d["gpt_score"] = score
+                elif score >= self.threshold:
                     d["gpt_score"] = score
                     selected_data.append(d)
 
-        return selected_data
+        return data if self.score_only else selected_data
