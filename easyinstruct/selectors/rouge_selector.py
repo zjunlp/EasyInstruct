@@ -24,6 +24,8 @@ class RougeSelector(BaseSelector):
         self.score_only = score_only
 
     def __process__(self, data):
+        if len(data) == 0:
+            return data
         scorer = rouge_scorer.RougeScorer(["rougeL"], use_stemmer=False)
 
         random.shuffle(data)

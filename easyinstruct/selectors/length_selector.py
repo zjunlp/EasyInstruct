@@ -25,6 +25,9 @@ class LengthSelector(BaseSelector):
         self.min_response_length = min_response_length
         self.max_response_length = max_response_length
         self.score_only = score_only
+        
+    def get_instance_length(self, instance):
+        return len(instance[0]["output"].split())
 
     def __process__(self, data):
         tqdm.pandas()
@@ -34,12 +37,22 @@ class LengthSelector(BaseSelector):
             df["instruction_length"] = df["instruction"].parallel_apply(
                 lambda x: len(x.split())
             )
-            df["output_length"] = df["output"].parallel_apply(lambda x: len(x.split()))
+            if self.data_format == "self_instruct":
+                df["output_length"] = df["instances"].parallel_apply(lambda x: self.get_instance_length(x))
+            elif self.data_format == "alpaca" or self.data_format == "alpaca_wo_input":
+                df["output_length"] = df["output"].parallel_apply(lambda x: len(x.split()))
+            else:
+                raise ValueError("Unknown data format")
         else:
             df["instruction_length"] = df["instruction"].progress_apply(
                 lambda x: len(x.split())
             )
-            df["output_length"] = df["output"].progress_apply(lambda x: len(x.split()))
+            if self.data_format == "self_instruct":
+                df["output_length"] = df["instances"].progress_apply(lambda x: self.get_instance_length(x))
+            elif self.data_format == "alpaca" or self.data_format == "alpaca_wo_input":
+                df["output_length"] = df["output"].progress_apply(lambda x: len(x.split()))
+            else:
+                raise ValueError("Unknown data format")
 
         if self.score_only:
             data = df.to_dict(orient="records")
