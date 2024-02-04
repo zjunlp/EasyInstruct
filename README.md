@@ -7,6 +7,8 @@
 ---
 
 <p align="center">
+  <a href="https://zjunlp.github.io/project/EasyInstruct">Project</a> •
+  <a href="">Paper</a> •
   <a href="https://huggingface.co/spaces/zjunlp/EasyInstruct">Demo</a> •
   <a href="#overview">Overview</a> •
   <a href="#installation">Installation</a> •
@@ -65,7 +67,7 @@ This repository is a subproject of [KnowLM](https://github.com/zjunlp/KnowLM).
 
 ## 🌟Overview
 
-EasyInstruct is a Python package which is proposed as an easy-to-use instruction processing framework for Large Language Models(LLMs) like GPT-3, Llama, ChatGLM in your research experiments. EasyInstruct modularizes instruction generation, selection, and prompting, while also considering their combination and interaction. 
+EasyInstruct is a Python package which is proposed as an easy-to-use instruction processing framework for Large Language Models(LLMs) like GPT-4, LLaMA, ChatGLM in your research experiments. EasyInstruct modularizes instruction generation, selection, and prompting, while also considering their combination and interaction. 
 
 <img src="figs/overview.png">
 
@@ -84,7 +86,7 @@ EasyInstruct is a Python package which is proposed as an easy-to-use instruction
   |----------------------|-----------------------|--------------------------------------------------------------------------------------------------------------------------------------|
   | Length               | $Len$                 | The bounded length of every pair of instruction and response.                                                                                 |
   | Perplexity           | $PPL$                 | The exponentiated average negative log-likelihood of response.                                                                       |
-  | MTLD                 | $MTLD$                | Measure of Textual Lexical Diversity.                                                                                   |
+  | MTLD                 | $MTLD$                | Measure of textual lexical diversity, the mean length of sequential words in a text that maintains a minimum threshold TTR score.                                                                                   |
   | ROUGE                | $ROUGE$               | Recall-Oriented Understudy for Gisting Evaluation, a set of metrics used for evaluating similarities between sentences.                                                                                   |
   | GPT score            | $GPT$                 | The score of whether the output is a good example of how AI Assistant should respond to the user's instruction, provided by ChatGPT. |
   | CIRS                 | $CIRS$                | The score using the abstract syntax tree to encode structural and logical attributes, to measure the correlation between code and reasoning abilities.                                                                                   |
@@ -131,9 +133,9 @@ We provide two ways for users to quickly get started with EasyInstruct. You can 
 
 ### Shell Script
 
-#### Step1: Write a configuration file in yaml format
+#### Step1: Prepare a configuration file
 
-Users can easily configure the parameters of EasyInstruct in a yaml file or just quickly use the default parameters in the configuration file we provide. Following is an example of the configuration file for Self-Instruct.
+Users can easily configure the parameters of EasyInstruct in a YAML-style file or just quickly use the default parameters in the configuration files we provide. Following is an example of the configuration file for Self-Instruct:
 
 ```yaml
 generator:
@@ -152,7 +154,7 @@ More example configuration files can be found at [configs](https://github.com/zj
 
 #### Step2: Run the shell script
 
-Users should first specify the configuration file and provide their own OpenAI API key. Then, run the follwing shell script to launch the instruction generation or selection process.
+Users should first specify the configuration file and provide their own OpenAI API key. Then, run the following shell script to launch the instruction generation or selection process.
 
 ```shell
 config_file=""
