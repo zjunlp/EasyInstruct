@@ -42,6 +42,7 @@
 
 ## 🔔News
 
+- **2024-2-5 We release the paper "[EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models]()".**
 - **2023-12-9 The paper "[When Do Program-of-Thoughts Work for Reasoning?](https://arxiv.org/abs/2308.15452)" (supported by EasyInstruct), is accepted by AAAI 2024!**
 - **2023-10-28 We release version 0.1.1, supporting for new features of instruction generation and instruction selection.**
 - **2023-8-9 We release version 0.0.6, supporting Cohere API calls.**
@@ -86,7 +87,7 @@ EasyInstruct is a Python package which is proposed as an easy-to-use instruction
   | MTLD                 | $MTLD$                | Measure of Textual Lexical Diversity.                                                                                   |
   | ROUGE                | $ROUGE$               | Recall-Oriented Understudy for Gisting Evaluation, a set of metrics used for evaluating similarities between sentences.                                                                                   |
   | GPT score            | $GPT$                 | The score of whether the output is a good example of how AI Assistant should respond to the user's instruction, provided by ChatGPT. |
-  | CIRS                 | $CIRS$                | Complexity-Impacted Reasoning Score.                                                                                   |
+  | CIRS                 | $CIRS$                | The score using the abstract syntax tree to encode structural and logical attributes, to measure the correlation between code and reasoning abilities.                                                                                   |
 
 - API service providers and their corresponding LLM products that are currently available:
   
