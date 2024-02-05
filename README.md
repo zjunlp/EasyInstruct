@@ -44,7 +44,7 @@
 
 ## 🔔News
 
-- **2024-2-5 We release the paper "[EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models]()".**
+- **2024-2-6 We release the paper "[EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models]()".**
 - **2023-12-9 The paper "[When Do Program-of-Thoughts Work for Reasoning?](https://arxiv.org/abs/2308.15452)" (supported by EasyInstruct), is accepted by AAAI 2024!**
 - **2023-10-28 We release version 0.1.1, supporting for new features of instruction generation and instruction selection.**
 - **2023-8-9 We release version 0.0.6, supporting Cohere API calls.**
