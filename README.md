@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://zjunlp.github.io/project/EasyInstruct">Project</a> •
-  <a href="">Paper</a> •
+  <a href="https://arxiv.org/abs/2402.03049">Paper</a> •
   <a href="https://huggingface.co/spaces/zjunlp/EasyInstruct">Demo</a> •
   <a href="#overview">Overview</a> •
   <a href="#installation">Installation</a> •
@@ -44,7 +44,7 @@
 
 ## 🔔News
 
-- **2024-2-6 We release the paper "[EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models]()".**
+- **2024-2-6 We release the paper "[EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models](https://arxiv.org/abs/2402.03049)".**
 - **2023-12-9 The paper "[When Do Program-of-Thoughts Work for Reasoning?](https://arxiv.org/abs/2308.15452)" (supported by EasyInstruct), is accepted by AAAI 2024!**
 - **2023-10-28 We release version 0.1.1, supporting for new features of instruction generation and instruction selection.**
 - **2023-8-9 We release version 0.0.6, supporting Cohere API calls.**
