@@ -44,6 +44,7 @@
 
 ## 🔔News
 
+- **2024-2-6 We release a preliminary tool [EasyDetect](https://github.com/OpenKG-ORG/EasyDetect) for hallucination detection, with a [demo](http://easydetect.openkg.cn/)**.
 - **2024-2-6 We release the paper "[EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models](https://arxiv.org/abs/2402.03049)".**
 - **2024-2-5 We release version 0.1.2, supporting for new features and optimising the function interface.**
 - **2023-12-9 The paper "[When Do Program-of-Thoughts Work for Reasoning?](https://arxiv.org/abs/2308.15452)" (supported by EasyInstruct), is accepted by AAAI 2024!**
