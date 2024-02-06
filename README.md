@@ -350,7 +350,7 @@ Please cite our repository if you use EasyInstruct in your work.
 
 ```bibtex
 @misc{easyinstruct,
-  author = {Yixin Ou and Ningyu Zhang and Honghao Gui and Zhen Bi and Yida Xue and Runnan Fang and Kangwei Liu and Lei Li and Shuofei Qiao and Huajun Chen},
+  author = {Yixin Ou and Ningyu Zhang and Honghao Gui and Ziwen Xu and Shuofei Qiao and Zhen Bi and Huajun Chen},
   title = {EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models},
   year = {2023},
   url = {https://github.com/zjunlp/EasyInstruct},
