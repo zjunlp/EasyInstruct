@@ -19,7 +19,7 @@
   <a href="#contributors">Contributors</a>
 </p>
 
-![](https://img.shields.io/badge/version-v0.1.1-blue)
+![](https://img.shields.io/badge/version-v0.1.2-blue)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 ![](https://img.shields.io/github/last-commit/zjunlp/EasyInstruct?color=green) 
 ![](https://img.shields.io/badge/PRs-Welcome-red) 
@@ -45,6 +45,7 @@
 ## 🔔News
 
 - **2024-2-6 We release the paper "[EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models](https://arxiv.org/abs/2402.03049)".**
+- **2024-2-5 We release version 0.1.2, supporting for new features and optimising the function interface.**
 - **2023-12-9 The paper "[When Do Program-of-Thoughts Work for Reasoning?](https://arxiv.org/abs/2308.15452)" (supported by EasyInstruct), is accepted by AAAI 2024!**
 - **2023-10-28 We release version 0.1.1, supporting for new features of instruction generation and instruction selection.**
 - **2023-8-9 We release version 0.0.6, supporting Cohere API calls.**
@@ -382,3 +383,10 @@ Please cite our repository if you use EasyInstruct in your work.
 </a>
 
 We will offer long-term maintenance to fix bugs, solve issues and meet new requests. So if you have any problems, please put issues to us.
+
+Other Related Projects
+
+- [Self-Instruct](https://github.com/yizhongw/self-instruct)
+- [Alpaca](https://github.com/tatsu-lab/stanford_alpaca)
+
+🙌 We would like to express our heartfelt gratitude for the contribution of [Self-Instruct](https://github.com/yizhongw/self-instruct) to our project, as we have utilized portions of their source code in our project.
