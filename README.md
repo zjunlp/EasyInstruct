@@ -351,11 +351,11 @@ Please check out <a href="https://github.com/zjunlp/EasyInstruct/blob/main/READM
 Please cite our repository if you use EasyInstruct in your work.
 
 ```bibtex
-@misc{easyinstruct,
-  author = {Yixin Ou and Ningyu Zhang and Honghao Gui and Ziwen Xu and Shuofei Qiao and Zhen Bi and Huajun Chen},
-  title = {EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models},
-  year = {2023},
-  url = {https://github.com/zjunlp/EasyInstruct},
+@article{ou2024easyinstruct,
+  title={EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models},
+  author={Ou, Yixin and Zhang, Ningyu and Gui, Honghao and Xu, Ziwen and Qiao, Shuofei and Bi, Zhen and Chen, Huajun},
+  journal={arXiv preprint arXiv:2402.03049},
+  year={2024}
 }
 
 @misc{knowlm,
@@ -365,13 +365,11 @@ Please cite our repository if you use EasyInstruct in your work.
  url = {http://knowlm.zjukg.cn/},
 }
 
-@misc{bi2023programofthoughts,
-      author={Zhen Bi and Ningyu Zhang and Yinuo Jiang and Shumin Deng and Guozhou Zheng and Huajun Chen},
-      title={When Do Program-of-Thoughts Work for Reasoning?}, 
-      year={2023},
-      eprint={2308.15452},
-      archivePrefix={arXiv},
-      primaryClass={cs.CL}
+@article{bi2023program,
+  title={When do program-of-thoughts work for reasoning?},
+  author={Bi, Zhen and Zhang, Ningyu and Jiang, Yinuo and Deng, Shumin and Zheng, Guozhou and Chen, Huajun},
+  journal={arXiv preprint arXiv:2308.15452},
+  year={2023}
 }
 ```
 
