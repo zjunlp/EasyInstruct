@@ -4,7 +4,12 @@ import cohere
 from typing import Optional, Union, List
 
 from easyinstruct.utils.api import API_NAME_DICT
-from easyinstruct.utils.api import get_openai_key, get_anthropic_key, get_cohere_key
+from easyinstruct.utils.api import (
+    get_openai_key,
+    get_anthropic_key,
+    get_cohere_key,
+    get_openai_base_url,
+)
 from easyinstruct.engines import BaseEngine
 
 
@@ -31,7 +36,7 @@ class BasePrompt:
         frequency_penalty: Optional[float] = 0.0,
         presence_penalty: Optional[float] = 0.0,
     ):
-        client = OpenAI()
+        client = OpenAI(api_key=get_openai_key(), base_url=get_openai_base_url())
         self.engine = engine
         if engine in API_NAME_DICT["openai"]["gpt-3"]:
             response = client.completions.create(

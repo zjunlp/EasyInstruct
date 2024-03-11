@@ -11,7 +11,7 @@ API_NAME_DICT = {
             "gpt-3.5-turbo-16k",
             "gpt-3.5-turbo-16k-0613",
         ],
-        "gpt-4": ["gpt-4", "gpt-4-0613", "gpt-4-1106-preview", "gpt-4-vision-preview"],
+        "gpt-4": ["gpt-4", "gpt-4-0613", "gpt-4-1106-preview", "gpt-4-vision-preview", "gpt-4-0125-preview", "gpt-4-turbo-preview"],
     },
     "anthropic": {
         "claude": ["claude-2", "claude-2.0", "claude-2.1"],
@@ -23,6 +23,14 @@ API_NAME_DICT = {
 
 def set_proxy(proxy):
     os.environ["https_proxy"] = proxy
+
+
+def set_openai_base_url(base_url):
+    os.environ["OPENAI_BASE_URL"] = base_url
+
+
+def get_openai_base_url():
+    return os.getenv("OPENAI_BASE_URL")
 
 
 def set_openai_key(key):

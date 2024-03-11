@@ -16,9 +16,9 @@ from easyinstruct import (
     RandomSelector,
     MultiSelector,
 )
-from easyinstruct.utils.api import set_openai_key, set_proxy
+from easyinstruct.utils.api import set_openai_key, set_proxy, set_openai_base_url
 
-set_proxy("")
+set_proxy("http://127.0.0.1:7890")
 
 
 def main(args):
@@ -28,6 +28,9 @@ def main(args):
         
     if args.openai_api_key is not None and args.openai_api_key != "":
         set_openai_key(args.openai_api_key)
+        
+    if args.openai_base_url is not None and args.openai_base_url != "":
+        set_openai_base_url(args.openai_base_url)
 
     if "generator" in config:
         if "SelfInstructGenerator" in config["generator"]:
@@ -89,5 +92,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=str, default="configs/default.yaml")
     parser.add_argument("--openai_api_key", type=str, default=None)
+    parser.add_argument("--openai_base_url", type=str, default=None)
     args = parser.parse_args()
     main(args)
