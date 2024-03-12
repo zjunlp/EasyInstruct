@@ -169,7 +169,7 @@ python demo/run.py \
 
 ### Gradio App
 
-We provide a Gradio app for users to quickly get started with EasyInstruct. You can run the following command to launch the Gradio app locally on the port `7860` (if available).
+We provide a Gradio app for users to quickly get started with EasyInstruct. You can run the following command to launch the Gradio app locally on the port `8080` (if available).
 
 ```shell
 python demo/app.py

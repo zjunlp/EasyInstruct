@@ -1,4 +1,7 @@
 import gradio as gr
+from gradio.themes.base import Base
+from gradio.themes.utils import colors, fonts, sizes
+from typing import Iterable
 
 from easyinstruct import (
     SelfInstructGenerator,
@@ -19,6 +22,49 @@ from easyinstruct.utils.api import set_openai_key, set_proxy
 
 set_proxy("")
 
+
+class Seafoam(Base):
+    def __init__(
+        self,
+        *,
+        primary_hue: colors.Color | str = colors.emerald,
+        secondary_hue: colors.Color | str = colors.blue,
+        neutral_hue: colors.Color | str = colors.blue,
+        spacing_size: sizes.Size | str = sizes.spacing_md,
+        radius_size: sizes.Size | str = sizes.radius_md,
+        font: fonts.Font
+        | str
+        | Iterable[fonts.Font | str] = (
+            fonts.GoogleFont("Quicksand"),
+            "ui-sans-serif",
+            "sans-serif",
+        ),
+        font_mono: fonts.Font
+        | str
+        | Iterable[fonts.Font | str] = (
+            fonts.GoogleFont("IBM Plex Mono"),
+            "ui-monospace",
+            "monospace",
+        ),
+    ):
+        super().__init__(
+            primary_hue=primary_hue,
+            secondary_hue=secondary_hue,
+            neutral_hue=neutral_hue,
+            spacing_size=spacing_size,
+            radius_size=radius_size,
+            font=font,
+            font_mono=font_mono,
+        )
+        super().set(
+            button_primary_background_fill="linear-gradient(90deg, *primary_300, *secondary_400)",
+            button_primary_background_fill_hover="linear-gradient(90deg, *primary_200, *secondary_300)",
+            button_primary_text_color="white",
+            slider_color="*secondary_300",
+            slider_color_dark="*secondary_600",
+        )
+
+seafoam = Seafoam()
 
 def generate(
     seed_data_file_path,
@@ -120,7 +166,7 @@ def process(
     return selected_data
 
 
-with gr.Blocks() as gradio_app:
+with gr.Blocks(theme=seafoam) as gradio_app:
     ##############
     # Head Block #
     ##############
@@ -177,7 +223,7 @@ with gr.Blocks() as gradio_app:
         )
     with gr.Row(equal_height=True):
         seed_data_file_path = gr.File(
-            label="Seed Data", file_types=["text", ".json", ".jsonl"]
+            label="Seed Data", file_types=["text", ".json", ".jsonl"], height=100
         )
         generated_instances = gr.JSON(label="Generated Instances")
     with gr.Row():
@@ -199,6 +245,21 @@ with gr.Blocks() as gradio_app:
         )
         clear_button_1.click(
             lambda: ("", ""), outputs=[seed_data_file_path, generated_instances]
+        )
+    with gr.Row():
+        gr.HTML(
+            """
+            <h4>Example Seed Data</h4>
+            """
+        )
+    with gr.Row():
+        gr.Examples(
+            examples=[
+                "data/seed_tasks.jsonl",
+            ],
+            inputs=[
+                seed_data_file_path,
+            ]
         )
 
     with gr.Row(equal_height=True):
@@ -305,6 +366,21 @@ with gr.Blocks() as gradio_app:
             lambda: ("", ""),
             outputs=[raw_instructions_file_path, selected_instances],
         )
+    with gr.Row():
+        gr.HTML(
+            """
+            <h4>Example Raw Instructions</h4>
+            """
+        )
+    with gr.Row():
+        gr.Examples(
+            examples=[
+                "data/seed_tasks.jsonl",
+            ],
+            inputs=[
+                raw_instructions_file_path,
+            ]
+        )
 
     ##############
     # Foot Block #
@@ -313,11 +389,11 @@ with gr.Blocks() as gradio_app:
         gr.Markdown(
             """
             ```bibtex
-            @misc{easyinstruct,
-              author = {Yixin Ou and Ningyu Zhang and Honghao Gui and Zhen Bi and Yida Xue and Runnan Fang and Kangwei Liu and Lei Li and Shuofei Qiao and Huajun Chen},
-              title = {EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models},
-              year = {2023},
-              url = {https://github.com/zjunlp/EasyInstruct},
+            @article{ou2024easyinstruct,
+            title={EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models},
+            author={Ou, Yixin and Zhang, Ningyu and Gui, Honghao and Xu, Ziwen and Qiao, Shuofei and Bi, Zhen and Chen, Huajun},
+            journal={arXiv preprint arXiv:2402.03049},
+            year={2024}
             }
             ```
             """
