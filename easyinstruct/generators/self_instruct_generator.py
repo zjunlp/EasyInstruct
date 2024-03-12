@@ -9,12 +9,25 @@ from multiprocessing import Pool
 from functools import partial
 from rouge_score import rouge_scorer
 
-from easyinstruct import BasePrompt, FewshotCoTPrompt
+from easyinstruct import BasePrompt
 from .base_generator import BaseGenerator
 
-generate_instances_prompt_template = """Come up with examples for the following tasks. Try to generate multiple examples when possible. If the task doesn't require additional input, you can generate the output directly.
+generate_instructions_prompt_template = """You are asked to come up with a set of 20 diverse task instructions. These task instructions will be given to a GPT model and we will evaluate the GPT model for completing the instructions.
 
-Task: Which exercises are best for reducing belly fat at home?
+Here are the requirements:
+1. Try not to repeat the verb for each instruction to maximize diversity.
+2. The language used for the instruction also should be diverse. For example, you should combine questions with imperative instrucitons.
+3. The type of instructions should be diverse. The list should include diverse types of tasks like open-ended generation, classification, editing, etc.
+4. A GPT language model should be able to complete the instruction. For example, do not ask the assistant to create any visual or audio output. For another example, do not ask the assistant to wake you up at 5pm or set a reminder because it cannot perform any action.
+5. The instructions should be in English.
+6. The instructions should be 1 to 2 sentences long. Either an imperative sentence or a question is permitted.
+
+List of 20 tasks:
+"""
+
+generate_instances_prompt_template = """Come up with examples for the following tasks. You should generate an appropriate input to the instruction. The input field should contain a specific example provided for the instruction. It should involve realistic data and should not contain simple placeholders. The input should provide substantial content to make the instruction challenging but should ideally not exceed 100 words. Not all instructions require input. For example, when a instruction asks about some general information, "what is the highest peak in the world", it is not necssary to provide a specific context. The output should be an appropriate response to the instruction and the input. Make sure the output is less than 100 words.
+
+Instruction: Which exercises are best for reducing belly fat at home?
 Output:
 - Lying Leg Raises
 - Leg In And Out
@@ -22,41 +35,40 @@ Output:
 - Side Plank
 - Sit-ups
 
-Task: Extract all the country names in the paragraph, list them separated by commas.
+Instruction: Extract all the country names in the paragraph, list them separated by commas.
 Example 1
-Paragraph: Dr. No is the sixth novel by the English author Ian Fleming to feature his British Secret Service agent James Bond. Written at Fleming's Goldeneye estate in Jamaica, it was first published in the United Kingdom by Jonathan Cape in 1958. In the novel Bond looks into the disappearance in Jamaica of two fellow MI6 operatives who had been investigating Doctor No. Bond travels to No's Caribbean island and meets Honeychile Rider, who is there to collect shells. They are captured and taken to a luxurious facility carved into a mountain. The character of Doctor No, the son of a German missionary and a Chinese woman, was influenced by Sax Rohmer's Fu Manchu stories. Dr. No was the first of Fleming's novels to face widespread negative reviews in Britain, but it was received more favourably in the United States.
+Input: Dr. No is the sixth novel by the English author Ian Fleming to feature his British Secret Service agent James Bond. Written at Fleming's Goldeneye estate in Jamaica, it was first published in the United Kingdom by Jonathan Cape in 1958. In the novel Bond looks into the disappearance in Jamaica of two fellow MI6 operatives who had been investigating Doctor No. Bond travels to No's Caribbean island and meets Honeychile Rider, who is there to collect shells. They are captured and taken to a luxurious facility carved into a mountain. The character of Doctor No, the son of a German missionary and a Chinese woman, was influenced by Sax Rohmer's Fu Manchu stories. Dr. No was the first of Fleming's novels to face widespread negative reviews in Britain, but it was received more favourably in the United States.
 Output: English, British, Jamaica, the United Kingdom, German, Chinese, Britain, the United States.
 
-Task: Converting 85 F to Celsius.
+Instruction: Converting 85 F to Celsius.
 Output: 85°F = 29.44°C
 
-Task: Sort the given list ascendingly. 
+Instruction: Sort the given list ascendingly. 
 Example 1
-List: [10, 92, 2, 5, -4, 92, 5, 101]
+Input: [10, 92, 2, 5, -4, 92, 5, 101]
 Output: [-4, 2, 5, 5, 10, 92, 92, 101]
 Example 2
-Input 2 - List: [9.99, 10, -5, -1000, 5e6, 999]
+Input: [9.99, 10, -5, -1000, 5e6, 999]
 Output: [-1000, -5, 9.99, 10, 999, 5e6]
 
-Task: Suggest a better and more professional rephrasing of the following sentence.
+Instruction: Suggest a better and more professional rephrasing of the following sentence.
 Example 1
-Sentence: This house is surprisingly not constructed very well, and you probably need more money to fix it after you buy it. If you ask me, I would suggest you to consider other candidates.
+Input: This house is surprisingly not constructed very well, and you probably need more money to fix it after you buy it. If you ask me, I would suggest you to consider other candidates.
 Output: This house does not seem to be constructed well, so you may need to spend more money to fix it after you purchase it. I would suggest that you look at other properties.
 Example 2
-Sentence: Just so you know, we did an experiment last week and found really surprising results - language model can improve itself!
+Input: Just so you know, we did an experiment last week and found really surprising results - language model can improve itself!
 Output: Our experiments last week demonstrated surprising results, proving that the language model can improve itself.
 
-Task: Read the following paragraph and answer a math question about the paragraph. You need to write out the calculation for getting the final answer.
+Instruction: Read the following paragraph and answer a math question about the paragraph. You need to write out the calculation for getting the final answer.
 Example 1
-Paragraph: Gun violence in the United States results in tens of thousands of deaths and injuries annually, and was the leading cause of death for children 19 and younger in 2020. In 2018, the most recent year for which data are available as of 2021, the Centers for Disease Control and Prevention's (CDC) National Center for Health Statistics reports 38,390 deaths by firearm, of which 24,432 were by suicide. The rate of firearm deaths per 100,000 people rose from 10.3 per 100,000 in 1999 to 12 per 100,000 in 2017, with 109 people dying per day or about 14,542 homicides in total, being 11.9 per 100,000 in 2018. In 2010, there were 19,392 firearm-related suicides, and 11,078 firearm-related homicides in the U.S. In 2010, 358 murders were reported involving a rifle while 6,009 were reported involving a handgun; another 1,939 were reported with an unspecified type of firearm. In 2011, a total of 478,400 fatal and nonfatal violent crimes were committed with a firearm.
-Question: How many more firearm-related deaths were there in 2018 compared to 2010?
+Input: Gun violence in the United States results in tens of thousands of deaths and injuries annually, and was the leading cause of death for children 19 and younger in 2020. In 2018, the most recent year for which data are available as of 2021, the Centers for Disease Control and Prevention's (CDC) National Center for Health Statistics reports 38,390 deaths by firearm, of which 24,432 were by suicide. The rate of firearm deaths per 100,000 people rose from 10.3 per 100,000 in 1999 to 12 per 100,000 in 2017, with 109 people dying per day or about 14,542 homicides in total, being 11.9 per 100,000 in 2018. In 2010, there were 19,392 firearm-related suicides, and 11,078 firearm-related homicides in the U.S. In 2010, 358 murders were reported involving a rifle while 6,009 were reported involving a handgun; another 1,939 were reported with an unspecified type of firearm. In 2011, a total of 478,400 fatal and nonfatal violent crimes were committed with a firearm. How many more firearm-related deaths were there in 2018 compared to 2010?
 Output:
 38390 - (19392 + 11078) = 38390 - 30470 = 7920. 
 So, in 2018, there were 7920 more deaths by firearm than in 2010.
 
-Task: Write Python code to solve this leetcode problem.
+Instruction: Write Python code to solve this leetcode problem.
 Example 1
-Problem: You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list. You may assume the two numbers do not contain any leading zero, except the number 0 itself.
+Input: You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each of their nodes contains a single digit. Add the two numbers and return the sum as a linked list. You may assume the two numbers do not contain any leading zero, except the number 0 itself.
 Output:
 class Solution(object):
     def addTwoNumbers(self, l1, l2):
@@ -75,15 +87,15 @@ class Solution(object):
             n = n.next
         return root.next
 
-Task: Solve the equation and find the value of X. Show your steps.
+Instruction: Solve the equation and find the value of X. Show your steps.
 Example 1
-Equation: 10X + 5 = 10
+Input: 10X + 5 = 10
 Output: 10X = 5,  X = 0.5
 Example 2
-Equation: X + Y + 120 = 100
+Input: X + Y + 120 = 100
 Output: X + Y = -20, X = -20 - Y
 
-Task: Write a program to compute the sum of integers from k to n.
+Instruction: Write a program to compute the sum of integers from k to n.
 Output:
 def sum(k, n):
     sum = 0
@@ -91,22 +103,22 @@ def sum(k, n):
         sum += i
     return sum
 
-Task: Select the oldest person from the given list.
+Instruction: Select the oldest person from the given list.
 Example 1
-List: George Washington, Confucius, Michael Jordan, Michelangelo
+Input: George Washington, Confucius, Michael Jordan, Michelangelo
 Output: Confucious
 Example 2
-List: Alan Turing, Geoffrey Hinton, Yann LeCun, Yoshua Bengio
+Input: Alan Turing, Geoffrey Hinton, Yann LeCun, Yoshua Bengio
 Output: Alan Turing
 
-Task: Turn down a job offer by sending an email to a recruiter explaining the reason.
+Instruction: Turn down a job offer by sending an email to a recruiter explaining the reason.
 Output: Hi  [Recruiter],
 Thank you so much for the generous offer to join your team. As we discussed, I've admired the company for a number of years, and am a proud endorser of its products. However, after further consideration of where I currently am in my career, I've decided to accept an offer at another company.
 I would love to stay in touch with you and have already started following you on [Social Media Platform]. Again, thank you so much for your time and consideration.
 Thanks again,
 [Your Name]
 
-Task:"""
+"""
 
 
 class SelfInstructGenerator(BaseGenerator):
@@ -135,14 +147,30 @@ class SelfInstructGenerator(BaseGenerator):
 
     def find_word_in_string(self, w, s):
         return re.compile(r"\b({0})\b".format(w), flags=re.IGNORECASE).search(s)
+    
+    def encode_prompt(self, prompt_instructions):
+        """Encode multiple prompt instructions into a single string."""
+        prompt = generate_instructions_prompt_template
 
-    def post_process_generations(self, response, message):
-        if response is None or response.choices[0].finish_reason == "length":
+        for idx, instruction in enumerate(prompt_instructions):
+            instruction = re.sub(r"\s+", " ", instruction).strip().rstrip(":")
+            prompt += f"###\n"
+            prompt += f"{idx + 1}. Instruction: {instruction}\n"
+        prompt += f"###\n"
+        return prompt
+
+    def post_process_generations(self, num_prompt_instructions, response, message):
+        if response is None:
             return []
-        raw_instructions = re.split(r"\n\d+\s?\. ", message)
+        raw_instructions = re.split("###", message)
         instructions = []
-        for inst in raw_instructions:
-            inst = re.sub(r"\s+", " ", inst).strip()
+        for idx, inst in enumerate(raw_instructions):
+            idx += num_prompt_instructions + 1
+            splitted_data = re.split(f"{idx}\.\s+(Instruction):", inst)
+            if len(splitted_data) != 3:
+                continue
+            else:
+                inst = splitted_data[2].strip()
             inst = inst.strip().capitalize()
             if inst == "":
                 continue
@@ -226,16 +254,12 @@ class SelfInstructGenerator(BaseGenerator):
                     seed_instructions, self.num_prompt_instructions
                 )
                 random.shuffle(prompt_instructions)
-                fewshot_prompt = FewshotCoTPrompt()
-                fewshot_prompt.build_prompt(
-                    prompt="Come up with a series of tasks:\n",
-                    in_context_examples=prompt_instructions,
-                    n_shots=self.num_prompt_instructions,
-                )
-
-                fewshot_prompt.get_openai_result(
+                encoded_prompt = self.encode_prompt(prompt_instructions)
+                prompt = BasePrompt()
+                prompt.build_prompt(prompt=encoded_prompt)
+                prompt.get_openai_result(
                     engine=self.engine,
-                    max_tokens=1024,
+                    max_tokens=3072,
                     temperature=0.7,
                     top_p=0.5,
                     frequency_penalty=0,
@@ -244,7 +268,7 @@ class SelfInstructGenerator(BaseGenerator):
 
                 instructions = []
                 new_instructions = self.post_process_generations(
-                    fewshot_prompt.response, fewshot_prompt.output
+                    self.num_prompt_instructions, prompt.response, prompt.output
                 )
                 instructions += new_instructions
 
