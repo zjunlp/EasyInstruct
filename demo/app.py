@@ -18,9 +18,10 @@ from easyinstruct import (
     RandomSelector,
     MultiSelector,
 )
-from easyinstruct.utils.api import set_openai_key, set_proxy
+from easyinstruct.utils.api import set_openai_key, set_proxy, set_openai_base_url
 
-set_proxy("")
+set_proxy()
+set_openai_base_url()
 
 
 class Seafoam(Base):
@@ -222,15 +223,24 @@ with gr.Blocks(theme=seafoam) as gradio_app:
             label="Generation Number",
         )
     with gr.Row(equal_height=True):
-        seed_data_file_path = gr.File(
-            label="Seed Data", file_types=["text", ".json", ".jsonl"], height=100
-        )
-        generated_instances = gr.JSON(label="Generated Instances")
-    with gr.Row():
         with gr.Column(scale=1):
-            submit_button_1 = gr.Button("Generate", variant="primary")
+            seed_data_file_path = gr.File(
+                label="Seed Data", file_types=["text", ".json", ".jsonl"]
+            )
+            with gr.Row(equal_height=True):
+                clear_button_1 = gr.ClearButton()
+                submit_button_1 = gr.Button("Generate", variant="primary")
         with gr.Column(scale=1):
-            clear_button_1 = gr.ClearButton()
+            gr.Examples(
+                label="Example Seed Data",
+                examples=[
+                    "data/example_seed_data.jsonl",
+                ],
+                inputs=[
+                    seed_data_file_path,
+                ]
+            )
+            generated_instances = gr.JSON(label="Generated Instances")
 
         submit_button_1.click(
             generate,
@@ -245,21 +255,6 @@ with gr.Blocks(theme=seafoam) as gradio_app:
         )
         clear_button_1.click(
             lambda: ("", ""), outputs=[seed_data_file_path, generated_instances]
-        )
-    with gr.Row():
-        gr.HTML(
-            """
-            <h4>Example Seed Data</h4>
-            """
-        )
-    with gr.Row():
-        gr.Examples(
-            examples=[
-                "data/seed_tasks.jsonl",
-            ],
-            inputs=[
-                seed_data_file_path,
-            ]
         )
 
     with gr.Row(equal_height=True):
@@ -333,15 +328,24 @@ with gr.Blocks(theme=seafoam) as gradio_app:
                     step=5,
                 )
     with gr.Row(equal_height=True):
-        raw_instructions_file_path = gr.File(
-            label="Raw Instructions", file_types=["text", ".json", ".jsonl"]
-        )
-        selected_instances = gr.JSON(label="Selected Instances")
-    with gr.Row():
         with gr.Column(scale=1):
-            submit_button_2 = gr.Button("Process", variant="primary")
+            raw_instructions_file_path = gr.File(
+                label="Raw Instructions", file_types=["text", ".json", ".jsonl"]
+            )
+            with gr.Row(equal_height=True):
+                clear_button_2 = gr.ClearButton()
+                submit_button_2 = gr.Button("Process", variant="primary")
         with gr.Column(scale=1):
-            clear_button_2 = gr.ClearButton()
+            gr.Examples(
+                label="Example Raw Instructions",
+                examples=[
+                    "data/example_raw_instructions.jsonl",
+                ],
+                inputs=[
+                    raw_instructions_file_path,
+                ]
+            )
+            selected_instances = gr.JSON(label="Selected Instances")
 
         submit_button_2.click(
             process,
@@ -365,21 +369,6 @@ with gr.Blocks(theme=seafoam) as gradio_app:
         clear_button_2.click(
             lambda: ("", ""),
             outputs=[raw_instructions_file_path, selected_instances],
-        )
-    with gr.Row():
-        gr.HTML(
-            """
-            <h4>Example Raw Instructions</h4>
-            """
-        )
-    with gr.Row():
-        gr.Examples(
-            examples=[
-                "data/seed_tasks.jsonl",
-            ],
-            inputs=[
-                raw_instructions_file_path,
-            ]
         )
 
     ##############
