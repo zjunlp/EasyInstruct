@@ -15,6 +15,7 @@
   <a href="#quickstart">Quickstart</a> •
   <a href="#use-easyinstruct">How To Use</a> •
   <a href="https://zjunlp.gitbook.io/easyinstruct/">Docs</a> •
+  <a href="https://youtu.be/rfQOWYfziFo">Video</a> •
   <a href="#citation">Citation</a> •
   <a href="#contributors">Contributors</a>
 </p>
