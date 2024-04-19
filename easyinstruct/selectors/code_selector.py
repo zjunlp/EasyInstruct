@@ -272,7 +272,8 @@ class CodeSelector(BaseSelector):
             python_codes = re.findall(r"```python([\s\S]+?)```", d["output"])
             dataset.append(
                 {
-                    "instruction": "Use python code to solve the following problem\n",
+                    # "instruction": "Use python code to solve the following problem\n",
+                    "instruction": d["instruction"],
                     "input": d["input"],
                     "output": "\n".join(python_codes),
                 }
