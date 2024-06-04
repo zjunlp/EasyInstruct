@@ -45,7 +45,7 @@
 
 ## 🔔News
 
-- **2024-06-04, [EasyInstruct](https://arxiv.org/abs/2402.03049) has been accepted by the ACL 2024 System Demonstration Track. 🎉🎉**
+- **2024-06-04, [EasyInstruct](https://arxiv.org/abs/2402.03049) is accepted by ACL 2024 System Demonstration Track. 🎉🎉**
 - **2024-02-06 We release a new paper: "[EasyInstruct: An Easy-to-use Instruction Processing Framework for Large Language Models](https://arxiv.org/abs/2402.03049)" with an HF demo [EasyInstruct](https://huggingface.co/spaces/zjunlp/EasyInstruct).**
 - **2024-02-06 We release a preliminary tool [EasyDetect](https://github.com/OpenKG-ORG/EasyDetect) for hallucination detection, with a [demo](http://easydetect.openkg.cn/)**.
 - **2024-02-05 We release version 0.1.2, supporting for new features and optimising the function interface.**
