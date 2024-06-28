@@ -3,27 +3,28 @@ from setuptools.command.install import install
 
 
 REQUIRES = """
-torch>=1.13.0
-torchvision>=0.15.0
-transformers>=4.28.0
-accelerate>=0.20.3
-openai==1.9.0
-anthropic>=0.3.0
-cohere>=4.19.0
-hanlp
+torch==2.1.0
+torchvision==0.16.0
+transformers==4.34.1
+tokenizers==0.14.1
+accelerate==0.20.3
+openai==1.35.7
+anthropic==0.5.0
+cohere==4.31.0
+hanlp==2.1.0b52
 zhconv==1.4.3
 beautifulsoup4==4.11.2
 bs4==0.0.1
 lxml==4.9.2
 sqlitedict==2.1.0
-Pillow
-tiktoken
-nltk
-rouge-score
-matplotlib
-scikit-learn
-lexicalrichness
-pandarallel
+Pillow==10.1.0
+tiktoken==0.5.1
+nltk==3.8.1
+rouge-score==0.1.2
+matplotlib==3.8.2
+scikit-learn==1.3.2
+lexicalrichness==0.5.1
+pandarallel==1.6.5
 """
 
 def get_install_requires():
