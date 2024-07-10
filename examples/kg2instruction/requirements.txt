@@ -1,0 +1,12 @@
+tokenizers==0.13.3
+torch==2.0.0
+hanlp==2.1.0b50
+penman==1.2.1
+perin-parser==0.0.12
+fasttext-wheel==0.9.2
+tensorflow==2.8.0
+keras==2.6.0
+protobuf==3.18.0
+peft==0.4.0
+
+
