@@ -158,12 +158,6 @@ def main(_):
     )
     logger.info('Done')
 
-'''
-python kglm/convert_enttype.py \
-    /newdisk3/data/guihh/KG2Instruction/data/zh/cate_predict/predict4.json \
-    /newdisk3/data/guihh/KG2Instruction/data/zh/cate_predict/predict_ent4.json \
-    --keep
-'''
 
 
 if __name__ == '__main__':

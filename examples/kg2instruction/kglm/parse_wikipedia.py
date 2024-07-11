@@ -8,6 +8,7 @@ import urllib3
 from tqdm import tqdm
 
 from kglm.util import LOG_FORMAT, load_already
+from kglm.clean_html import clean_soup
 
 urllib3.disable_warnings()
 logger = logging.getLogger(__name__)  
@@ -71,9 +72,19 @@ def main(_) -> None:
         if title in already:
             print(f"{title} has exists!")
             continue
-        out = parse_html(title, FLAGS.language)
-        if out is not None:
-            writer.write(json.dumps(out, ensure_ascii=False)+"\n")
+        json_data = parse_html(title, FLAGS.language)
+        if json_data is not None:
+            if FLAGS.clean:
+                try:
+                    clean_html = clean_soup(json_data['html'])
+                except TypeError:
+                    logger.info(f"{json_data['title']} type error")
+                    continue
+                if clean_html is None or clean_html == "":
+                    logger.info(f"{json_data['title']} clean html is None or empty")
+                    continue
+                json_data['html'] = str(clean_html)
+            writer.write(json.dumps(json_data, ensure_ascii=False)+"\n")
 
 
 
@@ -84,6 +95,7 @@ if __name__ == '__main__':
     parser.add_argument('--language', type=str, default='en')
     parser.add_argument('-j', type=int, default=4, help='Number of processors')
     parser.add_argument('--mode', type=str, default='w', help='w: rewrite; a: append')
+    parser.add_argument('--clean', action='store_true', help='Indicates whether to clean the original HTML file to obtain a concise HTML file')
     FLAGS, _ = parser.parse_known_args()
 
     logging.basicConfig(level=logging.INFO, format=LOG_FORMAT)

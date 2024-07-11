@@ -12,7 +12,7 @@ from sqlitedict import SqliteDict
 
 from kglm.render import render_quantity, render_time_zh, render_time_en
 from kglm.util import load_already, format_wikilink
-
+from kglm.convert_enttype import process_entity
 
 logger = logging.getLogger(__name__) 
 
@@ -305,7 +305,7 @@ class Annotator:
 
 
 
-def process_file(input_file, output_file, alias_db, relation_db, relation_value_db, flags, FLAGS):
+def process_file(input_file, output_file, alias_db, relation_db, relation_value_db, enttypeid_mapper, flags, time_quantity_other, FLAGS):
     if FLAGS.mode == 'w':
         already = set()
     else:
@@ -327,11 +327,10 @@ def process_file(input_file, output_file, alias_db, relation_db, relation_value_
                 print(f"{json_data['id']} has exists!")
                 continue
             relations, new_entities = annotator.annotate(json_data['entity'], json_data['text'], FLAGS.keep, flags)
+            entities = process_entity(new_entities, enttypeid_mapper, relation_db, time_quantity_other)
             if len(relations) == 0:
                 continue
-            annotation = {"id":json_data["id"], "entity":new_entities, "relation":relations}
-            if FLAGS.keep:
-                annotation["text"] = json_data["text"]
+            annotation = {"id":json_data["id"], "text": json_data["text"], "entity":entities, "relation":relations}
             writer.write(json.dumps(annotation, ensure_ascii=False)+'\n')
     writer.close()
 
@@ -339,16 +338,20 @@ def process_file(input_file, output_file, alias_db, relation_db, relation_value_
 def main(_): 
     if FLAGS.language == "zh":
         flags = {'time':'时间/时间', 'quantity':'度量/度量'}
+        time_quantity_other = ['时间', '度量', '其他']
         cate_list = ['人物', '地理地区', '建筑', '作品', '生物','人造物件', '自然科学', '组织', '运输', '事件', '天文对象', '医学']
     else:
         flags = {'time':'time/time', 'quantity':'quantity/quantity'}
+        time_quantity_other = ['time', 'measure', 'other']
         cate_list = ['Person', 'Geographic_Location', 'Building', 'Works', 'Creature', 'Artificial_Object', 'Natural_Science', 'Organization', 'Transport', 'Event', 'Astronomy', 'Medicine']
+    
+    
     cate_list = FLAGS.cate_list.split(',')
-
     logger.info('Starting queue loader')
     relation_db = SqliteDict(FLAGS.relation_db, flag='r')
     relation_value_db = SqliteDict(FLAGS.relation_value_db, flag='r')
-    alias_db = SqliteDict(FLAGS.alias_db, flag='r')   
+    alias_db = SqliteDict(FLAGS.alias_db, flag='r')  
+    enttypeid_mapper = json.load(open(FLAGS.enttypeid_mapper, "r")) 
 
     if os.path.isfile(FLAGS.input):
         process_file(
@@ -357,7 +360,9 @@ def main(_):
             alias_db, 
             relation_db, 
             relation_value_db,
+            enttypeid_mapper,
             flags,
+            time_quantity_other,
             FLAGS
         )
     else:
@@ -372,7 +377,9 @@ def main(_):
                     alias_db, 
                     relation_db, 
                     relation_value_db,
+                    enttypeid_mapper,
                     flags,
+                    time_quantity_other,
                     FLAGS
                 )
     logger.info('Done')
@@ -386,11 +393,11 @@ if __name__ == '__main__':
     parser.add_argument('-j', type=int, default=4, help='Number of processors')
     parser.add_argument('--language', type=str, default='en')
     parser.add_argument('--mode', type=str, default="w")
-    parser.add_argument('--keep', action='store_true')
     parser.add_argument('--relation_db', type=str, default='data/db/relation.db')
     parser.add_argument('--relation_value_db', type=str, default='data/db/relation_value.db')
     parser.add_argument('--alias_db', type=str, default='data/db/alias.db')
     parser.add_argument('--relation_map_path', type=str, default="data/other/relation_map.json")
+    parser.add_argument('--enttypeid_mapper', type=str, default="data/other/enttypeid_mapper_zh.json")
     parser.add_argument('--cate_list', type=str, default='Person,Creature,Artificial_Object,Geographic_Location,Building,Natural_Science,Organization,Works,Transport,Event,Astronomy,Medicine')
     FLAGS, _ = parser.parse_known_args()
 

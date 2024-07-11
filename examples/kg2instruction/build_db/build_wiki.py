@@ -12,8 +12,6 @@ def main(_):
     db = SqliteDict(FLAGS.db, journal_mode='OFF')
     language = FLAGS.language + "wiki"
     for i, data in enumerate(generate_from_json_bz2(FLAGS.input)):
-        print(data)
-        break
         iid = data['id']
         try:
             wikilink = data['sitelinks'][language]['title']     
