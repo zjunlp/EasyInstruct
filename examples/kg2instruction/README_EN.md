@@ -105,6 +105,8 @@ Before using the `KG2Instruction` framework, you need to download the following 
 
 8. **NLI Model**: [MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
 
+⚠️ **Note**: In addition to Baidu Cloud, you can also download the corresponding files from [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main).
+
 
 
 ## Use KG2Instruction to obtain annotation samples for any text
@@ -128,10 +130,6 @@ python pipeline.py \
     --prompt_name llama2_zh \
     --device 0 
 ```
-
-
-⚠️ **Note**: In addition to Baidu Cloud, you can also download the corresponding files from [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main).
-
 
 
 ## KG Distant Supervision
