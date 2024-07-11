@@ -9,12 +9,15 @@ instruction_mapper = {
 }
 
 
-def build_instruction(language, schema_list, text):
-    ins = instruction_mapper['RE'+language]
-    split_schemas = [schema_list[i:i+4] for i in range(0, len(schema_list), 4)]
+def build_instruction(language, schema_list, text, split_num=4):
     sintructs = []
-    for split_schema in split_schemas:
-        sintructs.append({'instruction':ins, 'schema':split_schema, 'input':text},)
+    ins = instruction_mapper['RE'+language]
+    if split_num == -1:
+        sintructs.append({'instruction':ins, 'schema':schema_list, 'input':text},)
+    else:
+        split_schemas = [schema_list[i:i+split_num] for i in range(0, len(schema_list), split_num)]
+        for split_schema in split_schemas:
+            sintructs.append({'instruction':ins, 'schema':split_schema, 'input':text},)
     return sintructs
 
 
@@ -58,18 +61,17 @@ def main():
     parser.add_argument('--mode', type=str, default='train')
     parser.add_argument('--language', type=str, default='zh')
     parser.add_argument('--cate', type=str, default='人物')
-    parser.add_argument('--template_path', type=str, default="./data/other/template.json")
+    parser.add_argument('--split_num', type=int, default=4)
+    parser.add_argument('--schema_path', type=str, default="./data/other/schema_zh.json")
     args = parser.parse_args()
     
     schema_dict = {}
-    template = json.load(open(args.template_path))
-    for lang, values1 in template.items():
-        for key_cate, values2 in values2:
-            schema_list = list(values2.keys())
-            schema_dict[key_cate] = schema_list
+    schemas = json.load(open(args.schema_path))
+    for cate, values1 in schemas.items():
+        schema_dict[cate] = values1[1]
 
     cate_data_dict = defaultdict(list)
-    writer = open(args.output_path)
+    writer = open(args.output_path, 'w')
     with open(args.input_path) as reader:
         for line in reader:
             data = json.loads(line)
@@ -79,12 +81,12 @@ def main():
     for cate, datas in cate_data_dict.items():
         schema_list = schema_dict[cate]
         for i, data in enumerate(datas):
-            instructions = build_instruction(args.language, schema_list, data['text'])
+            instructions = build_instruction(args.language, schema_list, data['text'], args.split_num)
             if args.mode == 'train':
-                label_dict = get_label_dict(data['realtion'])
+                label_dict = get_label_dict(data['relation'])
                 for ins in instructions:
                     output_text = convert_target4(data['text'], ins['schema'], label_dict)
-                    new_data = {'instruction': json.dumps(ins, ensure_ascii=True), 'output': output_text}
+                    new_data = {'instruction': json.dumps(ins, ensure_ascii=False), 'output': output_text}
                     writer.write(json.dumps(new_data, ensure_ascii=False)+'\n')
             else:
                 for ins in instructions:
@@ -92,7 +94,7 @@ def main():
                         iid = data['id']
                     else:
                         iid = cate+'_'+str(i)
-                    new_data = {'id':iid, 'cate':cate, 'instruction': json.dumps(ins, ensure_ascii=True)}
+                    new_data = {'id':iid, 'cate':cate, 'instruction': json.dumps(ins, ensure_ascii=False)}
                     writer.write(json.dumps(new_data, ensure_ascii=False)+'\n')
 
 

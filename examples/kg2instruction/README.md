@@ -1,6 +1,7 @@
 # KG2Instruction
 
 - [KG2Instruction](#kg2instruction)
+  - [数据集下载与使用](#数据集下载与使用)
   - [准备](#准备)
     - [配置环境](#配置环境)
     - [下载工具](#下载工具)
@@ -22,6 +23,57 @@
   - [引用](#引用)
 
 
+## 数据集下载与使用
+
+你可以从[Hugging Face](https://huggingface.co/datasets/zjunlp/InstructIE)下载InstructIE数据集。
+
+```json
+{
+  "id": "bac7c32c47fddd20966e4ece5111690c9ce3f4f798c7c9dfff7721f67d0c54a5", 
+  "cate": "地理地区", 
+  "text": "阿尔夫达尔（挪威语：Alvdal）是挪威的一个市镇，位于内陆郡，行政中心为阿尔夫达尔村。市镇面积为943平方公里，人口数量为2,424人（2018年），人口密度为每平方公里2.6人。", 
+  "relation": [
+    {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "面积", "tail": "943平方公里", "tail_type": "度量"}, 
+    {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "别名", "tail": "Alvdal", "tail_type": "地理地区"}, 
+    {"head": "内陆郡", "head_type": "地理地区", "relation": "位于", "tail": "挪威", "tail_type": "地理地区"}, 
+    {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "位于", "tail": "内陆郡", "tail_type": "地理地区"}, 
+    {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "人口", "tail": "2,424人", "tail_type": "度量"}
+  ]
+}
+```
+
+各字段的说明:
+
+|   字段   |                             说明                             |
+| :------: | :----------------------------------------------------------: |
+|    id    |                   每个数据点的唯一标识符。                   |
+|   cate   |           文本的主题类别，总计12种不同的主题分类。           |
+|   text   |     模型的输入文本，目标是从中抽取涉及的所有关系三元组。     |
+| relation | 描述文本中包含的关系三元组，即(head, head_type, relation, tail, tail_type)。 |
+
+
+利用上述字段，用户可以灵活地设计和实施针对不同信息**抽取需求**的指令和**输出格式**。
+
+
+这里提供了简单的数据转换脚本, 通过该脚本可以将上面格式的数据转换成 `instruction`、`output` 形式的指令数据。
+
+```bash
+python llm_cpl/build_instruction.py \
+    --input_path data/example_zh.json \
+    --output_path data/example_zh_ins.json \
+    --mode train \
+    --language zh \
+    --schema_path data/other/schema_zh.json \
+    --split_num -1
+```
+
+```json
+{
+    "instruction": "{\"instruction\": \"你是专门进行关系抽取的专家。请从input中抽取出符合schema定义的关系三元组，不存在的关系返回空列表。请按照JSON字符串的格式回答。\", \"schema\": [\"位于\", \"别名\", \"人口\", \"行政中心\", \"面积\", \"长度\", \"宽度\", \"海拔\"], \"input\": \"阿尔夫达尔（挪威语：Alvdal）是挪威的一个市镇，位于内陆郡，行政中心为阿尔夫达尔村。市镇面积为943平方公里，人口数量为2,424人（2018年），人口密度为每平方公里2.6人。\"}", 
+    "output": "{\"位于\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"内陆郡\"}, {\"subject\": \"内陆郡\", \"object\": \"挪威\"}], \"别名\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"Alvdal\"}], \"人口\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"2,424人\"}], \"行政中心\": [], \"面积\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"943平方公里\"}], \"长度\": [], \"宽度\": [], \"海拔\": []}"
+}
+```
+
 ## 准备
 
 ### 配置环境
@@ -35,7 +87,7 @@
 在使用KG2Instruction框架前您需要下载以下模型和文件: 
 1. **Wikidata(可选, 我们提供构建好的映射)**: 你可以从[此处](https://dumps.wikimedia.org/wikidatawiki/entities/)下载`latest-all.json.bz2`(即所有Wikidata实体)。
 
-2. **Wikipedia**: 从[此处](https://dumps.wikimedia.org/zhwiki/latest/)下载`zhwiki-latest-pages-articles.xml.bz2`(即中文Wikipedia dumps)。**注意**你也可以从[ghh001/InstructIE-original-zh](https://huggingface.co/datasets/ghh001/InstructIE-original-zh)下载经过清洗操作后的中文wikipedia文章的html文件(对应经过`clean_html.py`后的文件)。
+2. **Wikipedia**: 从[此处](https://dumps.wikimedia.org/zhwiki/latest/)下载`zhwiki-latest-pages-articles.xml.bz2`(即中文Wikipedia dumps)。**注意**你也可以从[ghh001/InstructIE-original](https://huggingface.co/datasets/ghh001/InstructIE-original)下载经过清洗操作后的中文wikipedia文章的html文件(对应经过`clean_html.py`后的文件)。
 
 3. **NER模型**: 我们采取hanlp中的[hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)（用于中文NER） 和 [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip)（用于英文NER）
 
@@ -45,7 +97,7 @@
 
 6. **实体类型映射**: `enttypeid_mapper_en.json`、`enttypeid_mapper_zh.json`、中英文关系映射: `relation_map.json`、NLI模版: `template.json`、所有领域的schema信息: `all_schema.json` [百度云盘下载](https://pan.baidu.com/s/1Ypc2JYJbwVYgMHGG4EIxBQ?pwd=1ykk)
 
-7. **训练好的信息抽取大模型**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)
+7. **训练好的信息抽取大模型**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、人工标注的各个领域下的50条样本 `biaozhu_zh.json` [百度云盘下载](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8)
    
 8.  **NLI模型**: [MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
 
@@ -234,15 +286,16 @@ python cate_limit/relation_limit.py \
 
 ### 1.构建训练指令数据
 
-`valid_zh.json` 文件包含 `cate`、`text`、`entity`、`relation` 字段, 需要将其转换为能直接送入模型训练的 `instruction`、`output` 格式。
+`biaozhu_zh.json` 文件包含 `cate`、`text`、`entity`、`relation` 字段, 需要将其转换为能直接送入模型训练的 `instruction`、`output` 格式。
+
 
 ```bash
 python llm_cpl/build_instruction.py \
-    data/valid_zh.json \
-    data/instruction_train_zh.json \
+    --input_path data/biaozhu_zh.json \
+    --output_path data/instruction_train_zh.json \
     --mode train \
     --language zh \
-    --template_path data/other/template.json
+    --schema_path data/other/schema_zh.json
 ```
 
 
@@ -296,11 +349,11 @@ CUDA_VISIBLE_DEVICES="0" python src/finetune.py \
 
 ```bash
 python llm_cpl/build_instruction.py \
-    data/zh/cate_limit/人物/result0.json \
-    data/zh/instruction/人物/result0.json \
+    --input_path data/zh/cate_limit/人物/result0.json \
+    --output_path data/zh/instruction/人物/result0.json \
     --mode test \
     --language zh \
-    --template_path data/other/template.json
+    --schema_path data/other/schema_zh.json
 ```
 
 

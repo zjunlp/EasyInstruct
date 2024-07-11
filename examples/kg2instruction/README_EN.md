@@ -1,10 +1,11 @@
 # KG2Instruction
 
 - [KG2Instruction](#kg2instruction)
+  - [Dataset Download and Use](#dataset-download-and-use)
   - [Prepare](#prepare)
     - [Configure environment](#configure-environment)
     - [Download Tools](#download-tools)
-- [Use KG2Instruction to obtain annotation samples for any text](#use-kg2instruction-to-obtain-annotation-samples-for-any-text)
+  - [Use KG2Instruction to obtain annotation samples for any text](#use-kg2instruction-to-obtain-annotation-samples-for-any-text)
   - [KG Distant Supervision](#kg-distant-supervision)
     - [1.Build Some Necessary Mappings](#1build-some-necessary-mappings)
     - [2.Obtain Wikipedia Corpus](#2obtain-wikipedia-corpus)
@@ -20,6 +21,56 @@
   - [NLI Model Filtering Unrealistic Triples](#nli-model-filtering-unrealistic-triples)
   - [Acknowledgments](#acknowledgments)
   - [Citation](#citation)
+
+
+## Dataset Download and Use
+
+You can access it from [Hugging Face](https://huggingface.co/datasets/zjunlp/InstructIE) download the InstructIE dataset.
+
+```json
+{
+  "id": "841ef2af4cfe766dd9295fb7daf321c299df0fd0cef14820dfcb421161eed4a1", 
+  "cate": "Astronomy",
+  "text": "NGC1313 is a galaxy in the constellation of Reticulum. It was discovered by the Australian astronomer James Dunlop on September 27, 1826. It has a prominent uneven shape, and its axis does not completely revolve around its center. Near NGC1313, there is another galaxy, NGC1309.", 
+  "relation": [
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "time of discovery", "tail": "September 27, 1826", "tail_type": "time"}, 
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "discoverer or inventor", "tail": "James Dunlop", "tail_type": "organization/human"}, 
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "of", "tail": "Reticulum", "tail_type": "astronomical object type"}
+  ]
+}
+```
+
+Description of each field:
+
+| Field    | Description                                                  |
+| -------- | ------------------------------------------------------------ |
+| id       | The unique identifier for each data point.                   |
+| cate     | The category of the text's subject, with a total of 12 different thematic categories. |
+| text     | The input text for the model, with the goal of extracting all the involved relationship triples. |
+| relation | Describes the relationship triples contained in the text, i.e., (head, head_type, relation, tail, tail_type). |
+
+With the fields mentioned above, users can flexibly design and implement instructions and output formats for different information extraction needs.
+
+
+Here is a simple data conversion script provided, which can convert the data in the above format into instruction data in the form of `instruction` and `output`.
+
+```bash
+python llm_cpl/build_instruction.py \
+    --input_path data/example_en.json \
+    --output_path data/example_en_ins.json \
+    --mode train \
+    --language en \
+    --schema_path data/other/schema_en.json \
+    --split_num -1
+```
+
+
+```json
+{
+    "instruction": "{\"instruction\": \"You are an expert in relationship extraction. Please extract relationship triples that match the schema definition from the input. Return an empty list for relationships that do not exist. Please respond in the format of a JSON string.\", \"schema\": [\"alternative name\", \"of\", \"time of discovery\", \"discoverer or inventor\", \"named after\", \"absolute magnitude\", \"diameter\", \"mass\"], \"input\": \"NGC1313 is a galaxy in the constellation of Reticulum. It was discovered by the Australian astronomer James Dunlop on September 27, 1826. It has a prominent uneven shape, and its axis does not completely revolve around its center. Near NGC1313, there is another galaxy, NGC1309.\"}", 
+    "output": "{\"alternative name\": [], \"of\": [{\"subject\": \"NGC1313\", \"object\": \"Reticulum\"}], \"time of discovery\": [{\"subject\": \"NGC1313\", \"object\": \"September 27, 1826\"}], \"discoverer or inventor\": [{\"subject\": \"NGC1313\", \"object\": \"James Dunlop\"}], \"named after\": [], \"absolute magnitude\": [], \"diameter\": [], \"mass\": []}"
+}
+```
 
 
 ## Prepare
@@ -38,7 +89,7 @@ Before using the `KG2Instruction` framework, you need to download the following 
 
 1. **Wikidata (optional, we provide a pre-built mapping)**: You can download `latest-all.json.bz2` (i.e., all Wikidata entities) from [here](https://dumps.wikimedia.org/wikidatawiki/entities/).
 
-2. **Wikipedia**: Download `enwiki-latest-pages-articles.xml.bz2` (i.e., English Wikipedia dumps) from [here](https://dumps.wikimedia.org/enwiki/latest/). 
+2. **Wikipedia**: Download `enwiki-latest-pages-articles.xml.bz2` (i.e., English Wikipedia dumps) from [here](https://dumps.wikimedia.org/enwiki/latest/). **Note** that you can also access [hh001/InstructIE-original](https://huggingface.co/datasets/ghh001/InstructIE-original) download the HTML file of the cleaned Chinese Wikipedia article (corresponding to the file that has been cleaned).
 
 3. **NER Model**: We use the following models for Chinese and English NER:
    - For Chinese NER: [hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)
@@ -48,16 +99,15 @@ Before using the `KG2Instruction` framework, you need to download the following 
 
 5. **Pre-built Chinese Wiki Entity-Relation Mapping** (`wiki_en.db`, `alias_en.db`, `alias_rev_en.db`, `label_en.db`, `relation.db`) [Baidu Cloud Download](https://pan.baidu.com/s/1SN2aUTnH5JHQMha1hk_ltw?pwd=6nc4)
 
-
 6. **Entity Type Mapping**: `enttypeid_mapper_en.json`, `enttypeid_mapper_zh.json`, **Chinese-English Relation Mapping**: `relation_map.json`, **NLI Templates**: `template.json`, **All Domain Schema Information**: `all_schema.json` [Baidu Cloud Download](https://pan.baidu.com/s/1Ypc2JYJbwVYgMHGG4EIxBQ?pwd=1ykk)
 
-7. **Pre-trained Information Extraction Large Model**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)
+7. **Pre-trained Information Extraction Large Model**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、50 manually annotated samples from various domains [Baidu Cloud Download](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8)
 
 8. **NLI Model**: [MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
 
 
 
-# Use KG2Instruction to obtain annotation samples for any text
+## Use KG2Instruction to obtain annotation samples for any text
 
 ```bash
 python pipeline.py \
@@ -241,15 +291,15 @@ python cate_limit/relation_limit.py \
 ### 1.Build Training Instruction Data
 
 
-The `valid_en.json` file contains fields `cate`, `text`, `entity`, `relation`, which need to be converted into `instruction`, `output` format suitable for direct model training.
+The `biaozhu_en.json` file contains fields `cate`, `text`, `entity`, `relation`, which need to be converted into `instruction`, `output` format suitable for direct model training.
 
 ```bash
 python llm_cpl/build_instruction.py \
-    data/valid_en.json \
-    data/instruction_train_en.json \
+    --input_path data/biaozhu_en.json \
+    --output_path data/instruction_train_en.json \
     --mode train \
     --language en \
-    --template_path data/other/template.json
+    --schema_path data/other/schema_en.json
 ```
 
 
@@ -301,11 +351,11 @@ Convert the text to be extracted into instruction data format:
 
 ```bash
 python llm_cpl/build_instruction.py \
-    data/en/cate_limit/Person/result0.json \
-    data/en/instruction/Person/result0.json \
+    --input_path data/en/cate_limit/Person/result0.json \
+    --output_path data/en/instruction/Person/result0.json \
     --mode test \
     --language en \
-    --template_path data/other/template.json
+    --schema_path data/other/schema_en.json
 ```
 
 
