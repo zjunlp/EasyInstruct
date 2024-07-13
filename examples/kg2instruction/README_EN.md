@@ -51,6 +51,7 @@ Description of each field:
 
 With the fields mentioned above, users can flexibly design and implement instructions and output formats for different information extraction needs.
 
+We also provided the `entity` field in the training set to perform entity naming recognition tasks, but we did not provide corresponding entity annotation data in the test set.
 
 Here is a simple data conversion script provided, which can convert the data in the above format into instruction data in the form of `instruction` and `output`.
 

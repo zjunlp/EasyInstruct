@@ -119,7 +119,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=64)
     args = parser.parse_args()
 
-    device = torch.device(f"cuda:{options.device}") if torch.cuda.is_available() else torch.device("cpu")
+    device = torch.device(f"cuda:{args.device}") if torch.cuda.is_available() else torch.device("cpu")
     tokenizer, model, device = load_nli_model_and_tokenizer(args.model_path, device)
     template_path = args.template_path
     template = json.load(open(template_path, 'r', encoding='utf-8'))[args.language]
@@ -127,22 +127,21 @@ def main():
     total_remove = 0
     already = set()
     if args.mode == 'a':
-        with open(output_path, 'r') as reader:
+        with open(args.output_path, 'r') as reader:
             for line in reader:
                 data = json.loads(line)
                 already.add(data['id'])
 
     datas = []
-    with open(input_path, 'r') as reader:
+    with open(args.input_path, 'r') as reader:
         for line in reader:
             data = json.loads(line)
             datas.append(data)
 
     datas = nli_filter_datas(datas, args.batch_size, template, model, tokenizer, device)
-    writer = open(output_path, args.mode)
+    writer = open(args.output_path, args.mode)
     for data in datas:
         writer.write(json.dumps(data, ensure_ascii=False) + '\n')
-    print(f'{cate} - Total remove {total_remove} relations.')
 
 
 if __name__ == '__main__':
