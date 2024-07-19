@@ -8,7 +8,7 @@
   - [Use KG2Instruction to obtain annotation samples for any text](#use-kg2instruction-to-obtain-annotation-samples-for-any-text)
   - [KG Distant Supervision](#kg-distant-supervision)
     - [1.Build Some Necessary Mappings](#1build-some-necessary-mappings)
-    - [2.Obtain Wikipedia Corpus](#2obtain-wikipedia-corpus)
+    - [2.Obtain Wikipedia Corpus (Optional)](#2obtain-wikipedia-corpus-optional)
     - [3.Obtain Entities (Disambiguated)](#3obtain-entities-disambiguated)
     - [4.Match all relationships between each pair of entities and obtain entity types](#4match-all-relationships-between-each-pair-of-entities-and-obtain-entity-types)
     - [5.Text Topic Classification](#5text-topic-classification)
@@ -25,7 +25,7 @@
 
 ## Dataset Download and Use
 
-You can access it from [Hugging Face](https://huggingface.co/datasets/zjunlp/InstructIE) download the InstructIE dataset.
+You can download the InstructIE dataset from [Hugging Face](https://huggingface.co/datasets/zjunlp/InstructIE).
 
 ```json
 {
@@ -45,13 +45,13 @@ Description of each field:
 | Field    | Description                                                  |
 | -------- | ------------------------------------------------------------ |
 | id       | The unique identifier for each data point.                   |
-| cate     | The category of the text's subject, with a total of 12 different thematic categories. |
-| text     | The input text for the model, with the goal of extracting all the involved relationship triples. |
-| relation | Describes the relationship triples contained in the text, i.e., (head, head_type, relation, tail, tail_type). |
-
-With the fields mentioned above, users can flexibly design and implement instructions and output formats for different information extraction needs.
+| cate     | The domain of the text, with a total of 12 different domains. |
+| text     | The input text. |
+| relation | Annotate data in the format of (head, head_type, relation, tail, tail_type). |
 
 > We also provided the **`entity`** field in the training set to perform entity naming recognition tasks, but we did not provide corresponding entity annotation data in the test set.
+
+With the fields mentioned above, users can flexibly design and implement instructions and output formats for different information extraction needs.
 
 Here is a simple data conversion script provided, which can convert the data in the above format into instruction data in the form of `instruction` and `output`.
 
@@ -65,7 +65,8 @@ python llm_cpl/build_instruction.py \
     --split_num -1
 ```
 
-Example:
+Example of the converted data in the format of (`instruction`, `output`):
+
 ```json
 {
     "instruction": "{\"instruction\": \"You are an expert in relationship extraction. Please extract relationship triples that match the schema definition from the input. Return an empty list for relationships that do not exist. Please respond in the format of a JSON string.\", \"schema\": [\"alternative name\", \"of\", \"time of discovery\", \"discoverer or inventor\", \"named after\", \"absolute magnitude\", \"diameter\", \"mass\"], \"input\": \"NGC1313 is a galaxy in the constellation of Reticulum. It was discovered by the Australian astronomer James Dunlop on September 27, 1826. It has a prominent uneven shape, and its axis does not completely revolve around its center. Near NGC1313, there is another galaxy, NGC1309.\"}", 
@@ -79,8 +80,8 @@ Example:
 ### Configure environment
 
 ```bash
-    conda create -n kg2instruct python=3.8
-    pip install -r requirements.txt
+conda create -n kg2instruct python=3.8
+pip install -r requirements.txt
 ```
 
 
@@ -90,19 +91,19 @@ Before using the `KG2Instruction` framework, you need to download the following 
 
 1. **Wikidata (optional, we provide a pre-built mapping)**: You can download `latest-all.json.bz2` (i.e., all Wikidata entities) from [here](https://dumps.wikimedia.org/wikidatawiki/entities/).
 
-2. **Wikipedia**: Download `enwiki-latest-pages-articles.xml.bz2` (i.e., English Wikipedia dumps) from [here](https://dumps.wikimedia.org/enwiki/latest/). **Note** that you can also access [hh001/InstructIE-original](https://huggingface.co/datasets/ghh001/InstructIE-original) download the HTML file of the cleaned Chinese Wikipedia article (corresponding to the file that has been cleaned).
+2. **Wikipedia**: Download `enwiki-latest-pages-articles.xml.bz2` (i.e., English Wikipedia dumps) from [here](https://dumps.wikimedia.org/enwiki/latest/). **Note** that you can also access [hh001/InstructIE-original](https://huggingface.co/datasets/ghh001/InstructIE-original) download the HTML file of the cleaned Wikipedia article (corresponding to the file that has been cleaned).
 
 3. **NER Model**: We use the following models for Chinese and English NER:
    - For Chinese NER: [hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)
    - For English NER: [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip)
 
-4. **Pre-trained Topic Classification Models**: `text_classification_en`, `text_classification_zh` [Baidu Cloud Download](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+4. **Text Domain Classification Models**: You can download the `text_classification_en`, `text_classification_zh` model from [Baidu Cloud Download](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
-5. **Pre-built Chinese Wiki Entity-Relation Mapping** (`wiki_en.db`, `alias_en.db`, `alias_rev_en.db`, `label_en.db`, `relation.db`) [Baidu Cloud Download](https://pan.baidu.com/s/1SN2aUTnH5JHQMha1hk_ltw?pwd=6nc4) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+5. **Pre-built Wiki Entity-Relation Mapping**: You can download the (`wiki_en.db`, `alias_en.db`, `alias_rev_en.db`, `label_en.db`, `relation.db`) from [Baidu Cloud Download](https://pan.baidu.com/s/1SN2aUTnH5JHQMha1hk_ltw?pwd=6nc4) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
 6. **Entity Type Mapping**: `enttypeid_mapper_en.json`, `enttypeid_mapper_zh.json`, **Chinese-English Relation Mapping**: `relation_map.json`, **NLI Templates**: `template.json`, **All Domain Schema Information**: `all_schema.json` [Baidu Cloud Download](https://pan.baidu.com/s/1Ypc2JYJbwVYgMHGG4EIxBQ?pwd=1ykk) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
-7. **Pre-trained Information Extraction Large Model**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、50 manually annotated samples from various domains [Baidu Cloud Download](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+7. **Pre-trained Information Extraction Large Language Model**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、50 manually annotated samples from various domains [Baidu Cloud Download](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
 8. **NLI Model**: [MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7) 
 
@@ -111,6 +112,9 @@ Before using the `KG2Instruction` framework, you need to download the following 
 
 
 ## Use KG2Instruction to obtain annotation samples for any text
+
+Please make sure that all the files have been downloaded and placed correctly in the designated folders. `data/db/label_en.db`, `data/db/alias_en.db`, `data/db/alias_rev_en.db`, and `data/db/relation.db` are placed under the `data/db` folder. `data/other/relation_map.json`, `data/other/enttypeid_mapper_en.json`, `data/other/template.json`, `data/other/all_schema.json`, and `data/other/all_schema.json` are placed under the `data/db/other` folder. `model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base`, `model/text_classification_en`, `model/OneKE`, and `model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7` are placed under the `model` folder.
+
 
 ```bash
 python pipeline.py \
@@ -122,12 +126,12 @@ python pipeline.py \
     --relation_db data/db/relation.db \
     --relation_map_path data/other/relation_map.json \
     --enttypeid_mapper data/other/enttypeid_mapper_en.json \
-    --ner_model model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base \
-    --cls_model model/text_classification_en \
-    --ie_llm /nature/ghh/OneKE \
-    --nli_model model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 \
     --template_path data/other/template.json \
     --schema_path data/other/all_schema.json \
+    --ner_model model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base \
+    --cls_model model/text_classification_en \
+    --ie_llm model/OneKE \
+    --nli_model model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 \
     --prompt_name llama2_zh \
     --device 0 
 ```
@@ -177,7 +181,7 @@ python build_db/build_relation.py \
 ```
 
 
-### 2.Obtain Wikipedia Corpus
+### 2.Obtain Wikipedia Corpus (Optional)
 
 Download Wikipedia articles in HTML format, and clean them to obtain a more concise HTML format.
 

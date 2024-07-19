@@ -46,15 +46,14 @@
 
 |   字段   |                             说明                             |
 | :------: | :----------------------------------------------------------: |
-|    id    |                   每个数据点的唯一标识符。                   |
-|   cate   |           文本的主题类别，总计12种不同的主题分类。           |
-|   text   |     模型的输入文本，目标是从中抽取涉及的所有关系三元组。     |
-| relation | 描述文本中包含的关系三元组，即(head, head_type, relation, tail, tail_type)。 |
-
-
-利用上述字段，用户可以灵活地设计和实施针对不同信息**抽取需求**的指令和**输出格式**。
+|    id    | 每个数据点的唯一标识符。|
+|   cate   | 文本的领域类别，总计12种不同的领域。|
+|   text   | 输入文本。|
+| relation | 标注数据，以(head, head_type, relation, tail, tail_type)的格式组成。|
 
 > 在训练集中我们还提供了 **`entity`** 字段可以执行实体命名识别任务，但我们没有在测试集中提供相应的实体标注数据。
+
+利用上述字段，用户可以灵活地设计和实施针对不同信息**抽取需求**的指令和**输出格式**。
 
 这里提供了简单的数据转换脚本, 通过该脚本可以将上面格式的数据转换成 `instruction`、`output` 形式的指令数据。
 
@@ -68,7 +67,8 @@ python llm_cpl/build_instruction.py \
     --split_num -1
 ```
 
-例子：
+转换后数据的例子：
+
 ```json
 {
     "instruction": "{\"instruction\": \"你是专门进行关系抽取的专家。请从input中抽取出符合schema定义的关系三元组，不存在的关系返回空列表。请按照JSON字符串的格式回答。\", \"schema\": [\"位于\", \"别名\", \"人口\", \"行政中心\", \"面积\", \"长度\", \"宽度\", \"海拔\"], \"input\": \"阿尔夫达尔（挪威语：Alvdal）是挪威的一个市镇，位于内陆郡，行政中心为阿尔夫达尔村。市镇面积为943平方公里，人口数量为2,424人（2018年），人口密度为每平方公里2.6人。\"}", 
@@ -93,9 +93,9 @@ python llm_cpl/build_instruction.py \
 
 3. **NER模型**: 我们采取hanlp中的[hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)（用于中文NER） 和 [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip)（用于英文NER）
 
-4. **训练好的主题分类模型**: `text_classification_en`、`text_classification_zh` [百度云盘下载](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+4. **训练好的文本领域分类模型**: `text_classification_en`、`text_classification_zh` 可以从这里下载 [百度云盘下载](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
-5. **构建好的中文wiki实体关系映射** (`wiki_zh.db`、`alias_zh.db`、`alias_rev_zh.db`、`label_zh.db`、`relation_zh.db`) [百度云盘下载](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+5. **构建好的wiki实体关系映射**: (`wiki_zh.db`、`alias_zh.db`、`alias_rev_zh.db`、`label_zh.db`、`relation_zh.db`) 可以从这里下载 [百度云盘下载](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
 6. **实体类型映射**: `enttypeid_mapper_en.json`、`enttypeid_mapper_zh.json`、中英文关系映射: `relation_map.json`、NLI模版: `template.json`、所有领域的schema信息: `all_schema.json` [百度云盘下载](https://pan.baidu.com/s/1Ypc2JYJbwVYgMHGG4EIxBQ?pwd=1ykk) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
@@ -108,6 +108,8 @@ python llm_cpl/build_instruction.py \
 
 
 ## 对任意文本使用KG2Instruction获得标注样本
+
+请确保所有的文件都已经下载, 并且正确的放置在指定的文件夹下, `data/db/label_zh.db`、`data/db/alias_zh.db`、`data/db/alias_rev_zh.db`、`data/db/relation_zh.db` 放在 `data/db` 文件夹下面， `data/other/relation_map.json` `data/other/enttypeid_mapper_zh.json` `data/other/template.json` `data/other/all_schema.json` `data/other/all_schema.json` 放在 `data/db/other` 文件夹下面， `model/close_tok_pos_ner_srl_dep_sdp_con_electra_base` `model/text_classification_zh` `model/OneKE` `model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7` 放在 `model` 文件夹下面。
 
 ```bash
 python pipeline.py \
@@ -123,7 +125,7 @@ python pipeline.py \
     --schema_path data/other/all_schema.json \
     --ner_model model/close_tok_pos_ner_srl_dep_sdp_con_electra_base \
     --cls_model model/text_classification_zh \
-    --ie_llm /nature/ghh/OneKE \
+    --ie_llm model/OneKE \
     --nli_model model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 \
     --prompt_name llama2_zh \
     --device 0 
@@ -225,7 +227,7 @@ python kglm/find_rel.py \
     data/zh/match/match0.json \
     data/zh/enttype/enttype0.json \
     --language zh \
-    --relation_db data/db/relation.db \
+    --relation_db data/db/relation_zh.db \
     --relation_value_db data/db/relation_value.db \
     --alias_db data/db/alias_zh.db \
     --relation_map_path data/other/relation_map.json \
