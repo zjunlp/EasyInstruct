@@ -1,273 +1,274 @@
 # KG2Instruction
 
 - [KG2Instruction](#kg2instruction)
-  - [数据集下载与使用](#数据集下载与使用)
-  - [准备](#准备)
-    - [配置环境](#配置环境)
-    - [下载工具](#下载工具)
-  - [对任意文本使用KG2Instruction获得标注样本](#对任意文本使用kg2instruction获得标注样本)
-  - [KG远程监督](#kg远程监督)
-    - [1.构建一些必要的映射](#1构建一些必要的映射)
-    - [2.获得wikipedia语料(可跳过)](#2获得wikipedia语料可跳过)
-    - [3.获得实体(已经消歧)](#3获得实体已经消歧)
-    - [4.匹配每对实体间的所有关系且获得实体类型](#4匹配每对实体间的所有关系且获得实体类型)
-    - [5.文本主题分类](#5文本主题分类)
-    - [6.应用schema约束关系](#6应用schema约束关系)
-  - [应用IE-LLM补齐因KG不完整性缺少的三元组](#应用ie-llm补齐因kg不完整性缺少的三元组)
-    - [1.构建训练指令数据](#1构建训练指令数据)
-    - [2.用少量领域数据训练已有IE大模型](#2用少量领域数据训练已有ie大模型)
-    - [3.用训练好的IE大模型补充缺失三元组](#3用训练好的ie大模型补充缺失三元组)
-    - [4.合并KG远程监督数据和LLM补充数据](#4合并kg远程监督数据和llm补充数据)
-  - [NLI模型过滤不真实三元组](#nli模型过滤不真实三元组)
-  - [致谢](#致谢)
-  - [引用](#引用)
+  - [Dataset Download and Use](#dataset-download-and-use)
+  - [Prepare](#prepare)
+    - [Configure environment](#configure-environment)
+    - [Download Tools](#download-tools)
+  - [Use KG2Instruction to obtain annotation samples for any text](#use-kg2instruction-to-obtain-annotation-samples-for-any-text)
+  - [KG Distant Supervision](#kg-distant-supervision)
+    - [1.Build Some Necessary Mappings](#1build-some-necessary-mappings)
+    - [2.Obtain Wikipedia Corpus](#2obtain-wikipedia-corpus)
+    - [3.Obtain Entities (Disambiguated)](#3obtain-entities-disambiguated)
+    - [4.Match all relationships between each pair of entities and obtain entity types](#4match-all-relationships-between-each-pair-of-entities-and-obtain-entity-types)
+    - [5.Text Topic Classification](#5text-topic-classification)
+    - [6.Apply schema constraint relationships](#6apply-schema-constraint-relationships)
+  - [Apply IE-LLM to Complete Missing Triples Due to KG Incompleteness](#apply-ie-llm-to-complete-missing-triples-due-to-kg-incompleteness)
+    - [1.Build Training Instruction Data](#1build-training-instruction-data)
+    - [2.Train Existing IE Large Model with Limited Domain Data](#2train-existing-ie-large-model-with-limited-domain-data)
+    - [3.Use Trained IE Large Model to Supplement Missing Triples](#3use-trained-ie-large-model-to-supplement-missing-triples)
+    - [4.Merge KG Distant Supervision Data and LLM Completion Data](#4merge-kg-distant-supervision-data-and-llm-completion-data)
+  - [NLI Model Filtering Unrealistic Triples](#nli-model-filtering-unrealistic-triples)
+  - [Acknowledgments](#acknowledgments)
+  - [Citation](#citation)
 
 
-## 数据集下载与使用
+## Dataset Download and Use
 
-你可以从[Hugging Face](https://huggingface.co/datasets/zjunlp/InstructIE)下载InstructIE数据集。
+You can access it from [Hugging Face](https://huggingface.co/datasets/zjunlp/InstructIE) download the InstructIE dataset.
 
 ```json
 {
-  "id": "bac7c32c47fddd20966e4ece5111690c9ce3f4f798c7c9dfff7721f67d0c54a5", 
-  "cate": "地理地区", 
-  "text": "阿尔夫达尔（挪威语：Alvdal）是挪威的一个市镇，位于内陆郡，行政中心为阿尔夫达尔村。市镇面积为943平方公里，人口数量为2,424人（2018年），人口密度为每平方公里2.6人。", 
+  "id": "841ef2af4cfe766dd9295fb7daf321c299df0fd0cef14820dfcb421161eed4a1", 
+  "cate": "Astronomy",
+  "text": "NGC1313 is a galaxy in the constellation of Reticulum. It was discovered by the Australian astronomer James Dunlop on September 27, 1826. It has a prominent uneven shape, and its axis does not completely revolve around its center. Near NGC1313, there is another galaxy, NGC1309.", 
   "relation": [
-    {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "面积", "tail": "943平方公里", "tail_type": "度量"}, 
-    {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "别名", "tail": "Alvdal", "tail_type": "地理地区"}, 
-    {"head": "内陆郡", "head_type": "地理地区", "relation": "位于", "tail": "挪威", "tail_type": "地理地区"}, 
-    {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "位于", "tail": "内陆郡", "tail_type": "地理地区"}, 
-    {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "人口", "tail": "2,424人", "tail_type": "度量"}
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "time of discovery", "tail": "September 27, 1826", "tail_type": "time"}, 
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "discoverer or inventor", "tail": "James Dunlop", "tail_type": "organization/human"}, 
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "of", "tail": "Reticulum", "tail_type": "astronomical object type"}
   ]
 }
 ```
 
-各字段的说明:
+Description of each field:
 
-|   字段   |                             说明                             |
-| :------: | :----------------------------------------------------------: |
-|    id    |                   每个数据点的唯一标识符。                   |
-|   cate   |           文本的主题类别，总计12种不同的主题分类。           |
-|   text   |     模型的输入文本，目标是从中抽取涉及的所有关系三元组。     |
-| relation | 描述文本中包含的关系三元组，即(head, head_type, relation, tail, tail_type)。 |
+| Field    | Description                                                  |
+| -------- | ------------------------------------------------------------ |
+| id       | The unique identifier for each data point.                   |
+| cate     | The category of the text's subject, with a total of 12 different thematic categories. |
+| text     | The input text for the model, with the goal of extracting all the involved relationship triples. |
+| relation | Describes the relationship triples contained in the text, i.e., (head, head_type, relation, tail, tail_type). |
 
+With the fields mentioned above, users can flexibly design and implement instructions and output formats for different information extraction needs.
 
-利用上述字段，用户可以灵活地设计和实施针对不同信息**抽取需求**的指令和**输出格式**。
+> We also provided the **`entity`** field in the training set to perform entity naming recognition tasks, but we did not provide corresponding entity annotation data in the test set.
 
-在训练集中我们还提供了 `entity` 字段可以执行实体命名识别任务，但我们没有在测试集中提供相应的实体标注数据。
-
-这里提供了简单的数据转换脚本, 通过该脚本可以将上面格式的数据转换成 `instruction`、`output` 形式的指令数据。
+Here is a simple data conversion script provided, which can convert the data in the above format into instruction data in the form of `instruction` and `output`.
 
 ```bash
 python llm_cpl/build_instruction.py \
-    --input_path data/example_zh.json \
-    --output_path data/example_zh_ins.json \
+    --input_path data/example_en.json \
+    --output_path data/example_en_ins.json \
     --mode train \
-    --language zh \
-    --schema_path data/other/schema_zh.json \
+    --language en \
+    --schema_path data/other/schema_en.json \
     --split_num -1
 ```
 
+Example:
 ```json
 {
-    "instruction": "{\"instruction\": \"你是专门进行关系抽取的专家。请从input中抽取出符合schema定义的关系三元组，不存在的关系返回空列表。请按照JSON字符串的格式回答。\", \"schema\": [\"位于\", \"别名\", \"人口\", \"行政中心\", \"面积\", \"长度\", \"宽度\", \"海拔\"], \"input\": \"阿尔夫达尔（挪威语：Alvdal）是挪威的一个市镇，位于内陆郡，行政中心为阿尔夫达尔村。市镇面积为943平方公里，人口数量为2,424人（2018年），人口密度为每平方公里2.6人。\"}", 
-    "output": "{\"位于\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"内陆郡\"}, {\"subject\": \"内陆郡\", \"object\": \"挪威\"}], \"别名\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"Alvdal\"}], \"人口\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"2,424人\"}], \"行政中心\": [], \"面积\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"943平方公里\"}], \"长度\": [], \"宽度\": [], \"海拔\": []}"
+    "instruction": "{\"instruction\": \"You are an expert in relationship extraction. Please extract relationship triples that match the schema definition from the input. Return an empty list for relationships that do not exist. Please respond in the format of a JSON string.\", \"schema\": [\"alternative name\", \"of\", \"time of discovery\", \"discoverer or inventor\", \"named after\", \"absolute magnitude\", \"diameter\", \"mass\"], \"input\": \"NGC1313 is a galaxy in the constellation of Reticulum. It was discovered by the Australian astronomer James Dunlop on September 27, 1826. It has a prominent uneven shape, and its axis does not completely revolve around its center. Near NGC1313, there is another galaxy, NGC1309.\"}", 
+    "output": "{\"alternative name\": [], \"of\": [{\"subject\": \"NGC1313\", \"object\": \"Reticulum\"}], \"time of discovery\": [{\"subject\": \"NGC1313\", \"object\": \"September 27, 1826\"}], \"discoverer or inventor\": [{\"subject\": \"NGC1313\", \"object\": \"James Dunlop\"}], \"named after\": [], \"absolute magnitude\": [], \"diameter\": [], \"mass\": []}"
 }
 ```
 
-## 准备
 
-### 配置环境
+## Prepare
+
+### Configure environment
 
 ```bash
     conda create -n kg2instruct python=3.8
     pip install -r requirements.txt
 ```
 
-### 下载工具
-在使用KG2Instruction框架前您需要下载以下模型和文件: 
-1. **Wikidata(可选, 我们提供构建好的映射)**: 你可以从[此处](https://dumps.wikimedia.org/wikidatawiki/entities/)下载`latest-all.json.bz2`(即所有Wikidata实体)。
 
-2. **Wikipedia**: 从[此处](https://dumps.wikimedia.org/zhwiki/latest/)下载`zhwiki-latest-pages-articles.xml.bz2`(即中文Wikipedia dumps)。**注意**你也可以从[ghh001/InstructIE-original](https://huggingface.co/datasets/ghh001/InstructIE-original)下载经过清洗操作后的中文wikipedia文章的html文件(对应经过`clean_html.py`后的文件)。
+### Download Tools
 
-3. **NER模型**: 我们采取hanlp中的[hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)（用于中文NER） 和 [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip)（用于英文NER）
+Before using the `KG2Instruction` framework, you need to download the following models and files:
 
-4. **训练好的主题分类模型**: `text_classification_en`、`text_classification_zh` [百度云盘下载](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch)
+1. **Wikidata (optional, we provide a pre-built mapping)**: You can download `latest-all.json.bz2` (i.e., all Wikidata entities) from [here](https://dumps.wikimedia.org/wikidatawiki/entities/).
 
-5. **构建好的中文wiki实体关系映射** (`wiki_zh.db`、`alias_zh.db`、`alias_rev_zh.db`、`label_zh.db`、`relation_zh.db`) [百度云盘下载](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8)
+2. **Wikipedia**: Download `enwiki-latest-pages-articles.xml.bz2` (i.e., English Wikipedia dumps) from [here](https://dumps.wikimedia.org/enwiki/latest/). **Note** that you can also access [hh001/InstructIE-original](https://huggingface.co/datasets/ghh001/InstructIE-original) download the HTML file of the cleaned Chinese Wikipedia article (corresponding to the file that has been cleaned).
 
-6. **实体类型映射**: `enttypeid_mapper_en.json`、`enttypeid_mapper_zh.json`、中英文关系映射: `relation_map.json`、NLI模版: `template.json`、所有领域的schema信息: `all_schema.json` [百度云盘下载](https://pan.baidu.com/s/1Ypc2JYJbwVYgMHGG4EIxBQ?pwd=1ykk)
+3. **NER Model**: We use the following models for Chinese and English NER:
+   - For Chinese NER: [hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)
+   - For English NER: [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip)
 
-7. **训练好的信息抽取大模型**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、人工标注的各个领域下的50条样本 `biaozhu_zh.json` [百度云盘下载](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8)
-   
-8.  **NLI模型**: [MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
+4. **Pre-trained Topic Classification Models**: `text_classification_en`, `text_classification_zh` [Baidu Cloud Download](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+
+5. **Pre-built Chinese Wiki Entity-Relation Mapping** (`wiki_en.db`, `alias_en.db`, `alias_rev_en.db`, `label_en.db`, `relation.db`) [Baidu Cloud Download](https://pan.baidu.com/s/1SN2aUTnH5JHQMha1hk_ltw?pwd=6nc4) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+
+6. **Entity Type Mapping**: `enttypeid_mapper_en.json`, `enttypeid_mapper_zh.json`, **Chinese-English Relation Mapping**: `relation_map.json`, **NLI Templates**: `template.json`, **All Domain Schema Information**: `all_schema.json` [Baidu Cloud Download](https://pan.baidu.com/s/1Ypc2JYJbwVYgMHGG4EIxBQ?pwd=1ykk) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+
+7. **Pre-trained Information Extraction Large Model**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、50 manually annotated samples from various domains [Baidu Cloud Download](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+
+8. **NLI Model**: [MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7) 
+
+⚠️ **Note**: In addition to Baidu Cloud, you can also download the corresponding files from [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main).
 
 
-⚠️**注意**：除了百度云盘您还可以在 [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main) 上下载相应的文件。
 
-
-## 对任意文本使用KG2Instruction获得标注样本
+## Use KG2Instruction to obtain annotation samples for any text
 
 ```bash
 python pipeline.py \
-    "《三十而已》是一部由张晓波执导，江疏影、童瑶、毛晓彤等主演的都市情感剧，该剧于2020年7月17日在东方卫视首播，并在腾讯视频同步播出。" \
-    --language zh \
-    --label_db data/db/label_zh.db \
-    --alias_db data/db/alias_zh.db \
-    --alias_rev_db data/db/alias_rev_zh.db \
-    --relation_db data/db/relation_zh.db \
+    "Adele Laurie Blue Adkins MBE (/əˈdɛl/;[4] born 5 May 1988), known mononymously as Adele, is an English singer-songwriter. She is known for her mezzo-sopran vocals and sentimental songwriting. Adele has received numerous accolades including 16 Grammy Awards, 12 Brit Awards (including three for British Album of the Year), an Academy Award, a Primetime Emmy Award, and a Golden Globe Award." \
+    --language en \
+    --label_db data/db/label_en.db \
+    --alias_db data/db/alias_en.db \
+    --alias_rev_db data/db/alias_rev_en.db \
+    --relation_db data/db/relation.db \
     --relation_map_path data/other/relation_map.json \
-    --enttypeid_mapper data/other/enttypeid_mapper_zh.json \
-    --template_path data/other/template.json \
-    --schema_path data/other/all_schema.json \
-    --ner_model model/close_tok_pos_ner_srl_dep_sdp_con_electra_base \
-    --cls_model model/text_classification_zh \
+    --enttypeid_mapper data/other/enttypeid_mapper_en.json \
+    --ner_model model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base \
+    --cls_model model/text_classification_en \
     --ie_llm /nature/ghh/OneKE \
     --nli_model model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 \
+    --template_path data/other/template.json \
+    --schema_path data/other/all_schema.json \
     --prompt_name llama2_zh \
     --device 0 
 ```
 
 
-## KG远程监督
+## KG Distant Supervision
 
+### 1.Build Some Necessary Mappings
 
-### 1.构建一些必要的映射
-   
-**a.构造wikipedia title与wikidata id之间的映射 wiki.db**
+**a. Construct the mapping between Wikipedia titles and Wikidata IDs (`wiki.db`)**
 
 ```bash
 python build_db/build_wiki.py \
     ./Corpus/latest-all.json.bz2 \
-    --language zh \
-    --db data/db/wiki_zh.db
+    --language en \
+    --db data/db/wiki_en.db
 ```
-得到`wiki.db`, 相同名称(label)可能具有不同的含义, 指代不同的实体(id), wikipedia title是消歧义后的实体名称, 在wikipedia中链接往往是以这种消起义的名称存在的。
+This will generate `wiki.db`. The same label may have different meanings and refer to different entities (IDs). The Wikipedia title is the disambiguated entity name, and in Wikipedia, links often exist in this disambiguated form.
 
-
-**b.构造wikidata id与label、alias(别名)之间的映射 alias.db、alias_rev.db、label.db**  
+**b. Construct the mapping between Wikidata IDs and labels, aliases (`alias.db`, `alias_rev.db`, `label.db`)**
 
 ```bash
 python build_db/build_alias_label.py \
     ./Corpus/latest-all.json.bz2 \
-    --language zh \
-    --db data/db/alias_zh.db \
-    --db_rev data/db/alias_rev_zh.db \
-    --label_db data/db/label_zh.db
+    --language en \
+    --db data/db/alias_en.db \
+    --db_rev data/db/alias_rev_en.db \
+    --label_db data/db/label_en.db
 ```
-得到`alias.db`、`alias_rev.db`、`label.db`, 其中alias.db是wikidata id与entity mention之间的映射(一对多), alias_rev.db是entity mention与wikidata id之间的映射(一对多), label.db是wikidata id与entity label之间的映射(一对一)
+This will generate `alias.db`, `alias_rev.db`, and `label.db`. `alias.db` is the mapping between Wikidata IDs and entity mentions (one-to-many), `alias_rev.db` is the mapping between entity mentions and Wikidata IDs (one-to-many), and `label.db` is the mapping between Wikidata IDs and entity labels (one-to-one).
 
-
-**c.注意：维基数据转储不包括重定向。要添加它们，您需要下载 Wikipedia 的 XML 转储，然后运行**
+**c. Note: The Wikidata dump does not include redirects. To add them, you need to download Wikipedia's XML dump and then run**
 
 ```bash
 python build_db/add_redirects.py \
-    ./Corpus/zhwiki-latest-pages-articles.xml.bz2 \
-    --db data/db/wiki_zh.db
+    ./Corpus/enwiki-latest-pages-articles.xml.bz2 \
+    --db data/db/wiki_en.db
 ```
 
-**d.构造所有wikidata id之间的关系 relation.db, 所有wikidata id的时间、数值等非实体关系关系 relation_value.db**
+**d. Construct the relationships between all Wikidata IDs (`relation.db`) and the non-entity relationships such as time and numerical values (`relation_value.db`)**
 
 ```bash
 python build_db/build_relation.py \
     ./Corpus/latest-all.json.bz2 \
-    --db data/db/relation_zh.db \
+    --db data/db/relation.db \
     --db_value data/db/relation_value.db
 ```
 
 
-### 2.获得wikipedia语料(可跳过)
+### 2.Obtain Wikipedia Corpus
 
-下载HTML格式的Wikipedia文章(html格式), 并清洗(获得更精简的html格式)
+Download Wikipedia articles in HTML format, and clean them to obtain a more concise HTML format.
 
 ```bash
-python kglm/parse_wikipdia.py \
+python kglm/parse_wikipedia.py \
     data/title/title.txt \
     data/clean/clean.json \
     --clean
 ```
 
-你也可以从[ghh001/InstructIE-original-zh](https://huggingface.co/datasets/ghh001/InstructIE-original-zh)下载经过清洗操作后的中文wikipedia文章的html文件(对应经过`clean_html.py`后的文件)。
 
+### 3.Obtain Entities (Disambiguated)
 
-### 3.获得实体(已经消歧)
+1. Divide Wikipedia articles into paragraphs, and obtain initial entity IDs and Chinese labels through the links in Wikipedia.
+2. Identify the remaining entities using HanLP.
+3. Merge the entities from steps 1 and 2.
+4. Disambiguate the merged entities from step 3 to obtain unique IDs.
 
-1、按段落划分Wikipedia文章, 通过wikipeida中的链接得到初步实体ID与中文标签
-2、通过hanlp识别剩余实体
-3、合并1、2中的实体
-4、对3中合并后的实体消歧, 获得唯一ID
-
-NER模型, 我们采取hanlp中的[hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)（中文） 和 [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip)（英文）
+For the NER model, we use HanLP's [hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip) (Chinese) and [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip) (English).
 
 
 
 ```bash
 python kglm/process_html.py \
-    data/zh/clean/clean0.json \
-    data/zh/match/match0.json \
-    --wiki_db data/db/wiki_zh.db \
-    --alias_db data/db/alias_zh.db \
-    --label_db data/db/label_zh.db \
-    --alias_rev_db data/db/alias_rev_zh.db \
+    data/en/clean/clean0.json \
+    data/en/match/match0.json \
+    --wiki_db data/db/wiki_en.db \
+    --alias_db data/db/alias_en.db \
+    --label_db data/db/label_en.db \
+    --alias_rev_db data/db/alias_rev_en.db \
     --relation_db data/db/relation.db \
-    --language zh \
-    --model model/close_tok_pos_ner_srl_dep_sdp_con_electra_base \
+    --language en \
+    --model model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base \
     --device=0 \
     --chunk 5
 ```  
 
 
-### 4.匹配每对实体间的所有关系且获得实体类型
+### 4.Match all relationships between each pair of entities and obtain entity types
 
 ```bash
 python kglm/find_rel.py \
-    data/zh/match/match0.json \
-    data/zh/enttype/enttype0.json \
-    --language zh \
+    data/en/match/match0.json \
+    data/en/enttype/enttype0.json \
+    --language en \
     --relation_db data/db/relation.db \
     --relation_value_db data/db/relation_value.db \
-    --alias_db data/db/alias_zh.db \
+    --alias_db data/db/alias_en.db \
     --relation_map_path data/other/relation_map.json \
-    --enttypeid_mapper data/other/enttypeid_mapper_zh.json 
+    --enttypeid_mapper data/other/enttypeid_mapper_en.json 
 ```
 
 
-### 5.文本主题分类
+### 5.Text Topic Classification
 
-**a.先按照id、sentence、label格式转换成主题预测模型的输入格式 `topic_convert.py`**
+**a. First, convert to the input format of the topic prediction model with the format `id`, `sentence`, `label` using `topic_convert.py`**
 
 ```bash
 python cate_predict/topic_convert.py \
     --mode result2cate \
-    --rel_path data/zh/rel/rel0.json \
-    --cate_input_path data/zh/cate_input/cate0.json
+    --rel_path data/en/rel/rel0.json \
+    --cate_input_path data/en/cate_input/cate0.json
 ```
 
-**b.微调文本主题模型**
+**b. Fine-tune the text topic model**
 
 ```bash
 bash cate_predict/finetune_cls.bash
 ```
 
-**c.用微调后的文本主题模型预测得到结果cate_prdict**
+**c. Use the fine-tuned text topic model to predict and get the results `cate_predict`**
+
 ```bash
 bash cate_predict/infer.bash
 ```
 
-**d.从预测结果cate_prdict中得到句子主题, 与match、rel、enttype目录一起转换为新的结果**
+**d. Obtain sentence topics from the prediction results `cate_predict`, and convert them to new results along with the `match`, `rel`, and `enttype` directories**
+
 ```bash
 python cate_predict/topic_convert.py \
     --mode infer2newresult \
-    --language zh \
-    --rel_path data/zh/rel/rel0.json \
-    --cate_predict_path data/zh/cate_predict/predict_results0.txt \
-    --cate_path data/zh/cate 
+    --language en \
+    --rel_path data/en/rel/rel0.json \
+    --cate_predict_path data/en/cate_predict/predict_results0.txt \
+    --cate_path data/en/cate 
 ```
 
-会在 `data/zh/cate` 目录下面生成每个主题的目录已经相应的结果文件。例如：`data/zh/cate/人物/result0.json`、`data/zh/cate/地理地区/result0.json`
+This will generate a directory for each topic and the corresponding result files under the `data/zh/cate` directory. For example: `data/zh/cate/人物/result0.json`, `data/zh/cate/地理地区/result0.json`.
 
 
-### 6.应用schema约束关系
+### 6.Apply schema constraint relationships
 
 cate_list_zh = ['人物', '地理地区', '建筑', '作品', '生物','人造物件', '自然科学', '组织', '运输', '事件', '天文对象', '医学']
 cate_list_en = ['Person', 'Geographic_Location', 'Building', 'Works', 'Creature', 'Artificial_Object', 'Natural_Science', 'Organization', 'Transport', 'Event', 'Astronomy', 'Medicine']
@@ -275,36 +276,35 @@ cate_list_en = ['Person', 'Geographic_Location', 'Building', 'Works', 'Creature'
 
 ```bash
 python cate_limit/relation_limit.py \
-    data/zh/cate/人物/result0.json \
-    data/zh/cate_limit/人物/result0.json \
-    --language zh \
-    --cate 人物 \
+    data/en/cate/Person/result0.json \
+    data/en/cate_limit/Person/result0.json \
+    --language en \
+    --cate Person \
     --schema_path data/other/all_schema.json 
 ```
 
 
-## 应用IE-LLM补齐因KG不完整性缺少的三元组
+## Apply IE-LLM to Complete Missing Triples Due to KG Incompleteness
 
-### 1.构建训练指令数据
 
-`biaozhu_zh.json` 文件包含 `cate`、`text`、`entity`、`relation` 字段, 需要将其转换为能直接送入模型训练的 `instruction`、`output` 格式。
+### 1.Build Training Instruction Data
 
+
+The `biaozhu_en.json` file contains fields `cate`, `text`, `entity`, `relation`, which need to be converted into `instruction`, `output` format suitable for direct model training.
 
 ```bash
 python llm_cpl/build_instruction.py \
-    --input_path data/biaozhu_zh.json \
-    --output_path data/instruction_train_zh.json \
+    --input_path data/biaozhu_en.json \
+    --output_path data/instruction_train_en.json \
     --mode train \
-    --language zh \
-    --schema_path data/other/schema_zh.json
+    --language en \
+    --schema_path data/other/schema_en.json
 ```
 
 
+### 2.Train Existing IE Large Model with Limited Domain Data
 
-### 2.用少量领域数据训练已有IE大模型
-
-下载模型[baichuan-inc/Baichuan2-13B-Chat](https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat)、[baichuan2-13b-iepile-lora](https://huggingface.co/zjunlp/baichuan2-13b-iepile-lora), 参照 DeepKE 官方教程 [4.LoRA微调](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#-4lora%E5%BE%AE%E8%B0%83) 进行模型二次训练, 可采用如下命令。
-
+Download models [baichuan-inc/Baichuan2-13B-Chat](https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat), [baichuan2-13b-iepile-lora](https://huggingface.co/zjunlp/baichuan2-13b-iepile-lora), and refer to the official DeepKE tutorial [4.LoRA Fine-tuning](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#-4lora%E5%BE%AE%E8%B0%83) for secondary training of the model using the following command:
 
 ```bash
 output_dir='lora/baichuan2-instructie-v1'
@@ -317,7 +317,7 @@ CUDA_VISIBLE_DEVICES="0" python src/finetune.py \
     --stage 'sft' \
     --model_name 'baichuan' \
     --template 'baichuan2' \
-    --train_file 'data/instruction_train_zh.json' \
+    --train_file 'data/instruction_train_en.json' \
     --val_set_size 50 \
     --output_dir=${output_dir} \
     --per_device_train_batch_size 2 \
@@ -341,26 +341,26 @@ CUDA_VISIBLE_DEVICES="0" python src/finetune.py \
     --bits 4 
 ```
 
-此处提供训练好的信息抽取大模型 [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE) 供使用。
+Here is a pre-trained large-scale information extraction model [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE) available for use.
 
 
-### 3.用训练好的IE大模型补充缺失三元组
+### 3.Use Trained IE Large Model to Supplement Missing Triples
 
-将待抽取文本转换成指令数据
+Convert the text to be extracted into instruction data format:
 
 ```bash
 python llm_cpl/build_instruction.py \
-    --input_path data/zh/cate_limit/人物/result0.json \
-    --output_path data/zh/instruction/人物/result0.json \
+    --input_path data/en/cate_limit/Person/result0.json \
+    --output_path data/en/instruction/Person/result0.json \
     --mode test \
-    --language zh \
-    --schema_path data/other/schema_zh.json
+    --language en \
+    --schema_path data/other/schema_en.json
 ```
 
 
-参照 DeepKE 官方教程 [6.1LoRA预测](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#61lora%E9%A2%84%E6%B5%8B) 使用模型进行预测, 可采用如下命令。
+Refer to the official DeepKE tutorial [6.1 LoRA Prediction](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#61lora%E9%A2%84%E6%B5%8B) for model prediction using the following command:
 
-先合并底座模型和LoRA权重, 再对领域文本进行预测, 获得抽取结果。
+First, merge the base model and LoRA weights, then predict domain texts to obtain extraction results.
 
 ```bash
 CUDA_VISIBLE_DEVICES=0 python src/export_model.py \
@@ -375,39 +375,38 @@ CUDA_VISIBLE_DEVICES=0 python src/export_model.py \
 
 CUDA_VISIBLE_DEVICES=0 python llm_cpl/inference.py \
     --model_name_or_path 'lora/baichuan2-instructie-v1/baichuan2-instructie-v1' \
-    --input_file 'data/zh/instruction/人物/result0.json' \
-    --output_file 'results/人物_result0.json' 
+    --input_file 'data/en/instruction/Person/result0.json' \
+    --output_file 'results/Person_result0.json' 
 ```
 
 
-### 4.合并KG远程监督数据和LLM补充数据
+### 4.Merge KG Distant Supervision Data and LLM Completion Data
 
-从IE-LLM抽取返回的文本结果转换到列表结构
+Convert the text results returned from IE-LLM extraction into a list structure:
 
 ```bash
 python llm_cpl/extract.py \
-    --path1 results/人物_result0.json \
-    --path2 data/zh/llm_results/人物/result0.json
+    --path1 results/Peron_result0.json \
+    --path2 data/en/llm_results/Person/result0.json
 ```
 
 
-合并KG远程监督数据和LLM补充数据
+Merge KG distant supervision data and LLM completion data:
 
 ```bash
 python llm_cpl/direct_merge.py \
-    --path1 data/zh/cate_limit/人物/result0.json \
-    --path2 data/zh/llm_results/人物/result0.json \
-    --tgt_path data/zh/merge/人物/result0.json 
+    --path1 data/en/cate_limit/Person/result0.json \
+    --path2 data/en/llm_results/Person/result0.json \
+    --tgt_path data/en/merge/Person/result0.json 
 ```
 
 
-
-## NLI模型过滤不真实三元组
+## NLI Model Filtering Unrealistic Triples
 
 ```bash
 python nli_filter/nli_filter.py \
-    --input_path data/zh/merge/人物/result0.json \
-    --output_path data/zh/nli_filtered/人物/result0.json \
+    --input_path data/en/merge/Person/result0.json \
+    --output_path data/en/nli_filtered/Person/result0.json \
     --device 0 \
     --threshold 0.5 \
     --language zh \
@@ -416,14 +415,14 @@ python nli_filter/nli_filter.py \
 ```
 
 
-## 致谢
+## Acknowledgments
 
-部分代码来自于 [kglm-data](https://github.com/rloganiv/kglm-data), 感谢！
+Some code is from [kglm-data](https://github.com/rloganiv/kglm-data), thank you!
 
 
-## 引用
+## Citation
 
-如果您使用了本项目代码或数据，烦请引用下列论文:
+If you use the code or data from this project, please cite the following paper:
 
 ```
 @article{DBLP:journals/corr/abs-2305-11527,
