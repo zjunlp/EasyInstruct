@@ -7,8 +7,8 @@
     - [Download Tools](#download-tools)
   - [Use KG2Instruction to obtain annotation samples for any text](#use-kg2instruction-to-obtain-annotation-samples-for-any-text)
   - [KG Distant Supervision](#kg-distant-supervision)
-    - [1.Build Some Necessary Mappings](#1build-some-necessary-mappings)
-    - [2.Obtain Wikipedia Corpus (Optional)](#2obtain-wikipedia-corpus-optional)
+    - [1.Build Some Necessary Mappings (Optional, We provide pre-built mappings)](#1build-some-necessary-mappings-optional-we-provide-pre-built-mappings)
+    - [2.Obtain Wikipedia Corpus (Optional, We provide cleaned Wikipedia documents)](#2obtain-wikipedia-corpus-optional-we-provide-cleaned-wikipedia-documents)
     - [3.Obtain Entities (Disambiguated)](#3obtain-entities-disambiguated)
     - [4.Match all relationships between each pair of entities and obtain entity types](#4match-all-relationships-between-each-pair-of-entities-and-obtain-entity-types)
     - [5.Text Topic Classification](#5text-topic-classification)
@@ -97,28 +97,33 @@ Before using the `KG2Instruction` framework, you need to download the following 
    - For Chinese NER: [hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)
    - For English NER: [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip)
 
-4. **Text Domain Classification Models**: You can download the `text_classification_en`, `text_classification_zh` model from [Baidu Cloud Download](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+4. **Text Domain Classification Models**: You can download the `text_classification_en` model from [Baidu Cloud Download](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
 5. **Pre-built Wiki Entity-Relation Mapping**: You can download the (`wiki_en.db`, `alias_en.db`, `alias_rev_en.db`, `label_en.db`, `relation.db`) from [Baidu Cloud Download](https://pan.baidu.com/s/1SN2aUTnH5JHQMha1hk_ltw?pwd=6nc4) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
 6. **Entity Type Mapping**: `enttypeid_mapper_en.json`, `enttypeid_mapper_zh.json`, **Chinese-English Relation Mapping**: `relation_map.json`, **NLI Templates**: `template.json`, **All Domain Schema Information**: `all_schema.json` [Baidu Cloud Download](https://pan.baidu.com/s/1Ypc2JYJbwVYgMHGG4EIxBQ?pwd=1ykk) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
-7. **Pre-trained Information Extraction Large Language Model**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、50 manually annotated samples from various domains [Baidu Cloud Download](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+7. **Pre-trained Information Extraction Large Language Model**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、50 manually annotated samples from various domains (`biaozhu_en.json`) [Baidu Cloud Download](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
 8. **NLI Model**: [MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7) 
 
-⚠️ **Note**: In addition to Baidu Cloud, you can also download the corresponding files from [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main).
-
+⚠️ **Note**: You can download the corresponding files and place them in the corresponding directory by running the [download_en.bash](./download_en.bash) script.
 
 
 ## Use KG2Instruction to obtain annotation samples for any text
 
-Please make sure that all the files have been downloaded and placed correctly in the designated folders. `data/db/label_en.db`, `data/db/alias_en.db`, `data/db/alias_rev_en.db`, and `data/db/relation.db` are placed under the `data/db` folder. `data/other/relation_map.json`, `data/other/enttypeid_mapper_en.json`, `data/other/template.json`, `data/other/all_schema.json`, and `data/other/all_schema.json` are placed under the `data/db/other` folder. `model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base`, `model/text_classification_en`, `model/OneKE`, and `model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7` are placed under the `model` folder.
+Please make sure that all the files have been downloaded and placed correctly in the designated folders. 
+
+[data/db/label_en.db](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/label_en.db.zip?download=true), [data/db/alias_en.db](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/alias_en.db.zip?download=true), [data/db/alias_rev_en.db](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/alias_rev_en.db.zip?download=true), and [data/db/relation.db](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/relation.db.zip?download=true) are placed under the `data/db` folder.
+
+[data/other/relation_map.json](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/relation_map.json?download=true), [data/other/enttypeid_mapper_en.json](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/enttypeid_mapper_en.json?download=true), [data/other/template.json](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/template.json?download=true), [data/other/all_schema.json](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/all_schema.json?download=true) and [data/other/biaozhu_en.json](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/biaozhu_en.json?download=true) are placed under the `data/db/other` folder.
+
+[model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip), [model/text_classification_en](https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/text_classification_en.zip?download=true), [model/OneKE](https://huggingface.co/zjunlp/OneKE), and [model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7) are placed under the `model` folder.
 
 
 ```bash
 python pipeline.py \
-    "Adele Laurie Blue Adkins MBE (/əˈdɛl/;[4] born 5 May 1988), known mononymously as Adele, is an English singer-songwriter. She is known for her mezzo-sopran vocals and sentimental songwriting. Adele has received numerous accolades including 16 Grammy Awards, 12 Brit Awards (including three for British Album of the Year), an Academy Award, a Primetime Emmy Award, and a Golden Globe Award." \
+    "Taylor Swift was born on December 13, 1989 in Pennsylvania, the United States. She is a female pop singer and musician. In 2006, she released her debut self-titled music album《Taylor Swift》." \
     --language en \
     --label_db data/db/label_en.db \
     --alias_db data/db/alias_en.db \
@@ -133,13 +138,26 @@ python pipeline.py \
     --ie_llm model/OneKE \
     --nli_model model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 \
     --prompt_name llama2_zh \
-    --device 0 
+    --device 0 \
+    --print_result
+```
+
+Output result:
+
+```json
+{
+    'id': '9f8452fd7904a760e1fbce7c7b0246da0f03ecf682595168adea0f241dc369c7', 
+    'text': 'Taylor Swift was born on December 13, 1989 in Pennsylvania, the United States. She is a female pop singer and musician. In 2006, she released her debut self-titled music album《Taylor Swift》.', 
+    'entity': [['Taylor Swift', 'Q26876', 'human/human'], ['Pennsylvania', 'Q1400', 'geographic_region/administrative_territorial_entity'], ['the United States', 'Q30', 'product/product'], ['2006', 'Q2021', 'time/time'], ['December 13, 1989', 'time', 'time/time']], 
+    'relation': [{'head': 'Taylor Swift', 'relation': 'occupation', 'tail': 'pop singer'}, {'head': 'Taylor Swift', 'relation': 'work', 'tail': 'Taylor Swift'}, {'head': 'Taylor Swift', 'relation': 'date of birth', 'tail': 'December 13, 1989'}, {'head': 'Taylor Swift', 'relation': 'occupation', 'tail': 'musician'}, {'head': 'Taylor Swift', 'relation': 'country of citizenship', 'tail': 'the United States'}], 
+    'cate': 'Person'
+}
 ```
 
 
 ## KG Distant Supervision
 
-### 1.Build Some Necessary Mappings
+### 1.Build Some Necessary Mappings (Optional, We provide pre-built mappings)
 
 **a. Construct the mapping between Wikipedia titles and Wikidata IDs (`wiki.db`)**
 
@@ -180,8 +198,11 @@ python build_db/build_relation.py \
     --db_value data/db/relation_value.db
 ```
 
+We provide pre-built mappings. You can download the (`wiki_en.db`, `alias_en.db`, `alias_rev_en.db`, `label_en.db`, `relation.db`) from [Baidu Cloud Download](https://pan.baidu.com/s/1SN2aUTnH5JHQMha1hk_ltw?pwd=6nc4) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
-### 2.Obtain Wikipedia Corpus (Optional)
+
+
+### 2.Obtain Wikipedia Corpus (Optional, We provide cleaned Wikipedia documents)
 
 Download Wikipedia articles in HTML format, and clean them to obtain a more concise HTML format.
 
@@ -192,6 +213,8 @@ python kglm/parse_wikipedia.py \
     --clean
 ```
 
+We provide cleaned Wikipedia documents. You can also access [hh001/InstructIE-original](https://huggingface.co/datasets/ghh001/InstructIE-original) download the HTML file of the cleaned Wikipedia article (corresponding to the file that has been cleaned).
+
 
 ### 3.Obtain Entities (Disambiguated)
 
@@ -201,7 +224,6 @@ python kglm/parse_wikipedia.py \
 4. Disambiguate the merged entities from step 3 to obtain unique IDs.
 
 For the NER model, we use HanLP's [hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip) (Chinese) and [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip) (English).
-
 
 
 ```bash
@@ -237,28 +259,20 @@ python kglm/find_rel.py \
 
 ### 5.Text Topic Classification
 
-**a. First, convert to the input format of the topic prediction model with the format `id`, `sentence`, `label` using `topic_convert.py`**
+We provide a trained text topic classification model, `text_classification_en`, which can be downloaded from here [Baidu Cloud Download](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+
+
+**Predicting text topic classification results from a trained text topic classification model**
 
 ```bash
-python cate_predict/topic_convert.py \
-    --mode result2cate \
-    --rel_path data/en/rel/rel0.json \
-    --cate_input_path data/en/cate_input/cate0.json
+CUDA_VISIBLE_DEVICES="0" python cate_predict/infer_classification.py \
+    data/en/rel/rel0.json \
+    data/en/cate_output/predict_results0.txt \
+    --cls_model output/text_classification_zh \
+    --batch_size 16
 ```
 
-**b. Fine-tune the text topic model**
-
-```bash
-bash cate_predict/finetune_cls.bash
-```
-
-**c. Use the fine-tuned text topic model to predict and get the results `cate_predict`**
-
-```bash
-bash cate_predict/infer.bash
-```
-
-**d. Obtain sentence topics from the prediction results `cate_predict`, and convert them to new results along with the `match`, `rel`, and `enttype` directories**
+**Merge the predicated results**
 
 ```bash
 python cate_predict/topic_convert.py \
@@ -269,14 +283,13 @@ python cate_predict/topic_convert.py \
     --cate_path data/en/cate 
 ```
 
-This will generate a directory for each topic and the corresponding result files under the `data/zh/cate` directory. For example: `data/zh/cate/人物/result0.json`, `data/zh/cate/地理地区/result0.json`.
+This will generate a directory for each topic and the corresponding result files under the `data/en/cate` directory. For example: `data/en/cate/Person/result0.json`, `data/en/cate/Geographic_Location/result0.json`.
 
 
 ### 6.Apply schema constraint relationships
 
 cate_list_zh = ['人物', '地理地区', '建筑', '作品', '生物','人造物件', '自然科学', '组织', '运输', '事件', '天文对象', '医学']
 cate_list_en = ['Person', 'Geographic_Location', 'Building', 'Works', 'Creature', 'Artificial_Object', 'Natural_Science', 'Organization', 'Transport', 'Event', 'Astronomy', 'Medicine']
-
 
 ```bash
 python cate_limit/relation_limit.py \
@@ -292,7 +305,6 @@ python cate_limit/relation_limit.py \
 
 
 ### 1.Build Training Instruction Data
-
 
 The `biaozhu_en.json` file contains fields `cate`, `text`, `entity`, `relation`, which need to be converted into `instruction`, `output` format suitable for direct model training.
 

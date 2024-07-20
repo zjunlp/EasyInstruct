@@ -38,42 +38,24 @@ def infer2newresult(rel_path, cate_predict_path, cate_path, language='zh'):
         
     cate_list = [it.replace(' ', '_') for it in label2id]
     for it in cate_list:
-        os.makedirs(os.path.join(cate_dir, it), exist_ok=True)
-
-    print(i, '进行中.........')
-    rel_path = os.path.join(rel_path)
-    cate_predict_path = os.path.join(cate_predict_path)
-
-    mapper = defaultdict(list)
-    with open(cate_predict_path, 'r') as reader:
-        for line in reader:
-            spt = line.strip().split("\t")
-            predict = int(spt[-1])
-            if predict == 12:
-                continue
-            mapper[spt[0]].append(id2label[predict])
-    
-    with open(rel_path, 'r') as reader:
-        for line in reader:
-            data = json.loads(line)
-            if data['id'] not in mapper:
-                continue
-            mapper[data['id']].append(data)
+        os.makedirs(os.path.join(cate_path, it), exist_ok=True)
 
     cate_dict = defaultdict(list)
-    for key, value in mapper.items():
-        if len(value) != 2:
-            continue
-        data = value[1]
-        data['cate'] = value[0]
-        cate_dict[value[0]].append(data)
+    with open(cate_predict_path, 'r') as reader1, open(rel_path, 'r') as reader2:
+        for line1, line2 in zip(reader1, reader2):
+            topic = int(line1.strip())
+            if topic == 12:
+                continue
+            topic = id2label[topic]
+            data = json.loads(line2)
+            data['cate'] = topic
+            cate_dict[topic].append(data)
 
-    i = match_path.split('/')[-1].replace('.json', '').replace('match', '')
+    i = rel_path.split('/')[-1].replace('.json', '').replace('rel', '')
     for cate, data_list in cate_dict.items():
         with open(os.path.join(cate_path, cate.replace(' ', '_'), f'result{i}.json'), "w") as writer:
             for data in tqdm(data_list):
                 writer.write(json.dumps(data, ensure_ascii=False) + "\n")
-
 
 
 if __name__ == "__main__":

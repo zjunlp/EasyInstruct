@@ -7,9 +7,9 @@
     - [下载工具](#下载工具)
   - [对任意文本使用KG2Instruction获得标注样本](#对任意文本使用kg2instruction获得标注样本)
   - [KG远程监督](#kg远程监督)
-    - [1.构建一些必要的映射](#1构建一些必要的映射)
+    - [1.构建一些必要的映射(可跳过)](#1构建一些必要的映射可跳过)
     - [2.获得wikipedia语料(可跳过)](#2获得wikipedia语料可跳过)
-    - [3.获得实体(已经消歧)](#3获得实体已经消歧)
+    - [3.获得实体(消歧后的)](#3获得实体消歧后的)
     - [4.匹配每对实体间的所有关系且获得实体类型](#4匹配每对实体间的所有关系且获得实体类型)
     - [5.文本主题分类](#5文本主题分类)
     - [6.应用schema约束关系](#6应用schema约束关系)
@@ -93,23 +93,23 @@ python llm_cpl/build_instruction.py \
 
 3. **NER模型**: 我们采取hanlp中的[hanlp.pretrained.mtl.CLOSE_TOK_POS_NER_SRL_DEP_SDP_CON_ELECTRA_BASE_ZH](https://file.hankcs.com/hanlp/mtl/close_tok_pos_ner_srl_dep_sdp_con_electra_base_20210111_124519.zip)（用于中文NER） 和 [hanlp.pretrained.mtl.UD_ONTONOTES_TOK_POS_LEM_FEA_NER_SRL_DEP_SDP_CON_XLMR_BASE](https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip)（用于英文NER）
 
-4. **训练好的文本领域分类模型**: `text_classification_en`、`text_classification_zh` 可以从这里下载 [百度云盘下载](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+4. **训练好的文本领域分类模型**: `text_classification_zh` 可以从这里下载 [百度云盘下载](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
 5. **构建好的wiki实体关系映射**: (`wiki_zh.db`、`alias_zh.db`、`alias_rev_zh.db`、`label_zh.db`、`relation_zh.db`) 可以从这里下载 [百度云盘下载](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
 6. **实体类型映射**: `enttypeid_mapper_en.json`、`enttypeid_mapper_zh.json`、中英文关系映射: `relation_map.json`、NLI模版: `template.json`、所有领域的schema信息: `all_schema.json` [百度云盘下载](https://pan.baidu.com/s/1Ypc2JYJbwVYgMHGG4EIxBQ?pwd=1ykk) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
 
-7. **训练好的信息抽取大模型**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、人工标注的各个领域下的50条样本 `biaozhu_zh.json` [百度云盘下载](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8)
+7. **训练好的信息抽取大模型**: [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE)、人工标注的各个领域下的50条样本 `biaozhu_zh.json` [百度云盘下载](https://pan.baidu.com/s/1Ykk5wGzI0PeYZzdcDrHdSg?pwd=yat8)  | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
    
 8.  **NLI模型**: [MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7](https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7)
 
 
-⚠️**注意**：除了百度云盘您还可以在 [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main) 上下载相应的文件。
+⚠️**注意**：你可以通过运行 [download_zh.bash](./download_zh.bash) 脚本来下载相应的文件, 并放置在对应的目录下面。
 
 
 ## 对任意文本使用KG2Instruction获得标注样本
 
-请确保所有的文件都已经下载, 并且正确的放置在指定的文件夹下, `data/db/label_zh.db`、`data/db/alias_zh.db`、`data/db/alias_rev_zh.db`、`data/db/relation_zh.db` 放在 `data/db` 文件夹下面， `data/other/relation_map.json` `data/other/enttypeid_mapper_zh.json` `data/other/template.json` `data/other/all_schema.json` `data/other/all_schema.json` 放在 `data/db/other` 文件夹下面， `model/close_tok_pos_ner_srl_dep_sdp_con_electra_base` `model/text_classification_zh` `model/OneKE` `model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7` 放在 `model` 文件夹下面。
+请确保所有的文件都已经下载, 并且正确的放置在指定的文件夹下, `data/db/label_zh.db`、`data/db/alias_zh.db`、`data/db/alias_rev_zh.db`、`data/db/relation_zh.db` 放在 `data/db` 文件夹下面， `data/other/relation_map.json` `data/other/enttypeid_mapper_zh.json` `data/other/template.json` `data/other/all_schema.json` `data/other/biaozhu_zh.json` 放在 `data/db/other` 文件夹下面， `model/close_tok_pos_ner_srl_dep_sdp_con_electra_base` `model/text_classification_zh` `model/OneKE` `model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7` 放在 `model` 文件夹下面。
 
 ```bash
 python pipeline.py \
@@ -128,14 +128,27 @@ python pipeline.py \
     --ie_llm model/OneKE \
     --nli_model model/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7 \
     --prompt_name llama2_zh \
-    --device 0 
+    --device 0 \
+    --print_result
+```
+
+输出结果:
+
+```json
+{
+    'id': '7d30c9154153bfd116aa3760cd70307e5460069c09a4948a03f98cc4c7529514', 
+    'text': '《三十而已》是一部由张晓波执导，江疏影、童瑶、毛晓彤等主演的都市情感剧，该剧于2020年7月17日在东方卫视首播，并在腾讯视频同步播出。', 
+    'entity': [['三十而已', 'Q97194938', '产品/作品'], ['江疏影', 'Q15913516', '人物/人'], ['童瑶', 'Q9049580', '人物/人'], ['毛晓彤', 'Q8260142', '人物/人'], ['2020年7月17日', 'Q57396819', '事件/事件'], ['东方卫视', 'Q3356288', '组织/工商企业'], ['腾讯', 'Q860580', '组织/工商企业'], ['2020年7月17日', 'time', '时间/时间']], 
+    'relation': [{'head': '三十而已', 'relation': '导演', 'tail': '张晓波'}, {'head': '三十而已', 'relation': '首播电视台', 'tail': '东方卫视'}, {'head': '三十而已', 'relation': '平台', 'tail': '东方卫视'}, {'head': '三十而已', 'relation': '演员', 'tail': '毛晓彤'}, {'head': '三十而已', 'relation': '出版时间', 'tail': '2020年7月17日'}, {'head': '三十而已', 'relation': '演员', 'tail': '童瑶'}, {'head': '三十而已', 'relation': '演员', 'tail': '江疏影'}], 
+    'cate': '作品'
+}
 ```
 
 
 ## KG远程监督
 
 
-### 1.构建一些必要的映射
+### 1.构建一些必要的映射(可跳过)
    
 **a.构造wikipedia title与wikidata id之间的映射 wiki.db**
 
@@ -193,7 +206,7 @@ python kglm/parse_wikipdia.py \
 你也可以从[ghh001/InstructIE-original-zh](https://huggingface.co/datasets/ghh001/InstructIE-original-zh)下载经过清洗操作后的中文wikipedia文章的html文件(对应经过`clean_html.py`后的文件)。
 
 
-### 3.获得实体(已经消歧)
+### 3.获得实体(消歧后的)
 
 1、按段落划分Wikipedia文章, 通过wikipeida中的链接得到初步实体ID与中文标签
 2、通过hanlp识别剩余实体
@@ -237,27 +250,20 @@ python kglm/find_rel.py \
 
 ### 5.文本主题分类
 
-**a.先按照id、sentence、label格式转换成主题预测模型的输入格式 `topic_convert.py`**
+我们提供训练好的文本主题分类模型 `text_classification_zh` 可以从这里下载 [百度云盘下载](https://pan.baidu.com/s/1Xg_4fc0WvH6l5vQZahdQag?pwd=mgch) | [Hugging Face](https://huggingface.co/datasets/ghh001/InstructIE_tool/tree/main)
+
+**从训练好的文本主题分类模型上预测文本主题分类结果**
 
 ```bash
-python cate_predict/topic_convert.py \
-    --mode result2cate \
-    --rel_path data/zh/rel/rel0.json \
-    --cate_input_path data/zh/cate_input/cate0.json
+CUDA_VISIBLE_DEVICES="0" python cate_predict/infer_classification.py \
+    data/zh/rel/rel0.json \
+    data/zh/cate_output/predict_results0.txt \
+    --cls_model output/text_classification_zh \
+    --batch_size 16
 ```
 
-**b.微调文本主题模型**
+**合并预测结果**
 
-```bash
-bash cate_predict/finetune_cls.bash
-```
-
-**c.用微调后的文本主题模型预测得到结果cate_prdict**
-```bash
-bash cate_predict/infer.bash
-```
-
-**d.从预测结果cate_prdict中得到句子主题, 与match、rel、enttype目录一起转换为新的结果**
 ```bash
 python cate_predict/topic_convert.py \
     --mode infer2newresult \
@@ -274,7 +280,6 @@ python cate_predict/topic_convert.py \
 
 cate_list_zh = ['人物', '地理地区', '建筑', '作品', '生物','人造物件', '自然科学', '组织', '运输', '事件', '天文对象', '医学']
 cate_list_en = ['Person', 'Geographic_Location', 'Building', 'Works', 'Creature', 'Artificial_Object', 'Natural_Science', 'Organization', 'Transport', 'Event', 'Astronomy', 'Medicine']
-
 
 ```bash
 python cate_limit/relation_limit.py \

@@ -97,10 +97,11 @@ def main(_):
             continue
         iid = stable_hash(text)
         relations, new_entities = annotator.annotate(entities, text, keep=True, flags=flags)
-        print('matched relations:', relations)
         # 5. Assign entity types to entities
         entities_with_type = process_entity(new_entities, enttypeid_mapper, relation_db, time_quantity_other)
-        print('entity with type', entities_with_type)
+        if FLAGS.print_result:
+            print('matched relations:', relations)
+            print('entity with type', entities_with_type)
         data = {'id': iid, 'text': text, 'entity': entities_with_type, 'relation': relations}
         datas.append(data)
 
@@ -122,6 +123,8 @@ def main(_):
     for data, topic in zip(datas, topics):
         all_schema, convert_limit = get_all_schema_limit(FLAGS.schema_path, FLAGS.language)
         data['cate'] = topic
+        if FLAGS.print_result:
+            print('predicated domain:', topic)
         if topic != '其他' and topic != 'Other':
             data = schema_limit_data(data, topic, all_schema, convert_limit, limit_flags)
         else:
@@ -148,6 +151,8 @@ def main(_):
             else:
                 llm_output = get_ie_llm_cpl(ins, ie_tokenizer, ie_model, device, FLAGS.prompt_name, FLAGS)
             pred_list.extend(post_process4(llm_output))
+        if FLAGS.print_result:
+            print('IE-LLM predicated relations:', pred_list)
         merges = merge_relations(pred_list, data['relation'])
         data['relation'] = merges
     

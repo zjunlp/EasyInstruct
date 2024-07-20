@@ -92,7 +92,7 @@ def flatten_tokens(tokens: List[List[str]]) -> List[str]:
 
 
 def process_entity(entities, enttypeid_mapper, relation_db, time_quantity_other, enttype_db=None):
-    entities = []
+    entities_with_type = []
     for entity in entities:
         # 通过qid、enttypeid_mapper获得该实体的类型
         if enttype_db is not None and entity[0] in enttype_db:      # 是否已在enttype_db中, 在则复用
@@ -108,8 +108,8 @@ def process_entity(entities, enttypeid_mapper, relation_db, time_quantity_other,
                 )
             if enttype_db is not None:
                 enttype_db[entity[0]] = ent_type
-        entities.append([entity[0], entity[1], ent_type])
-    return entities
+        entities_with_type.append([entity[0], entity[1], ent_type])
+    return entities_with_type
 
 
 def process_file(input_file, output_file, enttype_db, enttypeid_mapper, relation_db, time_quantity_other, FLAGS):

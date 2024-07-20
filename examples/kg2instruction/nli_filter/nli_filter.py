@@ -96,6 +96,7 @@ def nli_filter_datas(datas, batch_size, template, model, tokenizer, device, thre
         
         for i, data in enumerate(batch_data):
             remove_relation = remove_relation_dict.get(i, [])
+            print('NLI model filtered relations:', remove_relation)
             new_rels = []
             for rel in data['relation']:
                 rel_text = '_'.join([rel['head'], rel['relation'], rel['tail']])
