@@ -146,11 +146,11 @@ Output result:
 
 ```json
 {
-    'id': '9f8452fd7904a760e1fbce7c7b0246da0f03ecf682595168adea0f241dc369c7', 
-    'text': 'Taylor Swift was born on December 13, 1989 in Pennsylvania, the United States. She is a female pop singer and musician. In 2006, she released her debut self-titled music album《Taylor Swift》.', 
-    'entity': [['Taylor Swift', 'Q26876', 'human/human'], ['Pennsylvania', 'Q1400', 'geographic_region/administrative_territorial_entity'], ['the United States', 'Q30', 'product/product'], ['2006', 'Q2021', 'time/time'], ['December 13, 1989', 'time', 'time/time']], 
-    'relation': [{'head': 'Taylor Swift', 'relation': 'occupation', 'tail': 'pop singer'}, {'head': 'Taylor Swift', 'relation': 'work', 'tail': 'Taylor Swift'}, {'head': 'Taylor Swift', 'relation': 'date of birth', 'tail': 'December 13, 1989'}, {'head': 'Taylor Swift', 'relation': 'occupation', 'tail': 'musician'}, {'head': 'Taylor Swift', 'relation': 'country of citizenship', 'tail': 'the United States'}], 
-    'cate': 'Person'
+    "id": "9f8452fd7904a760e1fbce7c7b0246da0f03ecf682595168adea0f241dc369c7", 
+    "text": "Taylor Swift was born on December 13, 1989 in Pennsylvania, the United States. She is a female pop singer and musician. In 2006, she released her debut self-titled music album《Taylor Swift》.", 
+    "entity": [["Taylor Swift", "Q26876", "human/human"], ["Pennsylvania", "Q1400", "geographic_region/administrative_territorial_entity"], ["the United States", "Q30", "product/product"], ["2006", "Q2021", "time/time"], ["December 13, 1989", "time", "time/time"]], 
+    "relation": [{"head": "Taylor Swift", "relation": "occupation", "tail": "pop singer"}, {"head": "Taylor Swift", "relation": "work", "tail": "Taylor Swift"}, {"head": "Taylor Swift", "relation": "date of birth", "tail": "December 13, 1989"}, {"head": "Taylor Swift", "relation": "occupation", "tail": "musician"}, {"head": "Taylor Swift", "relation": "country of citizenship", "tail": "the United States"}], 
+    "cate": "Person"
 }
 ```
 
@@ -288,7 +288,6 @@ This will generate a directory for each topic and the corresponding result files
 
 ### 6.Apply schema constraint relationships
 
-cate_list_zh = ['人物', '地理地区', '建筑', '作品', '生物','人造物件', '自然科学', '组织', '运输', '事件', '天文对象', '医学']
 cate_list_en = ['Person', 'Geographic_Location', 'Building', 'Works', 'Creature', 'Artificial_Object', 'Natural_Science', 'Organization', 'Transport', 'Event', 'Astronomy', 'Medicine']
 
 ```bash
