@@ -14,10 +14,9 @@
     - [5.文本主题分类](#5文本主题分类)
     - [6.应用schema约束关系](#6应用schema约束关系)
   - [应用IE-LLM补齐因KG不完整性缺少的三元组](#应用ie-llm补齐因kg不完整性缺少的三元组)
-    - [1.构建训练指令数据](#1构建训练指令数据)
-    - [2.用少量领域数据训练已有IE大模型](#2用少量领域数据训练已有ie大模型)
-    - [3.用训练好的IE大模型补充缺失三元组](#3用训练好的ie大模型补充缺失三元组)
-    - [4.合并KG远程监督数据和LLM补充数据](#4合并kg远程监督数据和llm补充数据)
+    - [1.用少量领域数据训练已有IE大模型(可选, 我们提供了经领域数据训练后的IE大模型)](#1用少量领域数据训练已有ie大模型可选-我们提供了经领域数据训练后的ie大模型)
+    - [2.用训练好的IE大模型补充缺失三元组](#2用训练好的ie大模型补充缺失三元组)
+    - [3.合并KG远程监督数据和LLM补充数据](#3合并kg远程监督数据和llm补充数据)
   - [NLI模型过滤不真实三元组](#nli模型过滤不真实三元组)
   - [致谢](#致谢)
   - [引用](#引用)
@@ -238,7 +237,7 @@ python kglm/process_html.py \
 ```bash
 python kglm/find_rel.py \
     data/zh/match/match0.json \
-    data/zh/enttype/enttype0.json \
+    data/zh/rel/rel0.json \
     --language zh \
     --relation_db data/db/relation_zh.db \
     --relation_value_db data/db/relation_value.db \
@@ -292,10 +291,11 @@ python cate_limit/relation_limit.py \
 
 ## 应用IE-LLM补齐因KG不完整性缺少的三元组
 
-### 1.构建训练指令数据
+### 1.用少量领域数据训练已有IE大模型(可选, 我们提供了经领域数据训练后的IE大模型)
+
+**构建训练指令数据**
 
 `biaozhu_zh.json` 文件包含 `cate`、`text`、`entity`、`relation` 字段, 需要将其转换为能直接送入模型训练的 `instruction`、`output` 格式。
-
 
 ```bash
 python llm_cpl/build_instruction.py \
@@ -307,16 +307,20 @@ python llm_cpl/build_instruction.py \
 ```
 
 
+**下载已经经过通用域信息抽取指令微调后的模型**
 
-### 2.用少量领域数据训练已有IE大模型
+下载模型[baichuan-inc/Baichuan2-13B-Chat](https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat)、[baichuan2-13b-iepile-lora](https://huggingface.co/zjunlp/baichuan2-13b-iepile-lora)
 
-下载模型[baichuan-inc/Baichuan2-13B-Chat](https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat)、[baichuan2-13b-iepile-lora](https://huggingface.co/zjunlp/baichuan2-13b-iepile-lora), 参照 DeepKE 官方教程 [4.LoRA微调](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#-4lora%E5%BE%AE%E8%B0%83) 进行模型二次训练, 可采用如下命令。
 
+
+**在领域数据上二次训练**
+
+参照 DeepKE 官方教程 [4.LoRA微调](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#-4lora%E5%BE%AE%E8%B0%83) 进行模型二次训练, 可采用如下命令。
 
 ```bash
 output_dir='lora/baichuan2-instructie-v1'
 mkdir -p ${output_dir}
-CUDA_VISIBLE_DEVICES="0" python src/finetune.py \
+CUDA_VISIBLE_DEVICES="0" python llm_cpl/src/finetune.py \
     --do_train --do_eval \
     --overwrite_output_dir \
     --model_name_or_path 'baichuan-inc/Baichuan2-13B-Chat' \
@@ -348,12 +352,25 @@ CUDA_VISIBLE_DEVICES="0" python src/finetune.py \
     --bits 4 
 ```
 
-此处提供训练好的信息抽取大模型 [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE) 供使用。
+**合并底座模型和LoRA权重**
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python llm_cpl/src/export_model.py \
+    --model_name_or_path 'models/Baichuan2-13B-Chat' \
+    --checkpoint_dir 'lora/baichuan2-instructie-v1/checkpoint-xxx' \
+    --export_dir 'lora/baichuan2-instructie-v1/baichuan2-instructie-v1' \
+    --stage 'sft' \
+    --model_name 'baichuan' \
+    --template 'baichuan2' \
+    --output_dir 'lora_results/test'
+```
+
+此处提供经领域数据训练好的信息抽取大模型 [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE) 供使用。
 
 
-### 3.用训练好的IE大模型补充缺失三元组
+### 2.用训练好的IE大模型补充缺失三元组
 
-将待抽取文本转换成指令数据
+**将待抽取文本转换成指令数据**
 
 ```bash
 python llm_cpl/build_instruction.py \
@@ -364,37 +381,28 @@ python llm_cpl/build_instruction.py \
     --schema_path data/other/schema_zh.json
 ```
 
-
-参照 DeepKE 官方教程 [6.1LoRA预测](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#61lora%E9%A2%84%E6%B5%8B) 使用模型进行预测, 可采用如下命令。
-
-先合并底座模型和LoRA权重, 再对领域文本进行预测, 获得抽取结果。
+**调用模型进行预测**
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python src/export_model.py \
-    --model_name_or_path 'models/Baichuan2-13B-Chat' \
-    --checkpoint_dir 'lora/baichuan2-instructie-v1/checkpoint-xxx' \
-    --export_dir 'lora/baichuan2-instructie-v1/baichuan2-instructie-v1' \
-    --stage 'sft' \
-    --model_name 'baichuan' \
-    --template 'baichuan2' \
-    --output_dir 'lora_results/test'
-
-
 CUDA_VISIBLE_DEVICES=0 python llm_cpl/inference.py \
-    --model_name_or_path 'lora/baichuan2-instructie-v1/baichuan2-instructie-v1' \
+    --model_name_or_path 'zjunlp/OneKE' \
     --input_file 'data/zh/instruction/人物/result0.json' \
-    --output_file 'results/人物_result0.json' 
+    --output_file 'data/zh/llm_results/人物_result0.json' \
+    --max_length 512 \
+    --max_new_tokens 256
 ```
 
+可以使用 `--use_vllm` 通过 `vllm` 方式加速生成速度, 但是对设备、CUDA、环境有一定要求。
 
-### 4.合并KG远程监督数据和LLM补充数据
 
-从IE-LLM抽取返回的文本结果转换到列表结构
+### 3.合并KG远程监督数据和LLM补充数据
+
+将IE-LLM抽取返回的文本结果转换为列表结构
 
 ```bash
 python llm_cpl/extract.py \
-    --path1 results/人物_result0.json \
-    --path2 data/zh/llm_results/人物/result0.json
+    --path1 data/zh/llm_results/人物_result0.json \
+    --path2 data/zh/llm_extracted/人物/result0.json
 ```
 
 
@@ -403,7 +411,7 @@ python llm_cpl/extract.py \
 ```bash
 python llm_cpl/direct_merge.py \
     --path1 data/zh/cate_limit/人物/result0.json \
-    --path2 data/zh/llm_results/人物/result0.json \
+    --path2 data/zh/llm_extracted/人物/result0.json \
     --tgt_path data/zh/merge/人物/result0.json 
 ```
 

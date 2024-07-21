@@ -14,9 +14,8 @@
     - [5.Text Topic Classification](#5text-topic-classification)
     - [6.Apply schema constraint relationships](#6apply-schema-constraint-relationships)
   - [Apply IE-LLM to Complete Missing Triples Due to KG Incompleteness](#apply-ie-llm-to-complete-missing-triples-due-to-kg-incompleteness)
-    - [1.Build Training Instruction Data](#1build-training-instruction-data)
-    - [2.Train Existing IE Large Model with Limited Domain Data](#2train-existing-ie-large-model-with-limited-domain-data)
-    - [3.Use Trained IE Large Model to Supplement Missing Triples](#3use-trained-ie-large-model-to-supplement-missing-triples)
+    - [1.Train an existing IE large model with a small amount of domain data (optional, we provide IE large models trained on domain data)](#1train-an-existing-ie-large-model-with-a-small-amount-of-domain-data-optional-we-provide-ie-large-models-trained-on-domain-data)
+    - [2.Use Trained IE Large Model to Supplement Missing Triples](#2use-trained-ie-large-model-to-supplement-missing-triples)
     - [4.Merge KG Distant Supervision Data and LLM Completion Data](#4merge-kg-distant-supervision-data-and-llm-completion-data)
   - [NLI Model Filtering Unrealistic Triples](#nli-model-filtering-unrealistic-triples)
   - [Acknowledgments](#acknowledgments)
@@ -247,7 +246,7 @@ python kglm/process_html.py \
 ```bash
 python kglm/find_rel.py \
     data/en/match/match0.json \
-    data/en/enttype/enttype0.json \
+    data/en/rel/rel0.json \
     --language en \
     --relation_db data/db/relation.db \
     --relation_value_db data/db/relation_value.db \
@@ -302,8 +301,10 @@ python cate_limit/relation_limit.py \
 
 ## Apply IE-LLM to Complete Missing Triples Due to KG Incompleteness
 
+### 1.Train an existing IE large model with a small amount of domain data (optional, we provide IE large models trained on domain data)
 
-### 1.Build Training Instruction Data
+**Build training instruction data**
+
 
 The `biaozhu_en.json` file contains fields `cate`, `text`, `entity`, `relation`, which need to be converted into `instruction`, `output` format suitable for direct model training.
 
@@ -316,15 +317,19 @@ python llm_cpl/build_instruction.py \
     --schema_path data/other/schema_en.json
 ```
 
+**Download the model that has been fine tuned with the universal domain information extraction instruction**
 
-### 2.Train Existing IE Large Model with Limited Domain Data
+Download models [baichuan-inc/Baichuan2-13B-Chat](https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat), [baichuan2-13b-iepile-lora](https://huggingface.co/zjunlp/baichuan2-13b-iepile-lora)
 
-Download models [baichuan-inc/Baichuan2-13B-Chat](https://huggingface.co/baichuan-inc/Baichuan2-13B-Chat), [baichuan2-13b-iepile-lora](https://huggingface.co/zjunlp/baichuan2-13b-iepile-lora), and refer to the official DeepKE tutorial [4.LoRA Fine-tuning](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#-4lora%E5%BE%AE%E8%B0%83) for secondary training of the model using the following command:
+
+**Secondary training on domain data**
+
+Refer to the official DeepKE tutorial [4.LoRA Fine-tuning](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#-4lora%E5%BE%AE%E8%B0%83) for secondary training of the model using the following command:
 
 ```bash
 output_dir='lora/baichuan2-instructie-v1'
 mkdir -p ${output_dir}
-CUDA_VISIBLE_DEVICES="0" python src/finetune.py \
+CUDA_VISIBLE_DEVICES="0" python llm_cpl/src/finetune.py \
     --do_train --do_eval \
     --overwrite_output_dir \
     --model_name_or_path 'baichuan-inc/Baichuan2-13B-Chat' \
@@ -356,12 +361,27 @@ CUDA_VISIBLE_DEVICES="0" python src/finetune.py \
     --bits 4 
 ```
 
+
+**Merge the base model and LoRA weights**
+
+```bash
+CUDA_VISIBLE_DEVICES=0 python src/export_model.py \
+    --model_name_or_path 'models/Baichuan2-13B-Chat' \
+    --checkpoint_dir 'lora/baichuan2-instructie-v1/checkpoint-xxx' \
+    --export_dir 'lora/baichuan2-instructie-v1/baichuan2-instructie-v1' \
+    --stage 'sft' \
+    --model_name 'baichuan' \
+    --template 'baichuan2' \
+    --output_dir 'lora_results/test'
+```
+
+
 Here is a pre-trained large-scale information extraction model [zjunlp/OneKE](https://huggingface.co/zjunlp/OneKE) available for use.
 
 
-### 3.Use Trained IE Large Model to Supplement Missing Triples
+### 2.Use Trained IE Large Model to Supplement Missing Triples
 
-Convert the text to be extracted into instruction data format:
+**Convert the text to be extracted into instruction data format**
 
 ```bash
 python llm_cpl/build_instruction.py \
@@ -373,35 +393,28 @@ python llm_cpl/build_instruction.py \
 ```
 
 
-Refer to the official DeepKE tutorial [6.1 LoRA Prediction](https://github.com/zjunlp/DeepKE/blob/main/example/llm/InstructKGC/README_CN.md#61lora%E9%A2%84%E6%B5%8B) for model prediction using the following command:
+**Call the model for prediction**
 
-First, merge the base model and LoRA weights, then predict domain texts to obtain extraction results.
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 python src/export_model.py \
-    --model_name_or_path 'models/Baichuan2-13B-Chat' \
-    --checkpoint_dir 'lora/baichuan2-instructie-v1/checkpoint-xxx' \
-    --export_dir 'lora/baichuan2-instructie-v1/baichuan2-instructie-v1' \
-    --stage 'sft' \
-    --model_name 'baichuan' \
-    --template 'baichuan2' \
-    --output_dir 'lora_results/test'
-
-
 CUDA_VISIBLE_DEVICES=0 python llm_cpl/inference.py \
     --model_name_or_path 'lora/baichuan2-instructie-v1/baichuan2-instructie-v1' \
     --input_file 'data/en/instruction/Person/result0.json' \
-    --output_file 'results/Person_result0.json' 
+    --output_file 'results/Person_result0.json' \
+    --max_length 512 \
+    --max_new_tokens 256
 ```
 
+You can use `--use_vllm` to accelerate the generation speed through `vllm`, but there are certain requirements for the device, CUDA, and environment.
 
-### 4.Merge KG Distant Supervision Data and LLM Completion Data
+
+### 3.Merge KG Distant Supervision Data and LLM Completion Data
 
 Convert the text results returned from IE-LLM extraction into a list structure:
 
 ```bash
 python llm_cpl/extract.py \
-    --path1 results/Peron_result0.json \
+    --path1 data/en/results/Peron_result0.json \
     --path2 data/en/llm_results/Person/result0.json
 ```
 
