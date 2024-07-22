@@ -2,6 +2,9 @@
 
 - [KG2Instruction](#kg2instruction)
   - [Dataset Download and Use](#dataset-download-and-use)
+    - [Dataset Download](#dataset-download)
+    - [Data Format Conversion](#data-format-conversion)
+    - [Evaluation](#evaluation)
   - [Prepare](#prepare)
     - [Configure environment](#configure-environment)
     - [Download Tools](#download-tools)
@@ -16,7 +19,7 @@
   - [Apply IE-LLM to Complete Missing Triples Due to KG Incompleteness](#apply-ie-llm-to-complete-missing-triples-due-to-kg-incompleteness)
     - [1.Train an existing IE large model with a small amount of domain data (optional, we provide IE large models trained on domain data)](#1train-an-existing-ie-large-model-with-a-small-amount-of-domain-data-optional-we-provide-ie-large-models-trained-on-domain-data)
     - [2.Use Trained IE Large Model to Supplement Missing Triples](#2use-trained-ie-large-model-to-supplement-missing-triples)
-    - [4.Merge KG Distant Supervision Data and LLM Completion Data](#4merge-kg-distant-supervision-data-and-llm-completion-data)
+    - [3.Merge KG Distant Supervision Data and LLM Completion Data](#3merge-kg-distant-supervision-data-and-llm-completion-data)
   - [NLI Model Filtering Unrealistic Triples](#nli-model-filtering-unrealistic-triples)
   - [Acknowledgments](#acknowledgments)
   - [Citation](#citation)
@@ -24,7 +27,49 @@
 
 ## Dataset Download and Use
 
+
+### Dataset Download
+
 You can download the InstructIE dataset from [Hugging Face](https://huggingface.co/datasets/zjunlp/InstructIE).
+
+The InstructIE dataset has files such as `train_zh.json`, `valid_zh.json`, `test_zh.json`, `schema_zh.json`, `train_en.json`, `valid_en.json`, `test_en.json`, and `schema_en.json`. Here, `_zh` indicates Chinese data and `_en` indicates English data. `train.json` is automatically produced by the KG2Instruction framework and may have some noise; `valid.json` and `test.json` are labeled through manual crowdsourcing.
+
+The `schema.json` file is a dictionary of schema information in various fields. The **`key`** is the field name, and the **`value`** is two lists. The first list is the relationship types with head and tail entity types, and the second list is pure relationship types. The following is an example of schema information in the "event" field.
+
+
+```json
+"Event": [
+    [
+        "event_participant_organization/human",
+        "event_scene_geographic region",
+        "event_occurrence time_time",
+        "event_alternative name_event",
+        "event_sponsor_organization/human",
+        "event_casualties_measure",
+        "event_has cause_text",
+        "event_has effect_text",
+        "event_organizer_organization",
+        "event_awards_profession",
+        "event_winner_organization/human"
+    ],
+    [
+        "participant",
+        "scene",
+        "occurrence time",
+        "alternative name",
+        "sponsor",
+        "casualties",
+        "has cause",
+        "has effect",
+        "organizer",
+        "awards",
+        "winner"
+    ]
+]
+```
+
+An example of a single piece of data in the dataset is shown as follows:
+
 
 ```json
 {
@@ -54,6 +99,14 @@ With the fields mentioned above, users can flexibly design and implement instruc
 
 Here is a simple data conversion script provided, which can convert the data in the above format into instruction data in the form of `instruction` and `output`.
 
+
+### Data Format Conversion
+
+
+Simple data conversion scripts are provided here. Through this script, the data in the above format can be converted into instruction data in the form of instruction and output.
+
+**Conversion of Training Data Format**
+
 ```bash
 python llm_cpl/build_instruction.py \
     --input_path data/example_en.json \
@@ -64,6 +117,11 @@ python llm_cpl/build_instruction.py \
     --split_num -1
 ```
 
+
+The splitting number can be set through `split_num`. For example, for domain data with 16 schemas, if split_num is set to 4, then one piece of data will be split into 4 pieces (16 // 4) of instruction data.
+
+`input_path` can be directly replaced with the `train_en.json` and `valid_en.json` files in InstructIE.
+
 Example of the converted data in the format of (`instruction`, `output`):
 
 ```json
@@ -71,6 +129,69 @@ Example of the converted data in the format of (`instruction`, `output`):
     "instruction": "{\"instruction\": \"You are an expert in relationship extraction. Please extract relationship triples that match the schema definition from the input. Return an empty list for relationships that do not exist. Please respond in the format of a JSON string.\", \"schema\": [\"alternative name\", \"of\", \"time of discovery\", \"discoverer or inventor\", \"named after\", \"absolute magnitude\", \"diameter\", \"mass\"], \"input\": \"NGC1313 is a galaxy in the constellation of Reticulum. It was discovered by the Australian astronomer James Dunlop on September 27, 1826. It has a prominent uneven shape, and its axis does not completely revolve around its center. Near NGC1313, there is another galaxy, NGC1309.\"}", 
     "output": "{\"alternative name\": [], \"of\": [{\"subject\": \"NGC1313\", \"object\": \"Reticulum\"}], \"time of discovery\": [{\"subject\": \"NGC1313\", \"object\": \"September 27, 1826\"}], \"discoverer or inventor\": [{\"subject\": \"NGC1313\", \"object\": \"James Dunlop\"}], \"named after\": [], \"absolute magnitude\": [], \"diameter\": [], \"mass\": []}"
 }
+```
+
+
+**Conversion of Test Data**
+
+
+```bash
+python llm_cpl/build_instruction.py \
+    --input_path data/test_en.json \
+    --output_path data/test_en_ins.json \
+    --mode test \
+    --language en \
+    --schema_path data/other/schema_en.json \
+    --split_num 4
+```
+
+
+> Note, `mode` needs to be converted to `test`
+
+The difference between the conversion of test data and training data lies in that the test data generates the label field (consistent with the content of the relation field), which is used for subsequent F1 evaluation.
+
+
+```json
+{
+  "id": "841ef2af4cfe766dd9295fb7daf321c299df0fd0cef14820dfcb421161eed4a1", 
+  "cate": "Astronomy",
+  "instruction": "{\"instruction\": \"You are an expert in relationship extraction. Please extract relationship triples that match the schema definition from the input. Return an empty list for relationships that do not exist. Please respond in the format of a JSON string.\", \"schema\": [\"alternative name\", \"of\", \"time of discovery\", \"discoverer or inventor\", \"named after\", \"absolute magnitude\", \"diameter\", \"mass\"], \"input\": \"NGC1313 is a galaxy in the constellation of Reticulum. It was discovered by the Australian astronomer James Dunlop on September 27, 1826. It has a prominent uneven shape, and its axis does not completely revolve around its center. Near NGC1313, there is another galaxy, NGC1309.\"}", 
+  "label": [
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "time of discovery", "tail": "September 27, 1826", "tail_type": "time"}, 
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "discoverer or inventor", "tail": "James Dunlop", "tail_type": "organization/human"}, 
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "of", "tail": "Reticulum", "tail_type": "astronomical object type"}
+  ]
+}
+```
+
+
+### Evaluation
+
+After the model makes inferences, the prediction results will be output in the `output` field.
+
+
+```json
+{
+  "id": "841ef2af4cfe766dd9295fb7daf321c299df0fd0cef14820dfcb421161eed4a1", 
+  "cate": "Astronomy",
+  "instruction": "{\"instruction\": \"You are an expert in relationship extraction. Please extract relationship triples that match the schema definition from the input. Return an empty list for relationships that do not exist. Please respond in the format of a JSON string.\", \"schema\": [\"alternative name\", \"of\", \"time of discovery\", \"discoverer or inventor\", \"named after\", \"absolute magnitude\", \"diameter\", \"mass\"], \"input\": \"NGC1313 is a galaxy in the constellation of Reticulum. It was discovered by the Australian astronomer James Dunlop on September 27, 1826. It has a prominent uneven shape, and its axis does not completely revolve around its center. Near NGC1313, there is another galaxy, NGC1309.\"}", 
+  "output": "{\"alternative name\": [], \"of\": [{\"subject\": \"NGC1313\", \"object\": \"Reticulum\"}], \"time of discovery\": [{\"subject\": \"NGC1313\", \"object\": \"September 27, 1826\"}], \"discoverer or inventor\": [{\"subject\": \"NGC1313\", \"object\": \"James Dunlop\"}], \"named after\": [], \"absolute magnitude\": [], \"diameter\": [], \"mass\": []}"
+  "label": [
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "time of discovery", "tail": "September 27, 1826", "tail_type": "time"}, 
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "discoverer or inventor", "tail": "James Dunlop", "tail_type": "organization/human"}, 
+    {"head": "NGC1313", "head_type": "astronomical object type", "relation": "of", "tail": "Reticulum", "tail_type": "astronomical object type"}
+  ]
+}
+```
+
+The output of the model and the true label can be evaluated through the following code:
+
+
+```bash
+python eval_func.py \
+    --path1 results/eval_output.json \
+    --task RE \
+    --sort_by cate
 ```
 
 

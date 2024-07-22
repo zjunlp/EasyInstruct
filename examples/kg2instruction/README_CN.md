@@ -2,6 +2,9 @@
 
 - [KG2Instruction](#kg2instruction)
   - [数据集下载与使用](#数据集下载与使用)
+    - [数据集下载](#数据集下载)
+    - [数据格式转换](#数据格式转换)
+    - [评估](#评估)
   - [准备](#准备)
     - [配置环境](#配置环境)
     - [下载工具](#下载工具)
@@ -24,7 +27,46 @@
 
 ## 数据集下载与使用
 
+### 数据集下载
+
 你可以从[Hugging Face](https://huggingface.co/datasets/zjunlp/InstructIE)下载InstructIE数据集。
+
+InstructIE数据集具有 `train_zh.json`、`valid_zh.json`、`test_zh.json`、`schema_zh.json`、`train_en.json`、`valid_en.json`、`test_en.json`、`schema_en.json` 文件, 其中`_zh` 表示中文数据, `_en` 表示英文数据。`train.json` 由 `KG2Instruction` 框架自动化生产, 可以存在一定噪声; `valid.json`、`test.json` 则是经由人工众包标注。
+
+`schema.json` 文件是各个领域下的schema信息字典, **`key`** 是 领域名称, **`value`** 是两个列表, 第一个列表是带有头尾实体类型的关系类型, 第二个列表是纯关系类型。下面是`事件`领域的schema信息例子。
+
+```json
+"事件": [
+    [
+        "事件_参与者_人物/组织",
+        "事件_发生地点_地理地区",
+        "事件_发生时间_时间",
+        "事件_别名_事件",
+        "事件_赞助者_人物/组织",
+        "事件_伤亡人数_度量",
+        "事件_起因_文本",
+        "事件_导致_文本",
+        "事件_主办方_组织",
+        "事件_所获奖项_专业",
+        "事件_获胜者_人物/组织"
+    ],
+    [
+        "参与者",
+        "发生地点",
+        "发生时间",
+        "别名",
+        "赞助者",
+        "伤亡人数",
+        "起因",
+        "导致",
+        "主办方",
+        "所获奖项",
+        "获胜者"
+    ]
+]
+```
+
+数据集中单条数据的示例如下所示:
 
 ```json
 {
@@ -50,11 +92,16 @@
 |   text   | 输入文本。|
 | relation | 标注数据，以(head, head_type, relation, tail, tail_type)的格式组成。|
 
-> 在训练集中我们还提供了 **`entity`** 字段可以执行实体命名识别任务，但我们没有在测试集中提供相应的实体标注数据。
+> ⚠️**注意**: 在训练集中我们还提供了 **`entity`** 字段可以执行实体命名识别任务，但我们没有在测试集中提供相应的实体标注数据。
 
 利用上述字段，用户可以灵活地设计和实施针对不同信息**抽取需求**的指令和**输出格式**。
 
+
+### 数据格式转换
+
 这里提供了简单的数据转换脚本, 通过该脚本可以将上面格式的数据转换成 `instruction`、`output` 形式的指令数据。
+
+**训练数据格式转换**
 
 ```bash
 python llm_cpl/build_instruction.py \
@@ -66,7 +113,12 @@ python llm_cpl/build_instruction.py \
     --split_num -1
 ```
 
-转换后数据的例子：
+可以通过 `split_num` 设置切分数量, 例如一个具有16个schema的领域数据, 若split_num设置为4, 则一条数据将切分成4条 (16 // 4) 指令数据。
+
+`input_path` 可以直接替换成 `InstructIE` 中的 `train_zh.json`、`valid_zh.json` 文件。
+
+
+转换后指令数据的例子：
 
 ```json
 {
@@ -74,6 +126,72 @@ python llm_cpl/build_instruction.py \
     "output": "{\"位于\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"内陆郡\"}, {\"subject\": \"内陆郡\", \"object\": \"挪威\"}], \"别名\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"Alvdal\"}], \"人口\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"2,424人\"}], \"行政中心\": [], \"面积\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"943平方公里\"}], \"长度\": [], \"宽度\": [], \"海拔\": []}"
 }
 ```
+
+**测试数据转换**
+
+
+```bash
+python llm_cpl/build_instruction.py \
+    --input_path data/test_zh.json \
+    --output_path data/test_zh_ins.json \
+    --mode test \
+    --language zh \
+    --schema_path data/other/schema_zh.json \
+    --split_num 4
+```
+
+> 注意, `mode` 需要转换为 `test`
+
+测试数据与训练数据的转换的差距在于测试数据生成 `label` 字段(与`relation`字段内容一致), 用于后续的F1评估。
+
+```json
+{
+    "id": "bac7c32c47fddd20966e4ece5111690c9ce3f4f798c7c9dfff7721f67d0c54a5",
+    "cate": "地理地区", 
+    "instruction": "{\"instruction\": \"你是专门进行关系抽取的专家。请从input中抽取出符合schema定义的关系三元组，不存在的关系返回空列表。请按照JSON字符串的格式回答。\", \"schema\": [\"位于\", \"别名\", \"人口\", \"行政中心\", \"面积\", \"长度\", \"宽度\", \"海拔\"], \"input\": \"阿尔夫达尔（挪威语：Alvdal）是挪威的一个市镇，位于内陆郡，行政中心为阿尔夫达尔村。市镇面积为943平方公里，人口数量为2,424人（2018年），人口密度为每平方公里2.6人。\"}",
+    "label": [
+        {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "面积", "tail": "943平方公里", "tail_type": "度量"}, 
+        {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "别名", "tail": "Alvdal", "tail_type": "地理地区"}, 
+        {"head": "内陆郡", "head_type": "地理地区", "relation": "位于", "tail": "挪威", "tail_type": "地理地区"}, 
+        {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "位于", "tail": "内陆郡", "tail_type": "地理地区"}, 
+        {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "人口", "tail": "2,424人", "tail_type": "度量"}
+    ]
+}
+```
+
+
+
+
+### 评估
+
+模型进行推理后将在 `output` 字段输出预测结果。
+
+```json
+{
+    "id": "bac7c32c47fddd20966e4ece5111690c9ce3f4f798c7c9dfff7721f67d0c54a5",
+    "cate": "地理地区", 
+    "instruction": "{\"instruction\": \"你是专门进行关系抽取的专家。请从input中抽取出符合schema定义的关系三元组，不存在的关系返回空列表。请按照JSON字符串的格式回答。\", \"schema\": [\"位于\", \"别名\", \"人口\", \"行政中心\", \"面积\", \"长度\", \"宽度\", \"海拔\"], \"input\": \"阿尔夫达尔（挪威语：Alvdal）是挪威的一个市镇，位于内陆郡，行政中心为阿尔夫达尔村。市镇面积为943平方公里，人口数量为2,424人（2018年），人口密度为每平方公里2.6人。\"}",
+    "label": [
+        {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "面积", "tail": "943平方公里", "tail_type": "度量"}, 
+        {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "别名", "tail": "Alvdal", "tail_type": "地理地区"}, 
+        {"head": "内陆郡", "head_type": "地理地区", "relation": "位于", "tail": "挪威", "tail_type": "地理地区"}, 
+        {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "位于", "tail": "内陆郡", "tail_type": "地理地区"}, 
+        {"head": "阿尔夫达尔", "head_type": "地理地区", "relation": "人口", "tail": "2,424人", "tail_type": "度量"}
+    ],
+    "output": "{\"位于\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"内陆郡\"}, {\"subject\": \"内陆郡\", \"object\": \"挪威\"}], \"别名\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"Alvdal\"}], \"人口\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"2,424人\"}], \"行政中心\": [], \"面积\": [{\"subject\": \"阿尔夫达尔\", \"object\": \"943平方公里\"}], \"长度\": [], \"宽度\": [], \"海拔\": []}"
+}
+```
+
+可以通过下面的代码对模型的输出 `output` 与真实标签 `label` 进行评估:
+
+```bash
+python eval_func.py \
+    --path1 results/eval_output.json \
+    --task RE \
+    --sort_by cate
+```
+
+
 
 ## 准备
 

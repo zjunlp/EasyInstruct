@@ -76,7 +76,6 @@ def main():
         for line in reader:
             data = json.loads(line)
             cate_data_dict[data['cate']].append(data)
-            
     
     for cate, datas in cate_data_dict.items():
         schema_list = schema_dict[cate]
@@ -95,6 +94,8 @@ def main():
                     else:
                         iid = cate+'_'+str(i)
                     new_data = {'id':iid, 'cate':cate, 'instruction': json.dumps(ins, ensure_ascii=False)}
+                    if  'relation' in data:
+                        new_data['label'] = data['relation']
                     writer.write(json.dumps(new_data, ensure_ascii=False)+'\n')
 
 
