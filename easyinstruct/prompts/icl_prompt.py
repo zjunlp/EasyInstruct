@@ -17,13 +17,12 @@ class ICLPrompt(BasePrompt):
         n_shots = min(len(in_context_examples), n_shots)
 
         context = ""
-        for idx, example in enumerate(in_context_examples[:n_shots]):
+        for example in in_context_examples[:n_shots]:
             if isinstance(example, str):
-                context += f"{idx+1}. {example}\n"
+                context += f"{example}\n"
             elif isinstance(example, dict):
-                context += f"{idx+1}."
                 for key, value in example.items():
-                    context += f" {key}: {value}"
+                    context += f"{key}: {value}"
                 context += "\n"
             else:
                 raise TypeError(
