@@ -15,11 +15,11 @@ RE_EN_OUTPUT = "Your output is only the relation type, no other words.\n\n"
 
 EE_EN_DOMAIN = "You are a highly intelligent and accurate {0} domain event extraction model. You take Passage as input and convert it into {0} domain events arguments.You can identify all events of target types mentioned in the sentence, and extract corresponding event arguments playing target roles.\n"
 EE_EN = "You are a highly intelligent and accurate event extraction model. You take Passage as input and convert it into events arguments. You can identify all events of target types mentioned in the sentence, and extract corresponding event arguments playing target roles.\n"
-EE_EN_OUTPUT = "Your output format is only [{event_type, arguments: [{role , argument}, ...]}, ...], nothing else.\n\n"
+EE_EN_OUTPUT = "Your output format is only [{event_type, arguments: [{role , argument}, ...]}, ...], no other form.\n\n"
 
 RTE_EN_DOMAIN = "You are a highly intelligent and accurate {0} domain Resource Description Framework (RDF) data model. You take Passage as input and convert it into {0} domain RDF triples. A triple is a set of three entities that codifies a statement about semantic data in the form of subject-predicate-object expressions.\n"
 RTE_EN = "You are a highly intelligent and accurate Resource Description Framework (RDF) data model. You take Passage as input and convert it into RDF triples. A triple is a set of three entities that codifies a statement about semantic data in the form of subject-predicate-object expressions.\n"
-RTE_EN_OUTPUT = "Your output format is only [[ subject, predicate, object ], ...], nothing else.\n\n"
+RTE_EN_OUTPUT = "Your output format is only [[ subject, predicate, object ], ...], no other form.\n\n"
 
 DA_EN_LABELS = "One sample in relation extraction datasets consists of a relation, a context, a pair of head and tail entities in the context and their entity types. The head entity has the relation with the tail entity and entities are pre-categorized as the following types: \n{0}\n"
 
@@ -28,7 +28,7 @@ NER_CH_DOMAIN_LABELS = "您是一个高度智能和精确的{0}域命名实体�
 NER_CH_DOMAIN = "您是一个高度智能和精确的{0}域命名实体识别（NER）系统。您将文本作为输入，您的任务是识别和提取给定文章中特定类型的{0}域命名实体，并将其分类为一组实体类型。\n"
 NER_CH_LABELS = "您是一个高度智能和精确的命名实体识别（NER）系统。您将文本作为输入，您的任务是识别和提取给定段落中的特定类型的命名实体，并将其分类为一组预定义的实体类型：\n{0}\n"
 NER_CH = "您是一个高度智能和精确的命名实体识别（NER）系统。您将文本作为输入，您的任务是识别和提取给定文章中特定类型的命名实体，并将其分类为一组实体类型。\n"
-NER_CH_OUTPUT = "您输出的格式需要为[{'E': 预先定义的实体类型, 'W': 输入文本中的实体},...]，没有其他格式要求。\n\n"
+NER_CH_OUTPUT = "您输出的格式需要为：[{'E': 预先定义的实体类型, 'W': 输入文本中的实体},...]，没有其他格式要求。\n\n"
 
 RE_CH_DOMAIN_LABELS = "您是一个高度智能和精确的{0}域关系抽取（RE）系统。给定上下文以及上下文中包含的一对头实体和尾实体，您的任务是提取给定头实体和尾实体间特定类型的{0}域关系，候选的关系类型如下：\n{1}\n"
 RE_CH_DOMAIN = (
@@ -41,12 +41,12 @@ RE_CH_OUTPUT = "您只需要输出关系的类型即可，不需要其他的文�
 EE_CH_DOMAIN = "您是一个高度智能和精确的{0}域事件提取模型。您将文本作为输入并将其转换为{0}域事件参数。您可以识别句子中提到的所有目标类型的事件，并提取扮演目标角色的相应事件参数。\n"
 EE_CH = "您是一个高度智能和精确的事件提取模型。您将文本作为输入并将其转换为事件参数。您可以识别句子中提到的所有目标类型的事件，并提取扮演目标角色的相应事件参数。\n"
 EE_CH_OUTPUT = (
-    "您的输出格式为 [{event_type, arguments: [{role , argument}, ...]}, ...]，没有其他要求。"
+    "您的输出全部为中文，且格式为：[{事件类型, 参数: [{角色, 参数内容}, ...]}, ...]，没有其他格式要求。\n\n"
 )
 
 RTE_CH_DOMAIN = "您是一个高度智能和精确的{0}域资源描述框架（RDF）数据模型。您将文本作为输入，并将其转换为{0}域RDF三元组。三元组是由三个实体组成的集合，以主语-谓语-宾语表达式的形式对语义数据进行编码。\n"
 RTE_CH = "您是一个高度智能和精确的资源描述框架（RDF）数据模型。您将文本作为输入，并将其转换为RDF三元组。三元组是由三个实体组成的集合，以主语-谓语-宾语表达式的形式对语义数据进行编码。\n"
-RTE_CH_OUTPUT = "您输出的格式需要为[[ 主语, 谓语, 宾语 ], ...]，没有其他格式要求。\n\n"
+RTE_CH_OUTPUT = "您输出的格式需要为：[[ 主语, 谓语, 宾语 ], ...]，没有其他格式要求。\n\n"
 
 DA_CH_LABELS = (
     "关系提取数据集中的一个样本由关系、文本、文本中的一对头实体和尾实体及它们的实体类型组成。头实体与尾实体间存在关系，头尾实体被预先分类为以下类型：\n{0}\n"
@@ -232,7 +232,7 @@ class IEPrompt(ICLPrompt):
             for example in examples:
                 if self.task in ["ee", "rte"]:
                     self.examples.append(
-                        {"Input": example["input"], "Output": str(example["output"])}
+                        {"Input": example["input"], "\nOutput": str(example["output"])}
                     )
                 elif self.task == "ner":
                     self.examples.append({"Output": str(example["output"])})
@@ -263,7 +263,7 @@ class IEPrompt(ICLPrompt):
             for example in examples:
                 if self.task in ["ee", "rte"]:
                     self.examples.append(
-                        {"输入": example["input"], "输出": str(example["output"])}
+                        {"输入": example["input"], "\n输出": str(example["output"])}
                     )
                 elif self.task == "ner":
                     self.examples.append({"输出": str(example["output"])})
