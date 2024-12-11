@@ -30,7 +30,7 @@ wget -O data/other/biaozhu_en.json https://huggingface.co/datasets/ghh001/Instru
 mkdir -p model
 wget -O model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base.zip https://file.hankcs.com/hanlp/mtl/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base_20220608_003435.zip
 unzip model/ud_ontonotes_tok_pos_lem_fea_ner_srl_dep_sdp_con_xlm_base.zip -d model
-wget -O model/text_classification_en.zip https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/text_classification_en.zip?download=true
+wget -O model/text_classification_en.zip https://huggingface.co/datasets/ghh001/InstructIE_tool/resolve/main/text_classification_en.zip
 unzip model/text_classification_en.zip -d model
 
 pip install -U huggingface_hub
