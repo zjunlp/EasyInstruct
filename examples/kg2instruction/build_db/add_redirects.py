@@ -12,7 +12,7 @@ from kglm.util import LOG_FORMAT, format_wikilink
 logger = logging.getLogger(__name__)
 
 
-xmlns = '{http://www.mediawiki.org/xml/export-0.10/}'
+xmlns = '{http://www.mediawiki.org/xml/export-0.11/}'
 
 
 def extract_redirect(elem: ElementTree.Element) -> str:
